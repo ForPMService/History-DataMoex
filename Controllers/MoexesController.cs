@@ -13,13 +13,15 @@ namespace History_DataMoex.Controllers
     public class MoexesController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly MoexOptions _moexOptions;
-        private readonly MoexHttpClient _moexHttpClient;
+        private readonly MoexAlgOptions _moexOptions;
+        private readonly MoexHttpIssClient _moexHttpIssClient;
+        private readonly MoexHttpAlgClient _moexHttpAlgClient;
 
-        public MoexesController(IConfiguration configuration, MoexHttpClient moexHttpClient, IOptions<MoexOptions> moexOptions)
+        public MoexesController(IConfiguration configuration, MoexHttpIssClient moexHttpIssClient, MoexHttpAlgClient moexHttpAlgClient, IOptions<MoexAlgOptions> moexOptions)
         {
             _configuration = configuration;
-            _moexHttpClient = moexHttpClient;
+            _moexHttpIssClient = moexHttpIssClient;
+            _moexHttpAlgClient = moexHttpAlgClient;
             _moexOptions = moexOptions.Value;
         }
 
@@ -27,9 +29,9 @@ namespace History_DataMoex.Controllers
         public async Task<IActionResult> GetSecuritiesChanges()
         {
             string url = "/calendars/stock/securities/changes.json";
-            var response = await _moexHttpClient.GetRaws(url);
+            var response = await _moexHttpIssClient.GetRaws(url);
             System.IO.File.WriteAllText("stock,securities,changes.json", response);
-            MoexTableParsing parsing = new MoexTableParsing();
+            CompanyCardParsing parsing = new CompanyCardParsing();
             parsing.CreateTable(response);
             Console.WriteLine();
             return Content(response,"application/json");
@@ -42,7 +44,7 @@ namespace History_DataMoex.Controllers
         public async Task<IActionResult> GetSecurities()
         {
             string url = "/calendars/stock/securities/boards.json";
-            var response = await _moexHttpClient.GetRaws(url);
+            var response = await _moexHttpIssClient.GetRaws(url);
             System.IO.File.WriteAllText("stock,securities,boards.json", response);
             /*MoexTableParsing parsing = new MoexTableParsing();
             parsing.CreateTable(response);*/

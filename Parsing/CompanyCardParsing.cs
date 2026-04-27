@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace History_DataMoex.Parsing
 {
-    public class MoexTableParsing
+    public class CompanyCardParsing
     {
-        public MoexTableParsing() 
+        public CompanyCardParsing() 
         {
 
         }

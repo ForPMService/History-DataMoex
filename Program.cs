@@ -6,9 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddHttpClient<MoexHttpClient>();
-builder.Services.Configure<MoexOptions>(
-    builder.Configuration.GetSection("Moex"));
+builder.Services.AddHttpClient<MoexHttpIssClient>();
+builder.Services.AddHttpClient<MoexHttpAlgClient>();
+builder.Services.Configure<MoexIssOptions>(
+    builder.Configuration.GetSection("MoexIss"));
+builder.Services.Configure<MoexAlgOptions>(
+    builder.Configuration.GetSection("MoexAlg"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
