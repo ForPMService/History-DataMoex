@@ -3,12 +3,12 @@ using Microsoft.Extensions.Options;
 
 namespace History_DataMoex.Clients
 {
-    public class MoexHttpClient
+    public class MoexHttpAlgClient
     {
-        private readonly MoexOptions _options;
+        private readonly MoexAlgOptions _options;
         private readonly HttpClient _httpClient;
 
-        public MoexHttpClient(IOptions<MoexOptions> options, HttpClient httpClient)
+        public MoexHttpAlgClient(IOptions<MoexAlgOptions> options, HttpClient httpClient)
         {
             _options = options.Value;
             _httpClient = httpClient;
