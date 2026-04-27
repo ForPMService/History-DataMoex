@@ -14,6 +14,16 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
+        public async Task<string> GetMarketStockRaws(string url)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadAsStringAsync();
+        }
+
         public async Task<string> GetRaws(string method, List<string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;

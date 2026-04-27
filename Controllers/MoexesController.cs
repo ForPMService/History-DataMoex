@@ -25,6 +25,14 @@ namespace History_DataMoex.Controllers
             _moexOptions = moexOptions.Value;
         }
 
+        [HttpGet("GetStockMarkets")]
+        public async Task<IActionResult> GetStockMarkets()
+        {
+            string url = "https://iss.moex.com/iss/engines/stock/markets/shares/boards/tqbr/securities.json";
+            var response = await _moexHttpIssClient.GetRaws(url);
+            return Content(response, "application/json");
+        }
+
         [HttpGet("GetSecuritiesChanges")]
         public async Task<IActionResult> GetSecuritiesChanges()
         {
