@@ -1,0 +1,22 @@
+[
+  {
+    "ContainingType": "History_DataMoex.Controllers.MoexesController",
+    "Method": "GetSecurities",
+    "RelativePath": "api/Moexes/GetSecuritiesBoards",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "History_DataMoex.Controllers.MoexesController",
+    "Method": "GetSecuritiesChanges",
+    "RelativePath": "api/Moexes/GetSecuritiesChanges",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

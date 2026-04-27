@@ -1,0 +1,51 @@
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\appsettings.Development.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\appsettings.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.staticwebassets.endpoints.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.exe
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.deps.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.runtimeconfig.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\History DataMoex.pdb
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Microsoft.OpenApi.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.csproj.AssemblyReference.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.AssemblyInfoInputs.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.AssemblyInfo.cs
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.csproj.CoreCompileInputs.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\rjimswa.dswa.cache.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\scopedcss\bundle\History DataMoex.styles.css
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.build.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.build.json.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.development.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.build.endpoints.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\swae.build.ex.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History .67F909CD.Up2Date
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\refint\History DataMoex.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.pdb
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.genruntimeconfig.cache
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\ref\History DataMoex.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities,boards.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities,changes.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ClosedXML.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ClosedXML.Parser.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Features.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Linq.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ExcelNumberFormat.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\RBush.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\SixLabors.Fonts.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\System.IO.Packaging.dll
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.sourcelink.json
