@@ -14,11 +14,7 @@ builder.Services.Configure<MoexAlgOptions>(
     builder.Configuration.GetSection("MoexAlg"));
 
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddHttpClient();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
@@ -26,20 +22,7 @@ app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
     string response = await moexHttpIssClient.GetMarketStockRaws(url);
     return Results.Content(response, "application/json");
 });
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-//app.UseAuthorization();
-
-
 
 app.Run();
