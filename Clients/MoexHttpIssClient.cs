@@ -30,7 +30,18 @@ namespace History_DataMoex.Clients
              
         }
 
-        
+        public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(string method)
+        {
+            string baseUrl = _options.BaseUrl;
+            string requestUrl = baseUrl + method;
+
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            return ParsingISS.ParseIssSecurityFutures(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
+
+        }
 
     }
 }

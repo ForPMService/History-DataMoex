@@ -22,6 +22,11 @@ app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
     List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
     return Results.Json(response, AppJsonContext.Default.ListStockSecurityDTO);
 });
+app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
+    string url = "/engines/futures/markets/forts/boards/RFUD/securities.json";
+    List<FuturesSecurityDTO> response = await moexHttpIssClient.GetInfoTradedFuturesAssets(url);
+    return Results.Json(response, AppJsonContext.Default.ListFuturesSecurityDTO);
+});
 
 app.UseHttpsRedirection();
 

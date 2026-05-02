@@ -16,6 +16,18 @@
           }
         }
       }
+    },
+    "/GetFuturesMarkets": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "tags": [
