@@ -53,26 +53,6 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
-            "ClosedXML": {
-              "target": "Package",
-              "version": "[0.105.0, )"
-            },
-            "DocumentFormat.OpenXml": {
-              "target": "Package",
-              "version": "[3.5.1, )"
-            },
-            "DocumentFormat.OpenXml.Features": {
-              "target": "Package",
-              "version": "[3.5.1, )"
-            },
-            "DocumentFormat.OpenXml.Framework": {
-              "target": "Package",
-              "version": "[3.5.1, )"
-            },
-            "DocumentFormat.OpenXml.Linq": {
-              "target": "Package",
-              "version": "[3.5.1, )"
-            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.7, )"
@@ -82,22 +62,6 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[10.0.7, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[10.1.7, )"
-            },
-            "Swashbuckle.AspNetCore.Swagger": {
-              "target": "Package",
-              "version": "[10.1.7, )"
-            },
-            "Swashbuckle.AspNetCore.SwaggerGen": {
-              "target": "Package",
-              "version": "[10.1.7, )"
-            },
-            "Swashbuckle.AspNetCore.SwaggerUI": {
-              "target": "Package",
-              "version": "[10.1.7, )"
             }
           },
           "imports": [

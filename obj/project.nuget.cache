@@ -1,26 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "ZqsoZZD6GMs=",
+  "dgSpecHash": "ZTmZVPwIWLg=",
   "success": true,
   "projectFilePath": "C:\\Users\\89263\\Desktop\\Project\\History DataMoex\\History DataMoex\\History DataMoex.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\89263\\.nuget\\packages\\closedxml\\0.105.0\\closedxml.0.105.0.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\closedxml.parser\\2.0.0\\closedxml.parser.2.0.0.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\documentformat.openxml\\3.5.1\\documentformat.openxml.3.5.1.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\documentformat.openxml.features\\3.5.1\\documentformat.openxml.features.3.5.1.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\documentformat.openxml.framework\\3.5.1\\documentformat.openxml.framework.3.5.1.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\documentformat.openxml.linq\\3.5.1\\documentformat.openxml.linq.3.5.1.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\excelnumberformat\\1.1.0\\excelnumberformat.1.1.0.nupkg.sha512",
     "C:\\Users\\89263\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.7\\microsoft.aspnetcore.openapi.10.0.7.nupkg.sha512",
     "C:\\Users\\89263\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.7\\microsoft.extensions.apidescription.server.10.0.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\microsoft.openapi\\2.4.1\\microsoft.openapi.2.4.1.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\rbush.signed\\4.0.0\\rbush.signed.4.0.0.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\sixlabors.fonts\\1.0.0\\sixlabors.fonts.1.0.0.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\swashbuckle.aspnetcore\\10.1.7\\swashbuckle.aspnetcore.10.1.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.1.7\\swashbuckle.aspnetcore.swagger.10.1.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.1.7\\swashbuckle.aspnetcore.swaggergen.10.1.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.1.7\\swashbuckle.aspnetcore.swaggerui.10.1.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\system.io.packaging\\10.0.2\\system.io.packaging.10.0.2.nupkg.sha512"
+    "C:\\Users\\89263\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
   ],
   "logs": []
 }
