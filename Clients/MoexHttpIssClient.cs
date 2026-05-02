@@ -17,10 +17,10 @@ namespace History_DataMoex.Clients
 
         public async Task<string> GetInfoTradedStockAssets(string method)
         {
-            string BaseUrl = _options.BaseUrl;
-            string requestUrl = BaseUrl + method;
+            string baseUrl = _options.BaseUrl;
+            string requestUrl = baseUrl + method;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, method);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();

@@ -24,4 +24,9 @@ app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
 
 app.UseHttpsRedirection();
 
+if(app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
 app.Run();
