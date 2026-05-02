@@ -1,22 +1,18 @@
 [
   {
-    "ContainingType": "History_DataMoex.Controllers.MoexesController",
-    "Method": "GetSecurities",
-    "RelativePath": "api/Moexes/GetSecuritiesBoards",
+    "ContainingType": "Program\u002B\u003C\u003Ec",
+    "Method": "\u003C\u003CMain\u003E$\u003Eb__0_0",
+    "RelativePath": "GetStockMarkets",
     "HttpMethod": "GET",
-    "IsController": true,
+    "IsController": false,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "History_DataMoex.Controllers.MoexesController",
-    "Method": "GetSecuritiesChanges",
-    "RelativePath": "api/Moexes/GetSecuritiesChanges",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

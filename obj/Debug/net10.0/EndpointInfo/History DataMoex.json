@@ -5,22 +5,10 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Moexes/GetSecuritiesChanges": {
+    "/GetStockMarkets": {
       "get": {
         "tags": [
-          "Moexes"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Moexes/GetSecuritiesBoards": {
-      "get": {
-        "tags": [
-          "Moexes"
+          "History DataMoex"
         ],
         "responses": {
           "200": {
@@ -33,7 +21,7 @@
   "components": { },
   "tags": [
     {
-      "name": "Moexes"
+      "name": "History DataMoex"
     }
   ]
 }

@@ -1,4 +1,6 @@
 ﻿using History_DataMoex.Options;
+using History_DataMoex.Parsing;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace History_DataMoex.Clients
@@ -24,20 +26,7 @@ namespace History_DataMoex.Clients
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GetRaws(string method, List<string>? queryParams = null)
-        {
-            string baseUrl = _options.BaseUrl;
-            string requestUrl = baseUrl + method;
-
-
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            
-
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadAsStringAsync();
-
-        }
+        
+        
     }
 }
