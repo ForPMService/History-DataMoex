@@ -1,5 +1,7 @@
 ﻿using History_DataMoex.Options;
+using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 
 namespace History_DataMoex.Clients
@@ -24,7 +26,7 @@ namespace History_DataMoex.Clients
             
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            
+            List<StockSecurityDTO> stockSecurities = ParsingISS.ParseIssSecurityStock(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
             return await response.Content.ReadAsStringAsync();
         }
 

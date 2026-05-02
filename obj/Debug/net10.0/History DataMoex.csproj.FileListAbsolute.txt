@@ -32,20 +32,4 @@ C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.pdb
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.genruntimeconfig.cache
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\ref\History DataMoex.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities.json
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities,boards.json
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\stock,securities,changes.json
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ClosedXML.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ClosedXML.Parser.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Features.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\DocumentFormat.OpenXml.Linq.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\ExcelNumberFormat.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\RBush.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\SixLabors.Fonts.dll
-C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\bin\Debug\net10.0\System.IO.Packaging.dll
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.sourcelink.json

@@ -4,11 +4,6 @@
     "title": "History DataMoex | v1",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://localhost:5025"
-    }
-  ],
   "paths": {
     "/GetStockMarkets": {
       "get": {

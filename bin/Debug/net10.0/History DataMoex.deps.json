@@ -8,98 +8,15 @@
     ".NETCoreApp,Version=v10.0": {
       "History DataMoex/1.0.0": {
         "dependencies": {
-          "ClosedXML": "0.105.0",
-          "DocumentFormat.OpenXml": "3.5.1",
-          "DocumentFormat.OpenXml.Features": "3.5.1",
-          "DocumentFormat.OpenXml.Framework": "3.5.1",
-          "DocumentFormat.OpenXml.Linq": "3.5.1",
-          "Microsoft.AspNetCore.OpenApi": "10.0.7",
-          "Swashbuckle.AspNetCore.Swagger": "10.1.7",
-          "Swashbuckle.AspNetCore.SwaggerGen": "10.1.7",
-          "Swashbuckle.AspNetCore.SwaggerUI": "10.1.7"
+          "Microsoft.AspNetCore.OpenApi": "10.0.7"
         },
         "runtime": {
           "History DataMoex.dll": {}
         }
       },
-      "ClosedXML/0.105.0": {
-        "dependencies": {
-          "ClosedXML.Parser": "2.0.0",
-          "DocumentFormat.OpenXml": "3.5.1",
-          "ExcelNumberFormat": "1.1.0",
-          "RBush.Signed": "4.0.0",
-          "SixLabors.Fonts": "1.0.0"
-        },
-        "runtime": {
-          "lib/netstandard2.1/ClosedXML.dll": {
-            "assemblyVersion": "0.105.0.0",
-            "fileVersion": "0.105.0.0"
-          }
-        }
-      },
-      "ClosedXML.Parser/2.0.0": {
-        "runtime": {
-          "lib/netstandard2.1/ClosedXML.Parser.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
-      },
-      "DocumentFormat.OpenXml/3.5.1": {
-        "dependencies": {
-          "DocumentFormat.OpenXml.Framework": "3.5.1"
-        },
-        "runtime": {
-          "lib/net10.0/DocumentFormat.OpenXml.dll": {
-            "assemblyVersion": "3.5.1.0",
-            "fileVersion": "3.5.1.0"
-          }
-        }
-      },
-      "DocumentFormat.OpenXml.Features/3.5.1": {
-        "dependencies": {
-          "DocumentFormat.OpenXml": "3.5.1"
-        },
-        "runtime": {
-          "lib/net10.0/DocumentFormat.OpenXml.Features.dll": {
-            "assemblyVersion": "3.5.1.0",
-            "fileVersion": "3.5.1.0"
-          }
-        }
-      },
-      "DocumentFormat.OpenXml.Framework/3.5.1": {
-        "dependencies": {
-          "System.IO.Packaging": "10.0.2"
-        },
-        "runtime": {
-          "lib/net10.0/DocumentFormat.OpenXml.Framework.dll": {
-            "assemblyVersion": "3.5.1.0",
-            "fileVersion": "3.5.1.0"
-          }
-        }
-      },
-      "DocumentFormat.OpenXml.Linq/3.5.1": {
-        "dependencies": {
-          "DocumentFormat.OpenXml.Framework": "3.5.1"
-        },
-        "runtime": {
-          "lib/net10.0/DocumentFormat.OpenXml.Linq.dll": {
-            "assemblyVersion": "3.5.1.0",
-            "fileVersion": "3.5.1.0"
-          }
-        }
-      },
-      "ExcelNumberFormat/1.1.0": {
-        "runtime": {
-          "lib/netstandard2.0/ExcelNumberFormat.dll": {
-            "assemblyVersion": "1.1.0.0",
-            "fileVersion": "1.1.0.0"
-          }
-        }
-      },
       "Microsoft.AspNetCore.OpenApi/10.0.7": {
         "dependencies": {
-          "Microsoft.OpenApi": "2.4.1"
+          "Microsoft.OpenApi": "2.0.0"
         },
         "runtime": {
           "lib/net10.0/Microsoft.AspNetCore.OpenApi.dll": {
@@ -108,65 +25,11 @@
           }
         }
       },
-      "Microsoft.OpenApi/2.4.1": {
+      "Microsoft.OpenApi/2.0.0": {
         "runtime": {
           "lib/net8.0/Microsoft.OpenApi.dll": {
-            "assemblyVersion": "2.4.1.0",
-            "fileVersion": "2.4.1.0"
-          }
-        }
-      },
-      "RBush.Signed/4.0.0": {
-        "runtime": {
-          "lib/net8.0/RBush.dll": {
-            "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.0.0.0"
-          }
-        }
-      },
-      "SixLabors.Fonts/1.0.0": {
-        "runtime": {
-          "lib/netcoreapp3.1/SixLabors.Fonts.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
-      },
-      "Swashbuckle.AspNetCore.Swagger/10.1.7": {
-        "dependencies": {
-          "Microsoft.OpenApi": "2.4.1"
-        },
-        "runtime": {
-          "lib/net10.0/Swashbuckle.AspNetCore.Swagger.dll": {
-            "assemblyVersion": "10.1.7.0",
-            "fileVersion": "10.1.7.2427"
-          }
-        }
-      },
-      "Swashbuckle.AspNetCore.SwaggerGen/10.1.7": {
-        "dependencies": {
-          "Swashbuckle.AspNetCore.Swagger": "10.1.7"
-        },
-        "runtime": {
-          "lib/net10.0/Swashbuckle.AspNetCore.SwaggerGen.dll": {
-            "assemblyVersion": "10.1.7.0",
-            "fileVersion": "10.1.7.2427"
-          }
-        }
-      },
-      "Swashbuckle.AspNetCore.SwaggerUI/10.1.7": {
-        "runtime": {
-          "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll": {
-            "assemblyVersion": "10.1.7.0",
-            "fileVersion": "10.1.7.2427"
-          }
-        }
-      },
-      "System.IO.Packaging/10.0.2": {
-        "runtime": {
-          "lib/net10.0/System.IO.Packaging.dll": {
-            "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.225.61305"
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
           }
         }
       }
@@ -178,55 +41,6 @@
       "serviceable": false,
       "sha512": ""
     },
-    "ClosedXML/0.105.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-U0hAdnYyPvF7TqHMFloxrS7pmozab79tFFF4c/bgPtqeelUs7ILpUd3r3c7C0a/DXsUZb3k1n4Pf7Q2LMyMQOg==",
-      "path": "closedxml/0.105.0",
-      "hashPath": "closedxml.0.105.0.nupkg.sha512"
-    },
-    "ClosedXML.Parser/2.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-ngTqjYreDYNytG1W5d3ewHsw0ukmmrgV7EKnS4/40rXoYZGt07jrBvo+N+GxT49rcageUMUiprV0jYT4nwVBHQ==",
-      "path": "closedxml.parser/2.0.0",
-      "hashPath": "closedxml.parser.2.0.0.nupkg.sha512"
-    },
-    "DocumentFormat.OpenXml/3.5.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-zxdOf5VVCe/uNklbRhj8dVBzQGj3DoqkUuqOp9cAZVuN8mNYDjof1lvSQA2OQNr8Ptc9d7pbA7Azq/ReaI3FpA==",
-      "path": "documentformat.openxml/3.5.1",
-      "hashPath": "documentformat.openxml.3.5.1.nupkg.sha512"
-    },
-    "DocumentFormat.OpenXml.Features/3.5.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-nixLutj0F3Im8Dd3pYCMRktoXZ6G1m5riKOtSRQf8+7j5Dtr+xDbaHF/exzqAG7nOck1YCGd9gJpDxtXYiOlXQ==",
-      "path": "documentformat.openxml.features/3.5.1",
-      "hashPath": "documentformat.openxml.features.3.5.1.nupkg.sha512"
-    },
-    "DocumentFormat.OpenXml.Framework/3.5.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-U5txtc3ORno73xQx9Lf2gWzfaSZnZwKHfLkTAslhlew9lxe5XbUiCt0dY1fHeAf8yRqszUAe5i/+xLC9R/Xfsw==",
-      "path": "documentformat.openxml.framework/3.5.1",
-      "hashPath": "documentformat.openxml.framework.3.5.1.nupkg.sha512"
-    },
-    "DocumentFormat.OpenXml.Linq/3.5.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-78AQU4X1dRp9PSq3S73EwH2apirjC71hb2ohtQpSOnSEUHrB1/n6/vClr5MmRH9isXe0Ux5ALs5s7/+wMQOQMA==",
-      "path": "documentformat.openxml.linq/3.5.1",
-      "hashPath": "documentformat.openxml.linq.3.5.1.nupkg.sha512"
-    },
-    "ExcelNumberFormat/1.1.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-R3BVHPs9O+RkExbZYTGT0+9HLbi8ZrNij1Yziyw6znd3J7P3uoIR07uwTLGOogtz1p6+0sna66eBoXu7tBiVQA==",
-      "path": "excelnumberformat/1.1.0",
-      "hashPath": "excelnumberformat.1.1.0.nupkg.sha512"
-    },
     "Microsoft.AspNetCore.OpenApi/10.0.7": {
       "type": "package",
       "serviceable": true,
@@ -234,54 +48,12 @@
       "path": "microsoft.aspnetcore.openapi/10.0.7",
       "hashPath": "microsoft.aspnetcore.openapi.10.0.7.nupkg.sha512"
     },
-    "Microsoft.OpenApi/2.4.1": {
+    "Microsoft.OpenApi/2.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-u7QhXCISMQuab3flasb1hoaiERmUqyWsW7tmQODyILoQ7mJV5IRGM+2KKZYo0QUfC13evEOcHAb6TPWgqEQtrw==",
-      "path": "microsoft.openapi/2.4.1",
-      "hashPath": "microsoft.openapi.2.4.1.nupkg.sha512"
-    },
-    "RBush.Signed/4.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-aP5KQxL5RnFNGW1f0euYVBfCatkLw5iEzMRJcXKq8LWWP4Cp3+qoSq1tDDL2vvJ2rM0ychmVMa2VaEKLS6uX4w==",
-      "path": "rbush.signed/4.0.0",
-      "hashPath": "rbush.signed.4.0.0.nupkg.sha512"
-    },
-    "SixLabors.Fonts/1.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-LFQsCZlV0xlUyXAOMUo5kkSl+8zAQXXbbdwWchtk0B4o7zotZhQsQOcJUELGHdfPfm/xDAsz6hONAuV25bJaAg==",
-      "path": "sixlabors.fonts/1.0.0",
-      "hashPath": "sixlabors.fonts.1.0.0.nupkg.sha512"
-    },
-    "Swashbuckle.AspNetCore.Swagger/10.1.7": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-EjLibt/d/QuRv170GoihTbcPUpgzSFm2WKHhnGJFZQ03JYzfuitsM79azaAR8NBwRunU7yScSX6HRE5JUlrEMQ==",
-      "path": "swashbuckle.aspnetcore.swagger/10.1.7",
-      "hashPath": "swashbuckle.aspnetcore.swagger.10.1.7.nupkg.sha512"
-    },
-    "Swashbuckle.AspNetCore.SwaggerGen/10.1.7": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-PuubO9BjvNn6U3D9kLpuWKY1JtziWw7SsGBq0age1E50uQjQ8Fzl8s0EwzrLfANqYJNgDnJi9l7N1QxcGVB2Zw==",
-      "path": "swashbuckle.aspnetcore.swaggergen/10.1.7",
-      "hashPath": "swashbuckle.aspnetcore.swaggergen.10.1.7.nupkg.sha512"
-    },
-    "Swashbuckle.AspNetCore.SwaggerUI/10.1.7": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-iJo3ODyUb/M8Vm8AH1r9y9iAba0w95xsCn3zFVl96ISRHbTDWxi+l7oFVCZqUEdjd97B8VMDPnMliWAdomR8uw==",
-      "path": "swashbuckle.aspnetcore.swaggerui/10.1.7",
-      "hashPath": "swashbuckle.aspnetcore.swaggerui.10.1.7.nupkg.sha512"
-    },
-    "System.IO.Packaging/10.0.2": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-JTpM4z0wpoIHHDvlCU27HsXo+zVnpWib94HXQpzzr+jc/P9NYf4w353AK4MXyGq/grm1mbLi7eXsOsDU8sGmNg==",
-      "path": "system.io.packaging/10.0.2",
-      "hashPath": "system.io.packaging.10.0.2.nupkg.sha512"
+      "sha512": "sha512-GGYLfzV/G/ct80OZ45JxnWP7NvMX1BCugn/lX7TH5o0lcVaviavsLMTxmFV2AybXWjbi3h6FF1vgZiTK6PXndw==",
+      "path": "microsoft.openapi/2.0.0",
+      "hashPath": "microsoft.openapi.2.0.0.nupkg.sha512"
     }
   }
 }
