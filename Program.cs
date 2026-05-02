@@ -1,5 +1,6 @@
 using History_DataMoex.Options;
 using History_DataMoex.Clients;
+using History_DataMoex.Parsing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +19,8 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
     string url = "/engines/stock/markets/shares/boards/tqbr/securities.json";
-    string response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
-    return Results.Content(response, "application/json");
+    List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
+    return Results.Json(response, AppJsonContext.Default.StockSecurityDTO);
 });
 
 app.UseHttpsRedirection();

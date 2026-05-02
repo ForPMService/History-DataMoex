@@ -17,7 +17,7 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
-        public async Task<string> GetInfoTradedStockAssets(string method)
+        public async Task<List<StockSecurityDTO>> GetInfoTradedStockAssets(string method)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
@@ -26,8 +26,8 @@ namespace History_DataMoex.Clients
             
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            List<StockSecurityDTO> stockSecurities = ParsingISS.ParseIssSecurityStock(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
-            return await response.Content.ReadAsStringAsync();
+            return ParsingISS.ParseIssSecurityStock(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
+             
         }
 
         
