@@ -19,7 +19,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
     string url = "https://iss.moex.com/iss/engines/stock/markets/shares/boards/tqbr/securities.json";
-    string response = await moexHttpIssClient.GetMarketStockRaws(url);
+    string response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
     return Results.Content(response, "application/json");
 });
 
