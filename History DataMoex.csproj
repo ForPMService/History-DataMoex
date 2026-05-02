@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>History_DataMoex</RootNamespace>
+	<PublishAot>true</PublishAot>
+	<JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     <UserSecretsId>85cf9021-8039-4974-8ef7-023dda66d70c</UserSecretsId>
   </PropertyGroup>
 

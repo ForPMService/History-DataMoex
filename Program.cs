@@ -20,7 +20,7 @@ var app = builder.Build();
 app.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
     string url = "/engines/stock/markets/shares/boards/tqbr/securities.json";
     List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
-    return Results.Json(response, AppJsonContext.Default.StockSecurityDTO);
+    return Results.Json(response, AppJsonContext.Default.ListStockSecurityDTO);
 });
 
 app.UseHttpsRedirection();
