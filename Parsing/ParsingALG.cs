@@ -329,5 +329,59 @@ namespace History_DataMoex.Parsing
             return tradeStatList;
 
         }
+
+        public static PaginationCursorDTO ParseAlgCandlesDataCursor(JsonDocument jsonDocument)
+        {
+            
+
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data.cursor");
+            JsonElement columns = data.GetProperty("columns");
+            const int arraysize = 3;
+            Span<int> columnIndices = stackalloc int[arraysize];
+
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+
+                if (columns[i].ValueEquals("INDEX"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("TOTAL"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PAGESIZE"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                
+
+            }
+
+
+            JsonElement datas = data.GetProperty("data");
+           
+
+            PaginationCursorDTO paginationCursor = new PaginationCursorDTO()
+            {
+                Index = ParseHelpers.GetIntOrNull(datas[0][columnIndices[0]]),
+                Total = ParseHelpers.GetIntOrNull(datas[0][columnIndices[1]]),
+                PageSize = ParseHelpers.GetIntOrNull(datas[0][columnIndices[2]])
+            };
+                
+            
+
+            return paginationCursor;
+
+        }
     }
 }
