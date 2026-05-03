@@ -140,9 +140,12 @@ namespace History_DataMoex.Parsing
 
         private static DateTime? GetDateTimeOrNull(JsonElement element)
         {
-            if (element.TryGetDateTime(out DateTime dateTime) && element.ValueKind == JsonValueKind.String)
+            if (element.ValueKind == JsonValueKind.String)
             {
-                return dateTime;
+                if (DateTime.TryParse(element.GetString(), out DateTime dateTime))
+                {
+                    return dateTime;
+                }
             }
             return null;
         }
