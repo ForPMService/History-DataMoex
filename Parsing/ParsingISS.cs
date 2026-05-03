@@ -14,36 +14,89 @@ namespace History_DataMoex.Parsing
             JsonElement securities = root.GetProperty("securities");
             JsonElement columns = securities.GetProperty("columns");
             const int arraysize = 9;
-            int[] columnIndexs = new int[arraysize];
+            Span<int> columnIndces = stackalloc int[arraysize];
 
-            string [] columnNames = new string[arraysize] { "SECID", "SHORTNAME", "SECNAME", "BOARDID", "PREVLEGALCLOSEPRICE", "LOTSIZE", "FACEVALUE", "MARKETCODE", "PREVDATE" };
-            for (int i = 0; i < arraysize; i++)
+            //string [] columnNames = new string[arraysize] { "SECID", "SHORTNAME", "SECNAME", "BOARDID", "PREVLEGALCLOSEPRICE", "LOTSIZE", "FACEVALUE", "MARKETCODE", "PREVDATE" };
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
             {
-               for(int j = 0;j<columns.GetArrayLength();j++)
+
+                if (columns[i].ValueEquals("SECID"u8))
                 {
-                    if (columns[j].GetString() == columnNames[i])
-                    {
-                        columnIndexs[i] = j;
-                        break;
-                    }
+                    columnIndces[0] = i;
+                    found++;
+                    continue;
                 }
+
+                else if (columns[i].ValueEquals("SHORTNAME"u8))
+                {
+                    columnIndces[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SECNAME"u8))
+                {
+                    
+                    columnIndces[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("BOARDID"u8))
+                { 
+                    columnIndces[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PREVLEGALCLOSEPRICE"u8))
+                {
+                    columnIndces[4] = i;
+                        found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("LOTSIZE"u8))    
+                {
+                    columnIndces[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("FACEVALUE"u8))
+                {
+                    columnIndces[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("MARKETCODE"u8))
+                {
+                    columnIndces[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PREVDATE"u8))
+                {
+                    columnIndces[8] = i;
+                    found++;
+                    continue;
+                }
+
             }
 
+           
             JsonElement datas = securities.GetProperty("data");
             for(int i =0; i < datas.GetArrayLength();i++)
             {
                 
                 StockSecurityDTO stockSecurityDTO = new StockSecurityDTO
                 {
-                    SECID = GetStringOrNull(datas[i][columnIndexs[0]]),
-                    SHORTNAME = GetStringOrNull(datas[i][columnIndexs[1]]),
-                    SECNAME = GetStringOrNull(datas[i][columnIndexs[2]]),
-                    BOARDID = GetStringOrNull(datas[i][columnIndexs[3]]),
-                    PREVLEGALCLOSEPRICE = GetDecimalOrNull(datas[i][columnIndexs[4]]),
-                    LOTSIZE = GetIntOrNull(datas[i][columnIndexs[5]]),
-                    FACEVALUE = GetDoubleOrNull(datas[i][columnIndexs[6]]),
-                    MARKETCODE = GetStringOrNull(datas[i][columnIndexs[7]]),
-                    PREVDATE = GetDateTimeOrNull(datas[i][columnIndexs[8]])
+                    SECID = GetStringOrNull(datas[i][columnIndces[0]]),
+                    SHORTNAME = GetStringOrNull(datas[i][columnIndces[1]]),
+                    SECNAME = GetStringOrNull(datas[i][columnIndces[2]]),
+                    BOARDID = GetStringOrNull(datas[i][columnIndces[3]]),
+                    PREVLEGALCLOSEPRICE = GetDecimalOrNull(datas[i][columnIndces[4]]),
+                    LOTSIZE = GetIntOrNull(datas[i][columnIndces[5]]),
+                    FACEVALUE = GetDoubleOrNull(datas[i][columnIndces[6]]),
+                    MARKETCODE = GetStringOrNull(datas[i][columnIndces[7]]),
+                    PREVDATE = GetDateTimeOrNull(datas[i][columnIndces[8]])
                 };
                 stockSecurities.Add(stockSecurityDTO);
             }
@@ -60,19 +113,106 @@ namespace History_DataMoex.Parsing
             JsonElement securities = root.GetProperty("securities");
             JsonElement columns = securities.GetProperty("columns");
             const int arraysize = 16;
-            int[] columnIndexs = new int[arraysize];
+            Span<int> columnIndces = stackalloc int[arraysize];
+            int found = 0;
 
-            string[] columnNames = new string[arraysize] { "SECID", "SHORTNAME", "SECNAME", "ASSETCODE", "INITIALMARGIN", "PREVSETTLEPRICE", "PREVPRICE", "MINSTEP",
-                "STEPPRICE", "LOTVOLUME", "LASTTRADEDATE", "LASTDELDATE", "PREVOPENPOSITION", "HIGHLIMIT", "LOWLIMIT", "DECIMALS" };
-            for (int i = 0; i < arraysize; i++)
+            for (int i = 0; i < columns.GetArrayLength()&& found<arraysize; i++)
             {
-                for (int j = 0; j < columns.GetArrayLength(); j++)
+                if (columns[i].ValueEquals("SECID"u8))
                 {
-                    if (columns[j].GetString() == columnNames[i])
-                    {
-                        columnIndexs[i] = j;
-                        break;
-                    }
+                    columnIndces[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SHORTNAME"u8))
+                {
+                    columnIndces[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SECNAME"u8))
+                {
+                    columnIndces[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("ASSETCODE"u8))
+                {
+                    columnIndces[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("INITIALMARGIN"u8))
+                {
+                    columnIndces[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PREVSETTLEPRICE"u8))
+                {
+                    columnIndces[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PREVPRICE"u8))
+                {
+                    columnIndces[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("MINSTEP"u8))
+                {
+                    columnIndces[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("STEPPRICE"u8))
+                {
+                    columnIndces[8] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("LOTVOLUME"u8))
+                {
+                    columnIndces[9] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("LASTTRADEDATE"u8))
+                {
+                    columnIndces[10] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("LASTDELDATE"u8))
+                {
+                    columnIndces[11] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("PREVOPENPOSITION"u8))
+                {
+                    columnIndces[12] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("HIGHLIMIT"u8))
+                {
+                    columnIndces[13] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("LOWLIMIT"u8))
+                {
+                    columnIndces[14] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("DECIMALS"u8))
+                {
+                    columnIndces[15] = i;
+                    found++;
+                    continue;
                 }
             }
 
@@ -82,22 +222,22 @@ namespace History_DataMoex.Parsing
 
                 FuturesSecurityDTO futuresSecurityDTO = new FuturesSecurityDTO
                 {
-                    SECID = GetStringOrNull(datas[i][columnIndexs[0]]),
-                    SHORTNAME = GetStringOrNull(datas[i][columnIndexs[1]]),
-                    SECNAME = GetStringOrNull(datas[i][columnIndexs[2]]),
-                    ASSETCODE = GetStringOrNull(datas[i][columnIndexs[3]]),
-                    INITIALMARGIN = GetDoubleOrNull(datas[i][columnIndexs[4]]),
-                    PREVSETTLEPRICE = GetDoubleOrNull(datas[i][columnIndexs[5]]),
-                    PREVPRICE = GetDoubleOrNull(datas[i][columnIndexs[6]]),
-                    MINSTEP = GetDoubleOrNull(datas[i][columnIndexs[7]]),
-                    STEPPRICE = GetDoubleOrNull(datas[i][columnIndexs[8]]),
-                    LOTVOLUME = GetIntOrNull(datas[i][columnIndexs[9]]),
-                    LASTTRADEDATE = GetDateTimeOrNull(datas[i][columnIndexs[10]]),
-                    LASTDELDATE = GetDateTimeOrNull(datas[i][columnIndexs[11]]),
-                    PREVOPENPOSITION = GetLongOrNull(datas[i][columnIndexs[12]]),
-                    HIGHLIMIT = GetDoubleOrNull(datas[i][columnIndexs[13]]),
-                    LOWLIMIT = GetDoubleOrNull(datas[i][columnIndexs[14]]),
-                    DECIMALS = GetIntOrNull(datas[i][columnIndexs[15]])
+                    SECID = GetStringOrNull(datas[i][columnIndces[0]]),
+                    SHORTNAME = GetStringOrNull(datas[i][columnIndces[1]]),
+                    SECNAME = GetStringOrNull(datas[i][columnIndces[2]]),
+                    ASSETCODE = GetStringOrNull(datas[i][columnIndces[3]]),
+                    INITIALMARGIN = GetDoubleOrNull(datas[i][columnIndces[4]]),
+                    PREVSETTLEPRICE = GetDoubleOrNull(datas[i][columnIndces[5]]),
+                    PREVPRICE = GetDoubleOrNull(datas[i][columnIndces[6]]),
+                    MINSTEP = GetDoubleOrNull(datas[i][columnIndces[7]]),
+                    STEPPRICE = GetDoubleOrNull(datas[i][columnIndces[8]]),
+                    LOTVOLUME = GetIntOrNull(datas[i][columnIndces[9]]),
+                    LASTTRADEDATE = GetDateTimeOrNull(datas[i][columnIndces[10]]),
+                    LASTDELDATE = GetDateTimeOrNull(datas[i][columnIndces[11]]),
+                    PREVOPENPOSITION = GetLongOrNull(datas[i][columnIndces[12]]),
+                    HIGHLIMIT = GetDoubleOrNull(datas[i][columnIndces[13]]),
+                    LOWLIMIT = GetDoubleOrNull(datas[i][columnIndces[14]]),
+                    DECIMALS = GetIntOrNull(datas[i][columnIndces[15]])
                 };
                 futuresSecurities.Add(futuresSecurityDTO);
             }
