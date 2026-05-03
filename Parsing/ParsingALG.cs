@@ -80,14 +80,14 @@ namespace History_DataMoex.Parsing
 
                 CandlesDTO candlesDTO = new CandlesDTO()
                 {
-                    Open = GetDoubleOrNull(datas[i][columnIndces[0]]),
-                    Close = GetDoubleOrNull(datas[i][columnIndces[1]]),
-                    High = GetDoubleOrNull(datas[i][columnIndces[2]]),
-                    Low = GetDoubleOrNull(datas[i][columnIndces[3]]),
-                    Value = GetDoubleOrNull(datas[i][columnIndces[4]]),
-                    Volume = GetDoubleOrNull(datas[i][columnIndces[5]]),
-                    Begin = GetDateTimeOrNull(datas[i][columnIndces[6]]),
-                    End = GetDateTimeOrNull(datas[i][columnIndces[7]])
+                    Open = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[0]]),
+                    Close = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[1]]),
+                    High = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[2]]),
+                    Low = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[3]]),
+                    Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[4]]),
+                    Volume = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[5]]),
+                    Begin = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndces[6]]),
+                    End = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndces[7]])
                 };
                 candlesList.Add(candlesDTO);
             }
@@ -95,59 +95,6 @@ namespace History_DataMoex.Parsing
             return candlesList;
 
         }
-        private static string? GetStringOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.String)
-            {
-                return element.GetString();
-            }
-            return null;
-        }
-        private static decimal? GetDecimalOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetDecimal();
-            }
-            return null;
-        }
-        private static double? GetDoubleOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetDouble();
-            }
-            return null;
-        }
-
-        private static long? GetLongOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetInt64();
-            }
-            return null;
-        }
-
-        private static int? GetIntOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetInt32();
-            }
-            return null;
-        }
-
-        private static DateTime? GetDateTimeOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.String)
-            {
-                if (DateTime.TryParse(element.GetString(), out DateTime dateTime))
-                {
-                    return dateTime;
-                }
-            }
-            return null;
-        }
+        
     }
 }

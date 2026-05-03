@@ -88,15 +88,15 @@ namespace History_DataMoex.Parsing
                 
                 StockSecurityDTO stockSecurityDTO = new StockSecurityDTO
                 {
-                    SECID = GetStringOrNull(datas[i][columnIndces[0]]),
-                    SHORTNAME = GetStringOrNull(datas[i][columnIndces[1]]),
-                    SECNAME = GetStringOrNull(datas[i][columnIndces[2]]),
-                    BOARDID = GetStringOrNull(datas[i][columnIndces[3]]),
-                    PREVLEGALCLOSEPRICE = GetDecimalOrNull(datas[i][columnIndces[4]]),
-                    LOTSIZE = GetIntOrNull(datas[i][columnIndces[5]]),
-                    FACEVALUE = GetDoubleOrNull(datas[i][columnIndces[6]]),
-                    MARKETCODE = GetStringOrNull(datas[i][columnIndces[7]]),
-                    PREVDATE = GetDateTimeOrNull(datas[i][columnIndces[8]])
+                    SECID = ParseHelpers.GetStringOrNull(datas[i][columnIndces[0]]),
+                    SHORTNAME = ParseHelpers.GetStringOrNull(datas[i][columnIndces[1]]),
+                    SECNAME = ParseHelpers.GetStringOrNull(datas[i][columnIndces[2]]),
+                    BOARDID = ParseHelpers.GetStringOrNull(datas[i][columnIndces[3]]),
+                    PREVLEGALCLOSEPRICE = ParseHelpers.GetDecimalOrNull(datas[i][columnIndces[4]]),
+                    LOTSIZE = ParseHelpers.GetIntOrNull(datas[i][columnIndces[5]]),
+                    FACEVALUE = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[6]]),
+                    MARKETCODE = ParseHelpers.GetStringOrNull(datas[i][columnIndces[7]]),
+                    PREVDATE = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndces[8]])
                 };
                 stockSecurities.Add(stockSecurityDTO);
             }
@@ -222,80 +222,28 @@ namespace History_DataMoex.Parsing
 
                 FuturesSecurityDTO futuresSecurityDTO = new FuturesSecurityDTO
                 {
-                    SECID = GetStringOrNull(datas[i][columnIndces[0]]),
-                    SHORTNAME = GetStringOrNull(datas[i][columnIndces[1]]),
-                    SECNAME = GetStringOrNull(datas[i][columnIndces[2]]),
-                    ASSETCODE = GetStringOrNull(datas[i][columnIndces[3]]),
-                    INITIALMARGIN = GetDoubleOrNull(datas[i][columnIndces[4]]),
-                    PREVSETTLEPRICE = GetDoubleOrNull(datas[i][columnIndces[5]]),
-                    PREVPRICE = GetDoubleOrNull(datas[i][columnIndces[6]]),
-                    MINSTEP = GetDoubleOrNull(datas[i][columnIndces[7]]),
-                    STEPPRICE = GetDoubleOrNull(datas[i][columnIndces[8]]),
-                    LOTVOLUME = GetIntOrNull(datas[i][columnIndces[9]]),
-                    LASTTRADEDATE = GetDateTimeOrNull(datas[i][columnIndces[10]]),
-                    LASTDELDATE = GetDateTimeOrNull(datas[i][columnIndces[11]]),
-                    PREVOPENPOSITION = GetLongOrNull(datas[i][columnIndces[12]]),
-                    HIGHLIMIT = GetDoubleOrNull(datas[i][columnIndces[13]]),
-                    LOWLIMIT = GetDoubleOrNull(datas[i][columnIndces[14]]),
-                    DECIMALS = GetIntOrNull(datas[i][columnIndces[15]])
+                    SECID = ParseHelpers.GetStringOrNull(datas[i][columnIndces[0]]),
+                    SHORTNAME = ParseHelpers.GetStringOrNull(datas[i][columnIndces[1]]),
+                    SECNAME = ParseHelpers.GetStringOrNull(datas[i][columnIndces[2]]),
+                    ASSETCODE = ParseHelpers.GetStringOrNull(datas[i][columnIndces[3]]),
+                    INITIALMARGIN = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[4]]),
+                    PREVSETTLEPRICE = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[5]]),
+                    PREVPRICE = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[6]]),
+                    MINSTEP = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[7]]),
+                    STEPPRICE = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[8]]),
+                    LOTVOLUME = ParseHelpers.GetIntOrNull(datas[i][columnIndces[9]]),
+                    LASTTRADEDATE = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndces[10]]),
+                    LASTDELDATE = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndces[11]]),
+                    PREVOPENPOSITION = ParseHelpers.GetLongOrNull(datas[i][columnIndces[12]]),
+                    HIGHLIMIT = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[13]]),
+                    LOWLIMIT = ParseHelpers.GetDoubleOrNull(datas[i][columnIndces[14]]),
+                    DECIMALS = ParseHelpers.GetIntOrNull(datas[i][columnIndces[15]])
                 };
                 futuresSecurities.Add(futuresSecurityDTO);
             }
 
             return futuresSecurities;
 
-        }
-
-        private static string? GetStringOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.String)
-            {
-                return element.GetString();
-            }
-            return null;
-        }
-        private static decimal? GetDecimalOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetDecimal();
-            }
-            return null;
-        }
-        private static double? GetDoubleOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetDouble();
-            }
-            return null;
-        }
-
-        private static long? GetLongOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetInt64();
-            }
-            return null;
-        }
-
-        private static int? GetIntOrNull(JsonElement element)
-        {
-            if (element.ValueKind == JsonValueKind.Number)
-            {
-                return element.GetInt32();
-            }
-            return null;
-        }
-
-        private static DateTime? GetDateTimeOrNull(JsonElement element)
-        {
-            if (element.TryGetDateTime(out DateTime dateTime) && element.ValueKind == JsonValueKind.String)
-            {
-                return dateTime;
-            }
-            return null;
         }
 
     }

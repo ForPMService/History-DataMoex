@@ -41,8 +41,16 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 //    return Results.Content(response, "application/json");
 //});
 app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) => {
-    string url = "/engines/stock/markets/shares/boards/tqbr/securities/SBER/candles.json?interval=1&from=2026-04-26&till=2026-05-01";
-    List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url);
+    string url = "/engines/stock/markets/shares/boards/tqbr/securities/SBER/candles.json";
+    List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
+        new Dictionary<string, string>
+        {
+            [ "interval"]= "1" ,
+            [ "from"]= "2026-04-26" ,
+            [ "till"]= "2026-05-01",
+            [ "start"]= "1000"
+        }
+        );
     return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
 });
 //app.MapGet("/research/candles-1-page-2", async (MoexHttpAlgClient moexHttpAlgClient) =>

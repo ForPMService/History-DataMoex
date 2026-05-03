@@ -17,12 +17,17 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
-        public async Task<List<CandlesDTO>> GetCandles(string method, List<string>? queryParams = null)
+        public async Task<List<CandlesDTO>> GetCandles(string method, Dictionary<string, string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
 
-
+            if (queryParams != null && queryParams.Count > 0)
+            {
+                // queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+                QueryString queryString = QueryString.Create(queryParams);
+                requestUrl += queryString.ToString();
+            }
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
 
