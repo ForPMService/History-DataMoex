@@ -1,5 +1,8 @@
-﻿using History_DataMoex.Options;
+﻿using History_DataMoex.DataTransfers;
+using History_DataMoex.Options;
+using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace History_DataMoex.Clients
 {
@@ -14,7 +17,7 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
-        public async Task<string> GetRaws(string method, List<string>? queryParams = null)
+        public async Task<List<CandlesDTO>> GetCandles(string method, List<string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
@@ -26,8 +29,7 @@ namespace History_DataMoex.Clients
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
             
-            return await response.Content.ReadAsStringAsync();
-
+            return ParsingALG.ParseAlgCandles(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
         }
     }
 }
