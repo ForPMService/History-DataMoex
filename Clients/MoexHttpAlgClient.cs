@@ -19,26 +19,12 @@ namespace History_DataMoex.Clients
 
         public async Task<List<CandlesDTO>> GetCandles(string method, Dictionary<string, string>? queryParams = null)
         {
-            //string baseUrl = _options.BaseUrl;
-            //string requestUrl = baseUrl + method;
-
-            //if (queryParams != null && queryParams.Count > 0)
-            //{
-            //    // queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
-            //    QueryString queryString = QueryString.Create(queryParams);
-            //    requestUrl += queryString.ToString();
-            //}
-            //var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            //request.Headers.Add("Authorization", $"Bearer {_options.Key}");
-
-            //var response = await _httpClient.SendAsync(request);
-            //response.EnsureSuccessStatusCode();
-
-            
-            return ParsingALG.ParseAlgCandles(JsonDocument.Parse(await GerResponce(method, queryParams).Result.Content.ReadAsStringAsync()));
+   
+            var response = await SendRequest(method, queryParams);
+            return ParsingALG.ParseAlgCandles(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
         }
 
-        private async Task<HttpResponseMessage> GerResponce(string method, Dictionary<string, string>? queryParams = null)
+        private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
