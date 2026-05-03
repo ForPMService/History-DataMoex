@@ -1,5 +1,8 @@
-﻿namespace History_DataMoex.Parsing
+﻿namespace History_DataMoex.DataTransfers
 {
+    /// <summary>
+    /// Информация о ценной бумаге.
+    /// </summary>
     public record StockSecurityDTO
     {
         public string? SECID { get; init; }

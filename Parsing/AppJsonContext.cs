@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using History_DataMoex.DataTransfers;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace History_DataMoex.Parsing
 {

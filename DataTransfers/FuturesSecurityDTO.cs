@@ -1,5 +1,8 @@
-﻿namespace History_DataMoex.Parsing
+﻿namespace History_DataMoex.DataTransfers
 {
+    /// <summary>
+    /// Информация о фьючерсной ценной бумаге.
+    /// </summary>
     public record FuturesSecurityDTO
     {
         public string? SECID { get; init; } // тикер(SiM6, BRN5 и т.д.)
