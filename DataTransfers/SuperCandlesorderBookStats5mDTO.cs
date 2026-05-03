@@ -8,7 +8,7 @@
     /// Стакан — список текущих заявок на покупку и продажу.
     /// Здесь важны спред, глубина, объёмы bid/ask и дисбаланс.
     /// </summary>
-    public class SuperCandlesorderBookStats5mDTO
+    public record SuperCandlesOrderBookStats5mDTO
     {
         /// <summary>
         /// Торговая дата.

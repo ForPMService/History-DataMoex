@@ -5,7 +5,7 @@
     /// 
     /// Это не торговая строка, а справочная информация источника.
     /// </summary>
-    public class RangeDataDTO
+    public record RangeDataDTO
     {
         /// <summary>
         /// Начальная дата доступного диапазона.

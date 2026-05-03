@@ -8,7 +8,7 @@
     /// сколько строк пришло на одной странице,
     /// с какого индекса загружать следующую страницу.
     /// </summary>
-    public class PaginationCursorDTO
+    public record PaginationCursorDTO
     {
         /// <summary>
         /// Начальный индекс текущей страницы.

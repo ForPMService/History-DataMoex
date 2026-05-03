@@ -8,7 +8,7 @@
     /// Это не обычная свеча, а расширенная 5-минутная статистика:
     /// цена, объём, сделки, покупки, продажи, VWAP, дисбаланс.
     /// </summary>
-    public class SuperCandlsTradeStats5mDTO
+    public record SuperCandlesTradeStats5mDTO
     {
         // <summary>
         /// Торговая дата.

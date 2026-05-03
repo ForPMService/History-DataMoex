@@ -8,7 +8,7 @@
     /// Важно:
     /// это не сделки, а именно поставленные и снятые заявки.
     /// </summary>
-    public class SuperCandlesOrderStats5mDTO
+    public record SuperCandlesOrderStats5mDTO
     {
         /// <summary>
         /// Торговая дата.
