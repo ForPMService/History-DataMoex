@@ -21,7 +21,8 @@ namespace History_DataMoex.Clients
         {
    
             var response = await SendRequest(method, queryParams);
-            return ParsingALG.ParseAlgCandles(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
+            using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return ParsingALG.ParseAlgCandles(jsonDocument);
         }
 
         public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
@@ -34,7 +35,7 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 var response = await SendRequest(method, queryParams);
-                JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
                 
                 List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
