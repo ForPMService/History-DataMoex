@@ -27,8 +27,8 @@ namespace History_DataMoex.Clients
             
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            return ParsingISS.ParseIssSecurityStock(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
-             
+            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return ParsingISS.ParseIssSecurityStock(jsonDocument);
         }
 
         public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(string method)
@@ -40,7 +40,8 @@ namespace History_DataMoex.Clients
 
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            return ParsingISS.ParseIssSecurityFutures(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
+            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return ParsingISS.ParseIssSecurityFutures(jsonDocument);
 
         }
 

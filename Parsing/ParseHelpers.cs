@@ -2,7 +2,7 @@
 
 namespace History_DataMoex.Parsing
 {
-    public static class ParseHelpers
+    internal static class ParseHelpers
     {
         public static string? GetStringOrNull(JsonElement element)
         {

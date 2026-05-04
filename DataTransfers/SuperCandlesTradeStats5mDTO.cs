@@ -10,7 +10,7 @@
     /// </summary>
     public record SuperCandlesTradeStats5mDTO
     {
-        // <summary>
+        /// <summary>
         /// Торговая дата.
         /// 
         /// MOEX column: tradedate
