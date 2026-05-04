@@ -19,10 +19,31 @@ namespace History_DataMoex.Clients
 
         public async Task<List<CandlesDTO>> GetCandles(string method, Dictionary<string, string>? queryParams = null)
         {
-   
-            var response = await SendRequest(method, queryParams);
-            using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            return ParsingALG.ParseAlgCandles(jsonDocument);
+            int queryStart = 0;
+            queryParams ??= new Dictionary<string, string>();
+            List<CandlesDTO> candles = new List<CandlesDTO>();
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+
+                List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
+                candles.AddRange(candlesList);
+                if (candlesList.Count>=500)
+                {
+                    queryStart += 500;
+                    queryParams["start"] = queryStart.ToString();
+                }
+                else
+                {
+                    break;
+                }
+                
+
+            }
+
+            return candles;
         }
 
         public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
