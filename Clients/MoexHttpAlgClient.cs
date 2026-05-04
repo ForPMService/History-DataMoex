@@ -24,6 +24,21 @@ namespace History_DataMoex.Clients
             return ParsingALG.ParseAlgCandles(JsonDocument.Parse(await response.Content.ReadAsStringAsync()));
         }
 
+        public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+            
+
+            var response = await SendRequest(method, queryParams);
+            JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+            if(dataCursoPag.Index+dataCursoPag.PageSize>dataCursoPag.Total)
+            {
+                
+            }
+            return await jsonDocument.Content.ReadAsStringAsync();
+        }
+
+
         private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;
