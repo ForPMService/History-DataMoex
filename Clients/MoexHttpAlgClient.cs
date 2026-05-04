@@ -21,6 +21,11 @@ namespace History_DataMoex.Clients
         {
             int queryStart = 0;
             queryParams ??= new Dictionary<string, string>();
+
+            if (queryParams.TryGetValue("start", out string? start) && int.TryParse(start, out int parseValue)) 
+            {
+                queryStart = parseValue;
+            }
             List<CandlesDTO> candles = new List<CandlesDTO>();
             while (true)
             {

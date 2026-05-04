@@ -56,8 +56,8 @@ app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) =>
         {
             [ "interval"]= "1" ,
             [ "from"]= "2026-04-26" ,
-            [ "till"]= "2026-05-01",
-            [ "start"]= "1000"
+            [ "till"]= "2026-05-01"
+            
         }
         );
     return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
