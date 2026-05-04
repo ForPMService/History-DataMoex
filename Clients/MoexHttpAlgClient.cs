@@ -58,8 +58,8 @@ namespace History_DataMoex.Clients
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
-            queryParams = new Dictionary<string, string>();
-            if (queryParams != null && queryParams.Count > 0)
+            queryParams ??= new Dictionary<string, string>();
+            if (queryParams.Count > 0)
             {
                 QueryString queryString = QueryString.Create(queryParams!);
                 requestUrl += queryString.ToString();
