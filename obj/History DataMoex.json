@@ -29,6 +29,18 @@
         }
       }
     },
+    "/research/supercandles-tradestat-10": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/research/candles-1": {
       "get": {
         "tags": [

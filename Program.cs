@@ -28,10 +28,19 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
     List<FuturesSecurityDTO> response = await moexHttpIssClient.GetInfoTradedFuturesAssets(url);
     return Results.Json(response, AppJsonContext.Default.ListFuturesSecurityDTO);
 });
-//app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) => {
-//    string response = await moexHttpAlgClient.GetRaws("/datashop/algopack/eq/tradestats/SBER.json?from=2026-04-30&till=2026-05-01&limit=500");
-//    return Results.Content(response, "application/json");
-//});
+app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+{
+    string url = "/datashop/algopack/eq/tradestats/SBER.json";
+    List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
+        new Dictionary<string, string>
+        {
+            [ "from"]= "2026-04-26" ,
+            [ "till"]= "2026-04-30"
+            
+        }
+        );
+    return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
+});
 //app.MapGet("/research/supercandles-orderstats-10", async (MoexHttpAlgClient moexHttpAlgClient) => {
 //    string response = await moexHttpAlgClient.GetRaws("/datashop/algopack/eq/orderstats/SBER.json?from=2026-04-30&till=2026-04-30&limit=500");
 //    return Results.Content(response, "application/json");
