@@ -27,15 +27,29 @@ namespace History_DataMoex.Clients
         public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
         {
             
+            queryParams ??= new Dictionary<string, string>();
 
-            var response = await SendRequest(method, queryParams);
-            JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-            if(dataCursoPag.Index+dataCursoPag.PageSize>dataCursoPag.Total)
+            List<SuperCandlesTradeStats5mDTO> tradeStatsall = new List<SuperCandlesTradeStats5mDTO>();
+            
+            while (true)
             {
+                var response = await SendRequest(method, queryParams);
+                JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                
+                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
+                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                tradeStatsall.AddRange(tradeStats);
+                if(dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                {
+                    break;
+                }
+                queryParams!["start"]= (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
                 
             }
-            return await jsonDocument.Content.ReadAsStringAsync();
+            
+            
+            return tradeStatsall;
         }
 
 
@@ -43,9 +57,10 @@ namespace History_DataMoex.Clients
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
+            queryParams ??= new Dictionary<string, string>();
             if (queryParams != null && queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(queryParams);
+                QueryString queryString = QueryString.Create(queryParams!);
                 requestUrl += queryString.ToString();
             }
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
