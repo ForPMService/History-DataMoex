@@ -329,6 +329,290 @@ namespace History_DataMoex.Parsing
 
         }
 
+        public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseAlgFuturesOrderBook(JsonDocument jsonDocument)
+        {
+            List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStatsList = new List<SuperCandlesFuturesOrderBookStats5mDTO>();
+
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data");
+            JsonElement columns = data.GetProperty("columns");
+
+            const int arraysize = 35;
+            Span<int> columnIndices = stackalloc int[arraysize];
+
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradetime"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("secid"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("asset_code"u8))
+                {
+                    columnIndices[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("mid_price"u8))
+                {
+                    columnIndices[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("micro_price"u8))
+                {
+                    columnIndices[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l1"u8))
+                {
+                    columnIndices[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l2"u8))
+                {
+                    columnIndices[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l3"u8))
+                {
+                    columnIndices[8] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l5"u8))
+                {
+                    columnIndices[9] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l10"u8))
+                {
+                    columnIndices[10] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("spread_l20"u8))
+                {
+                    columnIndices[11] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("levels_b"u8))
+                {
+                    columnIndices[12] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("levels_s"u8))
+                {
+                    columnIndices[13] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l1"u8))
+                {
+                    columnIndices[14] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l2"u8))
+                {
+                    columnIndices[15] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l3"u8))
+                {
+                    columnIndices[16] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l5"u8))
+                {
+                    columnIndices[17] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l10"u8))
+                {
+                    columnIndices[18] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b_l20"u8))
+                {
+                    columnIndices[19] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l1"u8))
+                {
+                    columnIndices[20] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l2"u8))
+                {
+                    columnIndices[21] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l3"u8))
+                {
+                    columnIndices[22] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l5"u8))
+                {
+                    columnIndices[23] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l10"u8))
+                {
+                    columnIndices[24] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s_l20"u8))
+                {
+                    columnIndices[25] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_b_l3"u8))
+                {
+                    columnIndices[26] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_b_l5"u8))
+                {
+                    columnIndices[27] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_b_l10"u8))
+                {
+                    columnIndices[28] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_b_l20"u8))
+                {
+                    columnIndices[29] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_s_l3"u8))
+                {
+                    columnIndices[30] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_s_l5"u8))
+                {
+                    columnIndices[31] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_s_l10"u8))
+                {
+                    columnIndices[32] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vwap_s_l20"u8))
+                {
+                    columnIndices[33] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SYSTIME"u8))
+                {
+                    columnIndices[34] = i;
+                    found++;
+                    continue;
+                }
+            }
+
+            JsonElement datas = data.GetProperty("data");
+
+            for (int i = 0; i < datas.GetArrayLength(); i++)
+            {
+                SuperCandlesFuturesOrderBookStats5mDTO orderBookStatsDTO = new SuperCandlesFuturesOrderBookStats5mDTO()
+                {
+                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
+                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
+                    SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+                    AssetCode = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+
+                    MidPrice = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
+                    MicroPrice = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[5]]),
+
+                    SpreadL1 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[6]]),
+                    SpreadL2 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[7]]),
+                    SpreadL3 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[8]]),
+                    SpreadL5 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[9]]),
+                    SpreadL10 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[10]]),
+                    SpreadL20 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[11]]),
+
+                    LevelsB = ParseHelpers.GetIntOrNull(datas[i][columnIndices[12]]),
+                    LevelsS = ParseHelpers.GetIntOrNull(datas[i][columnIndices[13]]),
+
+                    VolBL1 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[14]]),
+                    VolBL2 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[15]]),
+                    VolBL3 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[16]]),
+                    VolBL5 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[17]]),
+                    VolBL10 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[18]]),
+                    VolBL20 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[19]]),
+
+                    VolSL1 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[20]]),
+                    VolSL2 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[21]]),
+                    VolSL3 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[22]]),
+                    VolSL5 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[23]]),
+                    VolSL10 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[24]]),
+                    VolSL20 = ParseHelpers.GetLongOrNull(datas[i][columnIndices[25]]),
+
+                    VwapBL3 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[26]]),
+                    VwapBL5 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[27]]),
+                    VwapBL10 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[28]]),
+                    VwapBL20 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[29]]),
+
+                    VwapSL3 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[30]]),
+                    VwapSL5 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[31]]),
+                    VwapSL10 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[32]]),
+                    VwapSL20 = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[33]]),
+
+                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[34]])
+                };
+
+                orderBookStatsList.Add(orderBookStatsDTO);
+            }
+
+            return orderBookStatsList;
+        }
+
         public static List<SuperCandlesOrderBookStats5mDTO> ParseAlgOrderBookStats5m(JsonDocument jsonDocument)
         {
             List<SuperCandlesOrderBookStats5mDTO> orderBookStatsList = new List<SuperCandlesOrderBookStats5mDTO>();
@@ -511,6 +795,280 @@ namespace History_DataMoex.Parsing
             }
 
             return orderBookStatsList;
+        }
+
+        public static List<SuperCandlesFuturesTradeStats5mDTO> ParseFuturesTradeStats(JsonDocument jsonDocument)
+        {
+            List<SuperCandlesFuturesTradeStats5mDTO> tradeStatsList = new List<SuperCandlesFuturesTradeStats5mDTO>();
+
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data");
+            JsonElement columns = data.GetProperty("columns");
+
+            const int arraysize = 33;
+            Span<int> columnIndices = stackalloc int[arraysize];
+
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradetime"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("secid"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("asset_code"u8))
+                {
+                    columnIndices[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_open"u8))
+                {
+                    columnIndices[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_high"u8))
+                {
+                    columnIndices[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_low"u8))
+                {
+                    columnIndices[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_close"u8))
+                {
+                    columnIndices[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_std"u8))
+                {
+                    columnIndices[8] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol"u8))
+                {
+                    columnIndices[9] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("val"u8))
+                {
+                    columnIndices[10] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("trades"u8))
+                {
+                    columnIndices[11] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_vwap"u8))
+                {
+                    columnIndices[12] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_change"u8))
+                {
+                    columnIndices[13] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("trades_b"u8))
+                {
+                    columnIndices[14] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("trades_s"u8))
+                {
+                    columnIndices[15] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("val_b"u8))
+                {
+                    columnIndices[16] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("val_s"u8))
+                {
+                    columnIndices[17] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_b"u8))
+                {
+                    columnIndices[18] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("vol_s"u8))
+                {
+                    columnIndices[19] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("disb"u8))
+                {
+                    columnIndices[20] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_vwap_b"u8))
+                {
+                    columnIndices[21] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pr_vwap_s"u8))
+                {
+                    columnIndices[22] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("im"u8))
+                {
+                    columnIndices[23] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("oi_open"u8))
+                {
+                    columnIndices[24] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("oi_high"u8))
+                {
+                    columnIndices[25] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("oi_low"u8))
+                {
+                    columnIndices[26] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("oi_close"u8))
+                {
+                    columnIndices[27] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("sec_pr_open"u8))
+                {
+                    columnIndices[28] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("sec_pr_high"u8))
+                {
+                    columnIndices[29] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("sec_pr_low"u8))
+                {
+                    columnIndices[30] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("sec_pr_close"u8))
+                {
+                    columnIndices[31] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SYSTIME"u8))
+                {
+                    columnIndices[32] = i;
+                    found++;
+                    continue;
+                }
+            }
+
+            JsonElement datas = data.GetProperty("data");
+
+            for (int i = 0; i < datas.GetArrayLength(); i++)
+            {
+                SuperCandlesFuturesTradeStats5mDTO tradeStatsDTO = new SuperCandlesFuturesTradeStats5mDTO()
+                {
+                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
+                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
+                    SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+                    AssetCode = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+
+                    PrOpen = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
+                    PrHigh = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[5]]),
+                    PrLow = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[6]]),
+                    PrClose = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[7]]),
+                    PrStd = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[8]]),
+
+                    Vol = ParseHelpers.GetLongOrNull(datas[i][columnIndices[9]]),
+                    Val = ParseHelpers.GetLongOrNull(datas[i][columnIndices[10]]),
+                    Trades = ParseHelpers.GetIntOrNull(datas[i][columnIndices[11]]),
+
+                    PrVwap = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[12]]),
+                    PrChange = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[13]]),
+
+                    TradesB = ParseHelpers.GetIntOrNull(datas[i][columnIndices[14]]),
+                    TradesS = ParseHelpers.GetIntOrNull(datas[i][columnIndices[15]]),
+
+                    ValB = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[16]]),
+                    ValS = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[17]]),
+
+                    VolB = ParseHelpers.GetLongOrNull(datas[i][columnIndices[18]]),
+                    VolS = ParseHelpers.GetLongOrNull(datas[i][columnIndices[19]]),
+
+                    Disb = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[20]]),
+
+                    PrVwapB = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[21]]),
+                    PrVwapS = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[22]]),
+
+                    Im = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[23]]),
+
+                    OiOpen = ParseHelpers.GetLongOrNull(datas[i][columnIndices[24]]),
+                    OiHigh = ParseHelpers.GetLongOrNull(datas[i][columnIndices[25]]),
+                    OiLow = ParseHelpers.GetLongOrNull(datas[i][columnIndices[26]]),
+                    OiClose = ParseHelpers.GetLongOrNull(datas[i][columnIndices[27]]),
+
+                    SecPrOpen = ParseHelpers.GetIntOrNull(datas[i][columnIndices[28]]),
+                    SecPrHigh = ParseHelpers.GetIntOrNull(datas[i][columnIndices[29]]),
+                    SecPrLow = ParseHelpers.GetIntOrNull(datas[i][columnIndices[30]]),
+                    SecPrClose = ParseHelpers.GetIntOrNull(datas[i][columnIndices[31]]),
+
+                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[32]])
+                };
+
+                tradeStatsList.Add(tradeStatsDTO);
+            }
+
+            return tradeStatsList;
         }
 
         public static List<SuperCandlesOrderStats5mDTO> ParseAlgOrderStats5m(JsonDocument jsonDocument)

@@ -29,7 +29,7 @@
         }
       }
     },
-    "/research/fo-tradestats-raw": {
+    "/research/fo-tradestats-10": {
       "get": {
         "tags": [
           "History DataMoex"
@@ -41,43 +41,7 @@
         }
       }
     },
-    "/research/fo-obstats-raw": {
-      "get": {
-        "tags": [
-          "History DataMoex"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/research/fx-tradestats-raw": {
-      "get": {
-        "tags": [
-          "History DataMoex"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/research/fx-orderstats-raw": {
-      "get": {
-        "tags": [
-          "History DataMoex"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/research/fx-obstats-raw": {
+    "/research/fo-obstats-10": {
       "get": {
         "tags": [
           "History DataMoex"

@@ -141,6 +141,74 @@ namespace History_DataMoex.Clients
             return tradeStatsall;
         }
 
+        public async Task<List<SuperCandlesFuturesOrderBookStats5mDTO>> GetSuperCandlesFuturesOrderBookStats5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+            queryParams ??= new Dictionary<string, string>();
+
+            List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStatsAll =
+                new List<SuperCandlesFuturesOrderBookStats5mDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+
+                using JsonDocument jsonDocument =
+                    JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats =
+                    ParsingALG.ParseAlgFuturesOrderBook(jsonDocument);
+
+                PaginationCursorDTO dataCursorPag =
+                    ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+
+                orderBookStatsAll.AddRange(orderBookStats);
+
+                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                {
+                    break;
+                }
+
+                queryParams["start"] =
+                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+            }
+
+            return orderBookStatsAll;
+        }
+
+        public async Task<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+            queryParams ??= new Dictionary<string, string>();
+
+            List<SuperCandlesFuturesTradeStats5mDTO> tradeStatsAll =
+                new List<SuperCandlesFuturesTradeStats5mDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+
+                using JsonDocument jsonDocument =
+                    JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats =
+                    ParsingALG.ParseFuturesTradeStats(jsonDocument);
+
+                PaginationCursorDTO dataCursorPag =
+                    ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+
+                tradeStatsAll.AddRange(tradeStats);
+
+                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                {
+                    break;
+                }
+
+                queryParams["start"] =
+                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+            }
+
+            return tradeStatsAll;
+        }
+
         private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;

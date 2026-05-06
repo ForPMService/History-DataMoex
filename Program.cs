@@ -30,17 +30,34 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 });
 
 // === Фьючерсы ===
-app.MapGet("/research/fo-tradestats-raw", async (MoexHttpAlgClient c) =>
+app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/tradestats/SiM5.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-28", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/datashop/algopack/fo/tradestats/SiM5.json";
+
+    List<SuperCandlesFuturesTradeStats5mDTO> response =
+        await moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url,
+            new Dictionary<string, string>
+            {
+                ["from"] = "2026-04-28",
+                ["till"] = "2026-05-05"
+            });
+
+    return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesTradeStats5mDTO);
 });
-app.MapGet("/research/fo-obstats-raw", async (MoexHttpAlgClient c) =>
+app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/obstats/SiM5.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-28", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/datashop/algopack/fo/obstats/SiM5.json";
+
+    List<SuperCandlesFuturesOrderBookStats5mDTO> response =
+        await moexHttpAlgClient.GetSuperCandlesFuturesOrderBookStats5m(
+            url,
+            new Dictionary<string, string>
+            {
+                ["from"] = "2026-04-28",
+                ["till"] = "2026-04-30"
+            });
+
+    return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesOrderBookStats5mDTO);
 });
 
 
