@@ -1,6 +1,6 @@
 ﻿namespace History_DataMoex.DataTransfers
 {
-    public class SuperCandlesFuturesOrderBookStats5mDTO
+    public record SuperCandlesFuturesOrderBookStats5mDTO
     {
         /// <summary>
         /// Торговая дата.
