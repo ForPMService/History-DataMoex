@@ -19,7 +19,17 @@ namespace History_DataMoex.Clients
 
         public async Task<string> GetRaw(string method, Dictionary<string, string>? queryParams = null)
         {
-            var response = await SendRequest(method, queryParams);
+            string requestUrl = _options.BaseUrl + method;
+            queryParams ??= new Dictionary<string, string>();
+            if (queryParams.Count > 0)
+            {
+                QueryString queryString = QueryString.Create(queryParams);
+                requestUrl += queryString.ToString();
+            }
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
+            var response = await _httpClient.SendAsync(request);
+            // Не бросаем — видим что MOEX ответил
             return await response.Content.ReadAsStringAsync();
         }
 

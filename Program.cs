@@ -32,7 +32,7 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 // === Фьючерсы ===
 app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string url = "/datashop/algopack/fo/tradestats/SiM5.json";
+    string url = "/datashop/algopack/fo/tradestats/SiM6.json";
 
     List<SuperCandlesFuturesTradeStats5mDTO> response =
         await moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url,
@@ -46,7 +46,7 @@ app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgCli
 });
 app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string url = "/datashop/algopack/fo/obstats/SiM5.json";
+    string url = "/datashop/algopack/fo/obstats/SiM6.json";
 
     List<SuperCandlesFuturesOrderBookStats5mDTO> response =
         await moexHttpAlgClient.GetSuperCandlesFuturesOrderBookStats5m(
@@ -65,7 +65,7 @@ app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient
 // === FUTOI ===
 app.MapGet("/research/futoi-raw", async (MoexHttpAlgClient c) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/futoi/SiM5.json",
+    string raw = await c.GetRaw("/datashop/algopack/fo/futoi/SiM6.json",
         new Dictionary<string, string> { ["from"] = "2026-04-28", ["till"] = "2026-04-30" });
     return Results.Content(raw, "application/json");
 });
@@ -79,7 +79,7 @@ app.MapGet("/research/hi2-eq-raw", async (MoexHttpAlgClient c) =>
 });
 app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient c) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/hi2/SiM5.json",
+    string raw = await c.GetRaw("/datashop/algopack/fo/hi2/SiM6.json",
         new Dictionary<string, string> { ["from"] = "2026-04-01", ["till"] = "2026-04-30" });
     return Results.Content(raw, "application/json");
 });
