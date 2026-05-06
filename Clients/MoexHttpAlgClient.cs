@@ -107,6 +107,34 @@ namespace History_DataMoex.Clients
             return tradeStatsall;
         }
 
+        public async Task<List<SuperCandlesOrderStats5mDTO>> GetSuperCandlesOrderStats5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+
+            queryParams ??= new Dictionary<string, string>();
+
+            List<SuperCandlesOrderStats5mDTO> tradeStatsall = new List<SuperCandlesOrderStats5mDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+
+                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingALG.ParseAlgOrderStats5m(jsonDocument);
+                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                tradeStatsall.AddRange(orderStats);
+                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+            }
+
+
+            return tradeStatsall;
+        }
+
         private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null)
         {
             string baseUrl = _options.BaseUrl;

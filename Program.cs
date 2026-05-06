@@ -30,42 +30,49 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 });
 app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string url = "/datashop/algopack/eq/tradestats/SBER.json";
+    string url = "/datashop/algopack/eq/tradestats/SMLT.json";
     List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
         new Dictionary<string, string>
         {
-            [ "from"]= "2026-04-26" ,
-            [ "till"]= "2026-04-30"
+            [ "from"]= "2026-04-08" ,
+            [ "till"]= "2026-04-17"
             
         }
         );
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
 });
-//app.MapGet("/research/supercandles-orderstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
-//{
-//    string response = await moexHttpAlgClient.GetRaws("/datashop/algopack/eq/orderstats/SBER.json?from=2026-04-30&till=2026-04-30&limit=500");
-//    return Results.Content(response, "application/json");
-//});
+app.MapGet("/research/supercandles-orderstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+{
+    string url = "/datashop/algopack/eq/orderstats/SMLT.json";
+    List<SuperCandlesOrderStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderStats5m(url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-04-08",
+            ["till"] = "2026-04-17"
+        }
+        );
+    return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderStats5mDTO);
+});
 app.MapGet("/research/supercandles-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string url = "/datashop/algopack/eq/obstats/SBER.json";
+    string url = "/datashop/algopack/eq/obstats/SMLT.json";
     List<SuperCandlesOrderBookStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url,
         new Dictionary<string, string>
         {
-            ["from"] = "2026-04-26",
-            ["till"] = "2026-04-30"
+            ["from"] = "2026-04-08",
+            ["till"] = "2026-04-17"
         }
         );
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
 });
 app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) => {
-    string url = "/engines/stock/markets/shares/boards/tqbr/securities/SBER/candles.json";
+    string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
     List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
         new Dictionary<string, string>
         {
             [ "interval"]= "1" ,
-            [ "from"]= "2026-04-26" ,
-            [ "till"]= "2026-05-01"
+            [ "from"]= "2026-04-08" ,
+            [ "till"]= "2026-04-17"
             
         }
         );
