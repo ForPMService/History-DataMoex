@@ -17,6 +17,12 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
+        public async Task<string> GetRaw(string method, Dictionary<string, string>? queryParams = null)
+        {
+            var response = await SendRequest(method, queryParams);
+            return await response.Content.ReadAsStringAsync();
+        }
+
         public async Task<List<CandlesDTO>> GetCandles(string method, Dictionary<string, string>? queryParams = null)
         {
             int queryStart = 0;

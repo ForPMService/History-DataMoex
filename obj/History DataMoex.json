@@ -29,6 +29,114 @@
         }
       }
     },
+    "/research/fo-tradestats-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/fo-obstats-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/fx-tradestats-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/fx-orderstats-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/fx-obstats-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/futoi-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/hi2-eq-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/hi2-fo-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/alerts-raw": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/research/supercandles-tradestat-10": {
       "get": {
         "tags": [

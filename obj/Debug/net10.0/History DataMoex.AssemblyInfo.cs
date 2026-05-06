@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("History DataMoex")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7652e8ef9ee92253fc95bd97b4f1b2b067d9b770")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b09115fd7ad00a543fd20934f59e6961d0ebfd1")]
 [assembly: System.Reflection.AssemblyProductAttribute("History DataMoex")]
 [assembly: System.Reflection.AssemblyTitleAttribute("History DataMoex")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
