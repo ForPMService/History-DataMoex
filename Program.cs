@@ -203,6 +203,17 @@ app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) =>
     return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
 });
 
+app.MapGet("/research/fo-candles-1", async (MoexHttpAlgClient moexHttpAlgClient) => {
+    string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
+    List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
+        new Dictionary<string, string>
+        {
+            ["interval"] = "1",
+            ["from"] = "2026-04-28",
+            ["till"] = "2026-05-05"
+        });
+    return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
+});
 
 app.UseHttpsRedirection();
 

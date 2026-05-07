@@ -172,6 +172,18 @@
           }
         }
       }
+    },
+    "/research/fo-candles-1": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "tags": [
