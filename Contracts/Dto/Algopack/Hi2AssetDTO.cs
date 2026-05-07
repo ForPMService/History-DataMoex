@@ -1,6 +1,6 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Algopack
 {
-    public record Hi2FuturesDTO
+    public record Hi2AssetDTO
     {
         /// <summary>
         /// Торговая дата.
@@ -17,24 +17,14 @@
         public string? TradeTime { get; init; }
 
         /// <summary>
-        /// Код срочного инструмента.
+        /// Код инструмента.
         ///
         /// MOEX столбец: secid
         ///
         /// Пример:
-        /// SiM6.
+        /// SBER.
         /// </summary>
         public string? SecId { get; init; }
-
-        /// <summary>
-        /// Код базового актива.
-        ///
-        /// MOEX столбец: asset_code
-        ///
-        /// Пример:
-        /// Si.
-        /// </summary>
-        public string? AssetCode { get; init; }
 
         /// <summary>
         /// Название метрики HI2.

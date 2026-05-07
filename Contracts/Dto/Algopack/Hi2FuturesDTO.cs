@@ -1,6 +1,6 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Algopack
 {
-    public record MegaAlertsAssetsDTO
+    public record Hi2FuturesDTO
     {
         /// <summary>
         /// Торговая дата.
@@ -17,50 +17,53 @@
         public string? TradeTime { get; init; }
 
         /// <summary>
-        /// Код инструмента.
+        /// Код срочного инструмента.
         ///
         /// MOEX столбец: secid
         ///
         /// Пример:
-        /// SBER.
+        /// SiM6.
         /// </summary>
         public string? SecId { get; init; }
 
         /// <summary>
-        /// Тип алерта.
+        /// Код базового актива.
         ///
-        /// MOEX столбец: alert_type
+        /// MOEX столбец: asset_code
+        ///
+        /// Пример:
+        /// Si.
+        /// </summary>
+        public string? AssetCode { get; init; }
+
+        /// <summary>
+        /// Название метрики HI2.
+        ///
+        /// MOEX столбец: metric
         ///
         /// Примеры:
-        /// vol_s_99_9_pctl,
-        /// net_vol_99_9_pctl-,
-        /// vol_99_9_pctl,
-        /// pr_change_99_9_pctl+.
+        /// hhi_agressive,
+        /// hhi_agressive_buy,
+        /// hhi_agressive_sell,
+        /// hhi_buy,
+        /// hhi_sell,
+        /// hhi_volume.
         /// </summary>
-        public string? AlertType { get; init; }
+        public string? Metric { get; init; }
 
         /// <summary>
-        /// Пороговое значение, при превышении которого сработал алерт.
-        ///
-        /// MOEX столбец: threshold
-        /// </summary>
-        
-        public double? Threshold { get; init; }
-
-        /// <summary>
-        /// Фактическое значение показателя.
+        /// Значение метрики.
         ///
         /// MOEX столбец: value
         /// </summary>
         public double? Value { get; init; }
 
         /// <summary>
-        /// Справочная информация по алерту.
+        /// Справочная информация по метрике.
         ///
         /// MOEX столбец: reference
         ///
-        /// В ответе приходит строка, внутри которой находится JSON.
-        /// На этом уровне оставляем как string.
+        /// В примере приходит пустая строка.
         /// </summary>
         public string? Reference { get; init; }
 
@@ -70,6 +73,5 @@
         /// MOEX столбец: SYSTIME
         /// </summary>
         public DateTime? SysTime { get; init; }
-
     }
 }

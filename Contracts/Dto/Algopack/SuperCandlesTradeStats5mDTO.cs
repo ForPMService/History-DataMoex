@@ -1,4 +1,4 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Algopack
 {
     /// <summary>
     /// Одна строка MOEX ALGOPACK TradeStats за 5 минут.

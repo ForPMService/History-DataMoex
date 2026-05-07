@@ -1,4 +1,4 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Algopack
 {
     public record MegaAlertsFuturesDTO
     {

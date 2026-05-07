@@ -1,6 +1,6 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Algopack
 {
-    public record Hi2AssetDTO
+    public record MegaAlertsAssetsDTO
     {
         /// <summary>
         /// Торговая дата.
@@ -27,33 +27,40 @@
         public string? SecId { get; init; }
 
         /// <summary>
-        /// Название метрики HI2.
+        /// Тип алерта.
         ///
-        /// MOEX столбец: metric
+        /// MOEX столбец: alert_type
         ///
         /// Примеры:
-        /// hhi_agressive,
-        /// hhi_agressive_buy,
-        /// hhi_agressive_sell,
-        /// hhi_buy,
-        /// hhi_sell,
-        /// hhi_volume.
+        /// vol_s_99_9_pctl,
+        /// net_vol_99_9_pctl-,
+        /// vol_99_9_pctl,
+        /// pr_change_99_9_pctl+.
         /// </summary>
-        public string? Metric { get; init; }
+        public string? AlertType { get; init; }
 
         /// <summary>
-        /// Значение метрики.
+        /// Пороговое значение, при превышении которого сработал алерт.
+        ///
+        /// MOEX столбец: threshold
+        /// </summary>
+        
+        public double? Threshold { get; init; }
+
+        /// <summary>
+        /// Фактическое значение показателя.
         ///
         /// MOEX столбец: value
         /// </summary>
         public double? Value { get; init; }
 
         /// <summary>
-        /// Справочная информация по метрике.
+        /// Справочная информация по алерту.
         ///
         /// MOEX столбец: reference
         ///
-        /// В примере приходит пустая строка.
+        /// В ответе приходит строка, внутри которой находится JSON.
+        /// На этом уровне оставляем как string.
         /// </summary>
         public string? Reference { get; init; }
 
@@ -63,5 +70,6 @@
         /// MOEX столбец: SYSTIME
         /// </summary>
         public DateTime? SysTime { get; init; }
+
     }
 }
