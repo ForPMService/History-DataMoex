@@ -1,389 +1,515 @@
-﻿using History_DataMoex.DataTransfers.Calendar;
+﻿using History_DataMoex.DataTransfers;
+using History_DataMoex.DataTransfers.Calendar;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
 {
     public class ParsingCalendar
     {
+        // ── Off Days (общий, все рынки) ─────────────────────────
+
         public static List<CalendarOffDaysAllDTO> ParseCalendarOffDaysAll(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "off_days");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "off_days");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int tradeDateIndex = GetRequiredIndex(columns, "tradedate", "off_days");
-            int currencyWorkdayIndex = GetRequiredIndex(columns, "currency_workday", "off_days");
-            int currencyTradeSessionDateIndex = GetRequiredIndex(columns, "currency_trade_session_date", "off_days");
-            int currencyReasonIndex = GetRequiredIndex(columns, "currency_reason", "off_days");
-            int futuresWorkdayIndex = GetRequiredIndex(columns, "futures_workday", "off_days");
-            int futuresTradeSessionDateIndex = GetRequiredIndex(columns, "futures_trade_session_date", "off_days");
-            int futuresReasonIndex = GetRequiredIndex(columns, "futures_reason", "off_days");
-            int stockWorkdayIndex = GetRequiredIndex(columns, "stock_workday", "off_days");
-            int stockTradeSessionDateIndex = GetRequiredIndex(columns, "stock_trade_session_date", "off_days");
-            int stockReasonIndex = GetRequiredIndex(columns, "stock_reason", "off_days");
+            const int arraysize = 10;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("currency_workday"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("currency_trade_session_date"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("currency_reason"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("futures_workday"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("futures_trade_session_date"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("futures_reason"u8)) { idx[6] = i; found++; continue; }
+                else if (columns[i].ValueEquals("stock_workday"u8)) { idx[7] = i; found++; continue; }
+                else if (columns[i].ValueEquals("stock_trade_session_date"u8)) { idx[8] = i; found++; continue; }
+                else if (columns[i].ValueEquals("stock_reason"u8)) { idx[9] = i; found++; continue; }
+            }
 
             List<CalendarOffDaysAllDTO> result = new List<CalendarOffDaysAllDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarOffDaysAllDTO dto = new CalendarOffDaysAllDTO
+                result.Add(new CalendarOffDaysAllDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(row[tradeDateIndex]),
-                    CurrencyWorkday = ParseHelpers.GetLongOrNull(row[currencyWorkdayIndex]),
-                    CurrencyTradeSessionDate = ParseHelpers.GetStringOrNull(row[currencyTradeSessionDateIndex]),
-                    CurrencyReason = ParseHelpers.GetStringOrNull(row[currencyReasonIndex]),
-                    FuturesWorkday = ParseHelpers.GetLongOrNull(row[futuresWorkdayIndex]),
-                    FuturesTradeSessionDate = ParseHelpers.GetStringOrNull(row[futuresTradeSessionDateIndex]),
-                    FuturesReason = ParseHelpers.GetStringOrNull(row[futuresReasonIndex]),
-                    StockWorkday = ParseHelpers.GetLongOrNull(row[stockWorkdayIndex]),
-                    StockTradeSessionDate = ParseHelpers.GetStringOrNull(row[stockTradeSessionDateIndex]),
-                    StockReason = ParseHelpers.GetStringOrNull(row[stockReasonIndex])
-                };
-
-                result.Add(dto);
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    CurrencyWorkday = ParseHelpers.GetLongOrNull(data[i][idx[1]]),
+                    CurrencyTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    CurrencyReason = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    FuturesWorkday = ParseHelpers.GetLongOrNull(data[i][idx[4]]),
+                    FuturesTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
+                    FuturesReason = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
+                    StockWorkday = ParseHelpers.GetLongOrNull(data[i][idx[7]]),
+                    StockTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
+                    StockReason = ParseHelpers.GetStringOrNull(data[i][idx[9]])
+                });
             }
 
             return result;
         }
+
+        // ── Off Days (один рынок: stock или futures) ────────────
 
         public static List<CalendarOffDaysMarketDTO> ParseCalendarOffDaysMarket(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "off_days");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "off_days");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int tradeDateIndex = GetRequiredIndex(columns, "tradedate", "off_days");
-            int isTradedIndex = GetRequiredIndex(columns, "is_traded", "off_days");
-            int tradeSessionDateIndex = GetRequiredIndex(columns, "trade_session_date", "off_days");
-            int reasonIndex = GetRequiredIndex(columns, "reason", "off_days");
-            int updateTimeIndex = GetRequiredIndex(columns, "updatetime", "off_days");
+            const int arraysize = 5;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("is_traded"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("trade_session_date"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("reason"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("updatetime"u8)) { idx[4] = i; found++; continue; }
+            }
 
             List<CalendarOffDaysMarketDTO> result = new List<CalendarOffDaysMarketDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarOffDaysMarketDTO dto = new CalendarOffDaysMarketDTO
+                result.Add(new CalendarOffDaysMarketDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(row[tradeDateIndex]),
-                    IsTraded = ParseHelpers.GetIntOrNull(row[isTradedIndex]),
-                    TradeSessionDate = ParseHelpers.GetStringOrNull(row[tradeSessionDateIndex]),
-                    Reason = ParseHelpers.GetStringOrNull(row[reasonIndex]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(row[updateTimeIndex])
-                };
-
-                result.Add(dto);
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    IsTraded = ParseHelpers.GetIntOrNull(data[i][idx[1]]),
+                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    Reason = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[4]])
+                });
             }
 
             return result;
         }
+
+        // ── Stock Session ───────────────────────────────────────
 
         public static List<CalendarStockSessionDTO> ParseCalendarStockSession(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "session_schedule");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "session_schedule");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int tradeDateIndex = GetRequiredIndex(columns, "tradedate", "session_schedule");
-            int tradingSessionIndex = GetRequiredIndex(columns, "tradingsession", "session_schedule");
-            int boardIdIndex = GetRequiredIndex(columns, "boardid", "session_schedule");
-            int secIdIndex = GetRequiredIndex(columns, "secid", "session_schedule");
-            int typeIndex = GetRequiredIndex(columns, "type", "session_schedule");
-            int timeFromIndex = GetRequiredIndex(columns, "time_from", "session_schedule");
-            int timeTillIndex = GetRequiredIndex(columns, "time_till", "session_schedule");
-            int updateTimeIndex = GetRequiredIndex(columns, "updatetime", "session_schedule");
+            const int arraysize = 8;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("tradingsession"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("boardid"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("secid"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("type"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("time_from"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("time_till"u8)) { idx[6] = i; found++; continue; }
+                else if (columns[i].ValueEquals("updatetime"u8)) { idx[7] = i; found++; continue; }
+            }
 
             List<CalendarStockSessionDTO> result = new List<CalendarStockSessionDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarStockSessionDTO dto = new CalendarStockSessionDTO
+                result.Add(new CalendarStockSessionDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(row[tradeDateIndex]),
-                    TradingSession = ParseHelpers.GetIntOrNull(row[tradingSessionIndex]),
-                    BoardId = ParseHelpers.GetStringOrNull(row[boardIdIndex]),
-                    SecId = ParseHelpers.GetStringOrNull(row[secIdIndex]),
-                    Type = ParseHelpers.GetStringOrNull(row[typeIndex]),
-                    TimeFrom = ParseHelpers.GetStringOrNull(row[timeFromIndex]),
-                    TimeTill = ParseHelpers.GetStringOrNull(row[timeTillIndex]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(row[updateTimeIndex])
-                };
-
-                result.Add(dto);
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    TradingSession = ParseHelpers.GetIntOrNull(data[i][idx[1]]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
+                    TimeFrom = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
+                    TimeTill = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[7]])
+                });
             }
 
             return result;
         }
+
+        // ── Futures Session ─────────────────────────────────────
 
         public static List<CalendarFuturesSessionDTO> ParseCalendarFuturesSession(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "session_schedule");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "session_schedule");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int tradeSessionDateIndex = GetRequiredIndex(columns, "trade_session_date", "session_schedule");
-            int boardIdIndex = GetRequiredIndex(columns, "boardid", "session_schedule");
-            int secIdIndex = GetRequiredIndex(columns, "secid", "session_schedule");
-            int typeIndex = GetRequiredIndex(columns, "type", "session_schedule");
-            int timeFromIndex = GetRequiredIndex(columns, "time_from", "session_schedule");
-            int timeTillIndex = GetRequiredIndex(columns, "time_till", "session_schedule");
-            int updateTimeIndex = GetRequiredIndex(columns, "updatetime", "session_schedule");
+            const int arraysize = 7;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("trade_session_date"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("boardid"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("secid"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("type"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("time_from"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("time_till"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("updatetime"u8)) { idx[6] = i; found++; continue; }
+            }
 
             List<CalendarFuturesSessionDTO> result = new List<CalendarFuturesSessionDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarFuturesSessionDTO dto = new CalendarFuturesSessionDTO
+                result.Add(new CalendarFuturesSessionDTO
                 {
-                    TradeSessionDate = ParseHelpers.GetStringOrNull(row[tradeSessionDateIndex]),
-                    BoardId = ParseHelpers.GetStringOrNull(row[boardIdIndex]),
-                    SecId = ParseHelpers.GetStringOrNull(row[secIdIndex]),
-                    Type = ParseHelpers.GetStringOrNull(row[typeIndex]),
-                    TimeFrom = ParseHelpers.GetDateTimeOrNull(row[timeFromIndex]),
-                    TimeTill = ParseHelpers.GetDateTimeOrNull(row[timeTillIndex]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(row[updateTimeIndex])
-                };
-
-                result.Add(dto);
+                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    TimeFrom = ParseHelpers.GetDateTimeOrNull(data[i][idx[4]]),
+                    TimeTill = ParseHelpers.GetDateTimeOrNull(data[i][idx[5]]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[6]])
+                });
             }
 
             return result;
         }
+
+        // ── Session Types (общий для stock и futures) ───────────
 
         public static List<CalendarSessionTypeDTO> ParseCalendarSessionTypes(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "session_schedule.types");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "session_schedule.types");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int typeIndex = GetRequiredIndex(columns, "type", "session_schedule.types");
-            int titleIndex = GetRequiredIndex(columns, "title", "session_schedule.types");
+            const int arraysize = 2;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("type"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("title"u8)) { idx[1] = i; found++; continue; }
+            }
 
             List<CalendarSessionTypeDTO> result = new List<CalendarSessionTypeDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarSessionTypeDTO dto = new CalendarSessionTypeDTO
+                result.Add(new CalendarSessionTypeDTO
                 {
-                    Type = ParseHelpers.GetStringOrNull(row[typeIndex]),
-                    Title = ParseHelpers.GetStringOrNull(row[titleIndex])
-                };
-
-                result.Add(dto);
+                    Type = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][idx[1]])
+                });
             }
 
             return result;
         }
+
+        // ── Forts Contracts ─────────────────────────────────────
 
         public static List<CalendarFortsContractDTO> ParseCalendarFortsContracts(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "forts");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "forts");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int secIdIndex = GetRequiredIndex(columns, "secid", "forts");
-            int assetCodeIndex = GetRequiredIndex(columns, "asset_code", "forts");
-            int shortNameIndex = GetRequiredIndex(columns, "shortname", "forts");
-            int execTypeIndex = GetRequiredIndex(columns, "exec_type", "forts");
-            int contractNameIndex = GetRequiredIndex(columns, "contract_name", "forts");
-            int expirationDateIndex = GetRequiredIndex(columns, "expiration_date", "forts");
-            int endDateIndex = GetRequiredIndex(columns, "end_date", "forts");
-            int expirationTypeIndex = GetRequiredIndex(columns, "expiration_type", "forts");
-            int expirationTimeIndex = GetRequiredIndex(columns, "expiration_time", "forts");
-            int weekendSessionIndex = GetRequiredIndex(columns, "weekend_session", "forts");
+            const int arraysize = 10;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("secid"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("asset_code"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("shortname"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("exec_type"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("contract_name"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_date"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("end_date"u8)) { idx[6] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_type"u8)) { idx[7] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_time"u8)) { idx[8] = i; found++; continue; }
+                else if (columns[i].ValueEquals("weekend_session"u8)) { idx[9] = i; found++; continue; }
+            }
 
             List<CalendarFortsContractDTO> result = new List<CalendarFortsContractDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarFortsContractDTO dto = new CalendarFortsContractDTO
+                result.Add(new CalendarFortsContractDTO
                 {
-                    SecId = ParseHelpers.GetStringOrNull(row[secIdIndex]),
-                    AssetCode = ParseHelpers.GetStringOrNull(row[assetCodeIndex]),
-                    ShortName = ParseHelpers.GetStringOrNull(row[shortNameIndex]),
-                    ExecType = ParseHelpers.GetStringOrNull(row[execTypeIndex]),
-                    ContractName = ParseHelpers.GetStringOrNull(row[contractNameIndex]),
-                    ExpirationDate = ParseHelpers.GetStringOrNull(row[expirationDateIndex]),
-                    EndDate = ParseHelpers.GetStringOrNull(row[endDateIndex]),
-                    ExpirationType = ParseHelpers.GetStringOrNull(row[expirationTypeIndex]),
-                    ExpirationTime = ParseHelpers.GetStringOrNull(row[expirationTimeIndex]),
-                    WeekendSession = ParseHelpers.GetIntOrNull(row[weekendSessionIndex])
-                };
-
-                result.Add(dto);
+                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    AssetCode = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    ShortName = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    ExecType = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    ContractName = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
+                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
+                    EndDate = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
+                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][idx[7]]),
+                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
+                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][idx[9]])
+                });
             }
 
             return result;
         }
+
+        // ── Options Series ──────────────────────────────────────
 
         public static List<CalendarOptionsSeriesDTO> ParseCalendarOptionsSeries(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "options");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "options");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int assetTypeNameIndex = GetRequiredIndex(columns, "asset_type_name", "options");
-            int assetCodeIndex = GetRequiredIndex(columns, "asset_code", "options");
-            int seriesNameIndex = GetRequiredIndex(columns, "series_name", "options");
-            int seriesTypeIndex = GetRequiredIndex(columns, "series_type", "options");
-            int execTypeIndex = GetRequiredIndex(columns, "exec_type", "options");
-            int marginStyleIndex = GetRequiredIndex(columns, "margin_style", "options");
-            int contractNameIndex = GetRequiredIndex(columns, "contract_name", "options");
-            int expirationDateIndex = GetRequiredIndex(columns, "expiration_date", "options");
-            int expirationTypeIndex = GetRequiredIndex(columns, "expiration_type", "options");
-            int expirationTimeIndex = GetRequiredIndex(columns, "expiration_time", "options");
-            int weekendSessionIndex = GetRequiredIndex(columns, "weekend_session", "options");
+            const int arraysize = 11;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("asset_type_name"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("asset_code"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("series_name"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("series_type"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("exec_type"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("margin_style"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("contract_name"u8)) { idx[6] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_date"u8)) { idx[7] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_type"u8)) { idx[8] = i; found++; continue; }
+                else if (columns[i].ValueEquals("expiration_time"u8)) { idx[9] = i; found++; continue; }
+                else if (columns[i].ValueEquals("weekend_session"u8)) { idx[10] = i; found++; continue; }
+            }
 
             List<CalendarOptionsSeriesDTO> result = new List<CalendarOptionsSeriesDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarOptionsSeriesDTO dto = new CalendarOptionsSeriesDTO
+                result.Add(new CalendarOptionsSeriesDTO
                 {
-                    AssetTypeName = ParseHelpers.GetStringOrNull(row[assetTypeNameIndex]),
-                    AssetCode = ParseHelpers.GetStringOrNull(row[assetCodeIndex]),
-                    SeriesName = ParseHelpers.GetStringOrNull(row[seriesNameIndex]),
-                    SeriesType = ParseHelpers.GetStringOrNull(row[seriesTypeIndex]),
-                    ExecType = ParseHelpers.GetStringOrNull(row[execTypeIndex]),
-                    MarginStyle = ParseHelpers.GetStringOrNull(row[marginStyleIndex]),
-                    ContractName = ParseHelpers.GetStringOrNull(row[contractNameIndex]),
-                    ExpirationDate = ParseHelpers.GetStringOrNull(row[expirationDateIndex]),
-                    ExpirationType = ParseHelpers.GetStringOrNull(row[expirationTypeIndex]),
-                    ExpirationTime = ParseHelpers.GetStringOrNull(row[expirationTimeIndex]),
-                    WeekendSession = ParseHelpers.GetIntOrNull(row[weekendSessionIndex])
-                };
-
-                result.Add(dto);
+                    AssetTypeName = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    AssetCode = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    SeriesName = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    SeriesType = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    ExecType = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
+                    MarginStyle = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
+                    ContractName = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
+                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][idx[7]]),
+                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
+                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][idx[9]]),
+                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][idx[10]])
+                });
             }
 
             return result;
         }
 
-        public static List<CalendarSecurityChangeDTO> ParseCalendarSecurityChanges(JsonDocument jsonDocument)
-        {
-            JsonElement table = GetTable(jsonDocument, "securities");
-            Dictionary<string, int> columns = GetColumnIndices(table);
-            JsonElement data = table.GetProperty("data");
-
-            int updateTimeIndex = GetRequiredIndex(columns, "updatetime", "securities");
-            int actionIndex = GetRequiredIndex(columns, "action", "securities");
-            int secIdIndex = GetRequiredIndex(columns, "secid", "securities");
-            int attributeNameIndex = GetRequiredIndex(columns, "attribute_name", "securities");
-            int beforeValueIndex = GetRequiredIndex(columns, "before_value", "securities");
-            int afterValueIndex = GetRequiredIndex(columns, "after_value", "securities");
-
-            List<CalendarSecurityChangeDTO> result = new List<CalendarSecurityChangeDTO>(data.GetArrayLength());
-
-            foreach (JsonElement row in data.EnumerateArray())
-            {
-                CalendarSecurityChangeDTO dto = new CalendarSecurityChangeDTO
-                {
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(row[updateTimeIndex]),
-                    Action = ParseHelpers.GetStringOrNull(row[actionIndex]),
-                    SecId = ParseHelpers.GetStringOrNull(row[secIdIndex]),
-                    AttributeName = ParseHelpers.GetStringOrNull(row[attributeNameIndex]),
-                    BeforeValue = ParseHelpers.GetStringOrNull(row[beforeValueIndex]),
-                    AfterValue = ParseHelpers.GetStringOrNull(row[afterValueIndex])
-                };
-
-                result.Add(dto);
-            }
-
-            return result;
-        }
-
-        public static List<CalendarSecurityAttributeDTO> ParseCalendarSecurityAttributes(JsonDocument jsonDocument)
-        {
-            JsonElement table = GetTable(jsonDocument, "securities.attributes");
-            Dictionary<string, int> columns = GetColumnIndices(table);
-            JsonElement data = table.GetProperty("data");
-
-            int nameIndex = GetRequiredIndex(columns, "name", "securities.attributes");
-            int typeIndex = GetRequiredIndex(columns, "type", "securities.attributes");
-            int titleIndex = GetRequiredIndex(columns, "title", "securities.attributes");
-
-            List<CalendarSecurityAttributeDTO> result = new List<CalendarSecurityAttributeDTO>(data.GetArrayLength());
-
-            foreach (JsonElement row in data.EnumerateArray())
-            {
-                CalendarSecurityAttributeDTO dto = new CalendarSecurityAttributeDTO
-                {
-                    Name = ParseHelpers.GetStringOrNull(row[nameIndex]),
-                    Type = ParseHelpers.GetStringOrNull(row[typeIndex]),
-                    Title = ParseHelpers.GetStringOrNull(row[titleIndex])
-                };
-
-                result.Add(dto);
-            }
-
-            return result;
-        }
+        // ── Suspended ───────────────────────────────────────────
 
         public static List<CalendarSuspendedDTO> ParseCalendarSuspended(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "suspended");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "suspended");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int secIdIndex = GetRequiredIndex(columns, "secid", "suspended");
-            int reasonIdIndex = GetRequiredIndex(columns, "reason_id", "suspended");
-            int dateFromIndex = GetRequiredIndex(columns, "date_from", "suspended");
-            int dateTillIndex = GetRequiredIndex(columns, "date_till", "suspended");
-            int boardIdIndex = GetRequiredIndex(columns, "boardid", "suspended");
-            int settleCodesIndex = GetRequiredIndex(columns, "settle_codes", "suspended");
-            int changeDateIndex = GetRequiredIndex(columns, "changedate", "suspended");
-            int updateTimeIndex = GetRequiredIndex(columns, "updatetime", "suspended");
+            const int arraysize = 8;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("secid"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("reason_id"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("date_from"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("date_till"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("boardid"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("settle_codes"u8)) { idx[5] = i; found++; continue; }
+                else if (columns[i].ValueEquals("changedate"u8)) { idx[6] = i; found++; continue; }
+                else if (columns[i].ValueEquals("updatetime"u8)) { idx[7] = i; found++; continue; }
+            }
 
             List<CalendarSuspendedDTO> result = new List<CalendarSuspendedDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarSuspendedDTO dto = new CalendarSuspendedDTO
+                result.Add(new CalendarSuspendedDTO
                 {
-                    SecId = ParseHelpers.GetStringOrNull(row[secIdIndex]),
-                    ReasonId = ParseHelpers.GetStringOrNull(row[reasonIdIndex]),
-                    DateFrom = ParseHelpers.GetStringOrNull(row[dateFromIndex]),
-                    DateTill = ParseHelpers.GetStringOrNull(row[dateTillIndex]),
-                    BoardId = ParseHelpers.GetStringOrNull(row[boardIdIndex]),
-                    SettleCodes = ParseHelpers.GetStringOrNull(row[settleCodesIndex]),
-                    ChangeDate = ParseHelpers.GetStringOrNull(row[changeDateIndex]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(row[updateTimeIndex])
-                };
-
-                result.Add(dto);
+                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    ReasonId = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    DateFrom = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    DateTill = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
+                    SettleCodes = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
+                    ChangeDate = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[7]])
+                });
             }
 
             return result;
         }
+
+        // ── Suspended Reasons ───────────────────────────────────
 
         public static List<CalendarSuspendedReasonDTO> ParseCalendarSuspendedReasons(JsonDocument jsonDocument)
         {
-            JsonElement table = GetTable(jsonDocument, "suspended.reasons");
-            Dictionary<string, int> columns = GetColumnIndices(table);
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "suspended.reasons");
+            JsonElement columns = table.GetProperty("columns");
             JsonElement data = table.GetProperty("data");
 
-            int idIndex = GetRequiredIndex(columns, "id", "suspended.reasons");
-            int titleIndex = GetRequiredIndex(columns, "title", "suspended.reasons");
+            const int arraysize = 2;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("id"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("title"u8)) { idx[1] = i; found++; continue; }
+            }
 
             List<CalendarSuspendedReasonDTO> result = new List<CalendarSuspendedReasonDTO>(data.GetArrayLength());
 
-            foreach (JsonElement row in data.EnumerateArray())
+            for (int i = 0; i < data.GetArrayLength(); i++)
             {
-                CalendarSuspendedReasonDTO dto = new CalendarSuspendedReasonDTO
+                result.Add(new CalendarSuspendedReasonDTO
                 {
-                    Id = ParseHelpers.GetIntOrNull(row[idIndex]),
-                    Title = ParseHelpers.GetStringOrNull(row[titleIndex])
-                };
-
-                result.Add(dto);
+                    Id = ParseHelpers.GetIntOrNull(data[i][idx[0]]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][idx[1]])
+                });
             }
 
             return result;
         }
 
-        private static JsonElement GetTable(JsonDocument jsonDocument, string tableName)
+        // ── Security Changes ────────────────────────────────────
+
+        public static List<CalendarSecurityChangeDTO> ParseCalendarSecurityChanges(JsonDocument jsonDocument)
         {
             JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "securities");
+            JsonElement columns = table.GetProperty("columns");
+            JsonElement data = table.GetProperty("data");
 
+            const int arraysize = 6;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("updatetime"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("action"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("secid"u8)) { idx[2] = i; found++; continue; }
+                else if (columns[i].ValueEquals("attribute_name"u8)) { idx[3] = i; found++; continue; }
+                else if (columns[i].ValueEquals("before_value"u8)) { idx[4] = i; found++; continue; }
+                else if (columns[i].ValueEquals("after_value"u8)) { idx[5] = i; found++; continue; }
+            }
+
+            List<CalendarSecurityChangeDTO> result = new List<CalendarSecurityChangeDTO>(data.GetArrayLength());
+
+            for (int i = 0; i < data.GetArrayLength(); i++)
+            {
+                result.Add(new CalendarSecurityChangeDTO
+                {
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[0]]),
+                    Action = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
+                    AttributeName = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
+                    BeforeValue = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
+                    AfterValue = ParseHelpers.GetStringOrNull(data[i][idx[5]])
+                });
+            }
+
+            return result;
+        }
+
+        // ── Security Attributes ─────────────────────────────────
+
+        public static List<CalendarSecurityAttributeDTO> ParseCalendarSecurityAttributes(JsonDocument jsonDocument)
+        {
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, "securities.attributes");
+            JsonElement columns = table.GetProperty("columns");
+            JsonElement data = table.GetProperty("data");
+
+            const int arraysize = 3;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("name"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("type"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("title"u8)) { idx[2] = i; found++; continue; }
+            }
+
+            List<CalendarSecurityAttributeDTO> result = new List<CalendarSecurityAttributeDTO>(data.GetArrayLength());
+
+            for (int i = 0; i < data.GetArrayLength(); i++)
+            {
+                result.Add(new CalendarSecurityAttributeDTO
+                {
+                    Name = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][idx[2]])
+                });
+            }
+
+            return result;
+        }
+
+        // ── Cursor (универсальный для Calendar) ─────────────────
+
+        /// <summary>
+        /// Парсинг cursor-пагинации для Calendar endpoint'ов.
+        ///
+        /// cursorKey — имя JSON-таблицы с курсором.
+        /// Примеры: "suspended.cursor", "securities.cursor".
+        ///
+        /// Структура всегда одинаковая: INDEX, TOTAL, PAGESIZE.
+        /// </summary>
+        public static PaginationCursorDTO ParseCursor(JsonDocument jsonDocument, string cursorKey)
+        {
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement table = GetTable(root, cursorKey);
+            JsonElement columns = table.GetProperty("columns");
+
+            const int arraysize = 3;
+            Span<int> idx = stackalloc int[arraysize];
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("INDEX"u8)) { idx[0] = i; found++; continue; }
+                else if (columns[i].ValueEquals("TOTAL"u8)) { idx[1] = i; found++; continue; }
+                else if (columns[i].ValueEquals("PAGESIZE"u8)) { idx[2] = i; found++; continue; }
+            }
+
+            JsonElement datas = table.GetProperty("data");
+
+            return new PaginationCursorDTO()
+            {
+                Index = ParseHelpers.GetIntOrNull(datas[0][idx[0]]),
+                Total = ParseHelpers.GetIntOrNull(datas[0][idx[1]]),
+                PageSize = ParseHelpers.GetIntOrNull(datas[0][idx[2]])
+            };
+        }
+
+        // ── Инфраструктура ──────────────────────────────────────
+
+        private static JsonElement GetTable(JsonElement root, string tableName)
+        {
             if (!root.TryGetProperty(tableName, out JsonElement table))
             {
                 throw new InvalidOperationException(
@@ -391,38 +517,6 @@ namespace History_DataMoex.Parsing
             }
 
             return table;
-        }
-
-        private static Dictionary<string, int> GetColumnIndices(JsonElement table)
-        {
-            JsonElement columns = table.GetProperty("columns");
-            Dictionary<string, int> result = new Dictionary<string, int>(StringComparer.Ordinal);
-
-            for (int i = 0; i < columns.GetArrayLength(); i++)
-            {
-                string? columnName = columns[i].GetString();
-
-                if (!string.IsNullOrWhiteSpace(columnName))
-                {
-                    result[columnName] = i;
-                }
-            }
-
-            return result;
-        }
-
-        private static int GetRequiredIndex(
-            Dictionary<string, int> columns,
-            string columnName,
-            string tableName)
-        {
-            if (!columns.TryGetValue(columnName, out int index))
-            {
-                throw new InvalidOperationException(
-                    $"MOEX ISS Calendar table '{tableName}' does not contain required column '{columnName}'.");
-            }
-
-            return index;
         }
     }
 }
