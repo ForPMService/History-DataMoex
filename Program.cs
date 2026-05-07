@@ -215,6 +215,32 @@ app.MapGet("/research/fo-candles-1", async (MoexHttpAlgClient moexHttpAlgClient)
     return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
 });
 
+// === ISS Calendar — Discovery ===
+
+app.MapGet("/research/calendar-offdays-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars.json"), "application/json"));
+
+app.MapGet("/research/calendar-stock-offdays-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/stock.json"), "application/json"));
+
+app.MapGet("/research/calendar-stock-session-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/stock/session.json"), "application/json"));
+
+app.MapGet("/research/calendar-futures-offdays-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/futures.json"), "application/json"));
+
+app.MapGet("/research/calendar-futures-securities-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/futures/securities.json"), "application/json"));
+
+app.MapGet("/research/calendar-futures-session-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/futures/session.json"), "application/json"));
+
+app.MapGet("/research/calendar-stock-suspended-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/stock/securities/suspended/details.json"), "application/json"));
+
+app.MapGet("/research/calendar-stock-changes-raw", async (MoexHttpAlgClient c) =>
+    Results.Content(await c.GetRaw("/calendars/stock/securities/changes.json"), "application/json"));
+
 app.UseHttpsRedirection();
 
 if(app.Environment.IsDevelopment())

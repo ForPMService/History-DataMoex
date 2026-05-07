@@ -17,6 +17,13 @@ namespace History_DataMoex.Clients
             _options = options.Value;
             _httpClient = httpClient;
         }
+        public async Task<string> GetRaw(string method)
+        {
+            string requestUrl = _options.BaseUrl + method;
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            var response = await _httpClient.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
+        }
 
         public async Task<List<StockSecurityDTO>> GetInfoTradedStockAssets(string method)
         {
