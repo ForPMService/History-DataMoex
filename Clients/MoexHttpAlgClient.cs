@@ -67,6 +67,92 @@ namespace History_DataMoex.Clients
             return candles;
         }
 
+        public async Task <List<Hi2AssetDTO>> GetHi2Asset5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+
+            queryParams ??= new Dictionary<string, string>();
+
+            List<Hi2AssetDTO> hi2AssetsAll = new List<Hi2AssetDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+
+                List<Hi2AssetDTO> hi2Assets = ParsingALG.ParseHi2Assets(jsonDocument);
+                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                hi2AssetsAll.AddRange(hi2Assets);
+                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+            }
+
+
+            return hi2AssetsAll;
+        }
+
+        public async Task<List<Hi2FuturesDTO>> GetHi2Furures5m(string method, Dictionary<string, string>? queryParams = null)
+        {
+
+            queryParams ??= new Dictionary<string, string>();
+
+            List<Hi2FuturesDTO> hi2FuturesAll = new List<Hi2FuturesDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+
+                List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
+                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                hi2FuturesAll.AddRange(hi2FuturesAll);
+                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+            }
+
+
+            return hi2FuturesAll;
+        }
+
+        public async Task<List<MegaAlertsDTO>> GetMegaAlerts(string metod, Dictionary<string, string>? queryParams = null)
+        {
+            queryParams ??= new Dictionary<string, string>();
+
+            List<MegaAlertsDTO> megaAlertsAll = new List<MegaAlertsDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(metod, queryParams);
+
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                List<MegaAlertsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
+                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+
+                megaAlertsAll.AddRange(megaAlerts);
+
+                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                {
+                    break;
+                }
+
+                queryParams["start"] =
+                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+            }
+
+            return megaAlertsAll;
+        }
+
+
         public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
         {
             

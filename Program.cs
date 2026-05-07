@@ -79,25 +79,46 @@ app.MapGet("/research/futoi-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 });
 
 // === HI2 ===
-app.MapGet("/research/hi2-eq-raw", async (MoexHttpAlgClient c) =>
+app.MapGet("/research/hi2-eq-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/eq/hi2/SBER.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-01", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/datashop/algopack/eq/hi2/SBER.json";
+
+    List<Hi2AssetDTO> response = await moexHttpAlgClient.GetHi2Asset5m(url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-05-03",
+            ["till"] = "2026-05-03"
+        }
+        );
+    return Results.Json (response, AppJsonContext.Default.ListHi2AssetDTO);
 });
-app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient c) =>
+
+app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/hi2/SiM6.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-01", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/datashop/algopack/fo/hi2/SiM6.json";
+    List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
+    new Dictionary<string, string>
+    {
+        ["from"] = "2026-05-03",
+        ["till"] = "2026-05-03"
+    });
+    return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
 });
 
 // === Mega Alerts ===
-app.MapGet("/research/alerts-raw", async (MoexHttpAlgClient c) =>
+app.MapGet("/research/alerts-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/eq/alerts/SBER.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-28", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/datashop/algopack/eq/alerts/SBER.json";
+
+    List<MegaAlertsDTO> response = await moexHttpAlgClient.GetMegaAlerts(
+        url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-04-28",
+            ["till"] = "2026-04-30"
+        });
+
+    return Results.Json(response, AppJsonContext.Default.ListMegaAlertsDTO);
 });
 
 app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
