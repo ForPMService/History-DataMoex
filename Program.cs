@@ -99,8 +99,8 @@ app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient moexHttpAlgClient) =
     List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
     new Dictionary<string, string>
     {
-        ["from"] = "2026-05-03",
-        ["till"] = "2026-05-03"
+        ["from"] = "2026-04-30",
+        ["till"] = "2026-05-04"
     });
     return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
 });
