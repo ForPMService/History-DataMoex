@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using History_DataMoex.Clients;
+using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Parsing;
-using History_DataMoex.DataTransfers;
 
 namespace History_DataMoex.Endpoints
 {

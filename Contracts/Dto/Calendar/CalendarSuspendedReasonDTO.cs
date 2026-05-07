@@ -1,4 +1,4 @@
-namespace History_DataMoex.DataTransfers.Calendar
+namespace History_DataMoex.Contracts.Dto.Calendar
 {
     /// <summary>
     /// Справочник причин приостановки торгов.

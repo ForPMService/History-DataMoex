@@ -1,5 +1,6 @@
-﻿using History_DataMoex.DataTransfers;
-using History_DataMoex.DataTransfers.Calendar;
+﻿using History_DataMoex.Contracts.Dto.Calendar;
+using History_DataMoex.Contracts.Dto.Iss;
+using History_DataMoex.DataTransfers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace History_DataMoex.Parsing

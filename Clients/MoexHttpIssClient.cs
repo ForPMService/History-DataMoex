@@ -1,4 +1,4 @@
-﻿using History_DataMoex.DataTransfers;
+﻿using History_DataMoex.Contracts.Dto.Iss;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;

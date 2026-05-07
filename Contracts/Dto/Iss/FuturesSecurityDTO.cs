@@ -1,4 +1,4 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Dto.Iss
 {
     /// <summary>
     /// Информация о фьючерсной ценной бумаге.

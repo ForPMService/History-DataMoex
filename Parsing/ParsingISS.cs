@@ -1,4 +1,4 @@
-﻿using History_DataMoex.DataTransfers;
+﻿using History_DataMoex.Contracts.Dto.Iss;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
