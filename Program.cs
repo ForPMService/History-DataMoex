@@ -124,7 +124,7 @@ app.MapGet("/research/megaalerts-assets", async (MoexHttpAlgClient moexHttpAlgCl
 
 app.MapGet("/research/megaalerts-futures", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string url = "/datashop/algopack/eq/alerts/SiM6.json";
+    string url = "/datashop/algopack/fo/alerts/SiM6.json";
 
     List<MegaAlertsFuturesDTO> response = await moexHttpAlgClient.GetMegaAlertsFutures(
         url,
