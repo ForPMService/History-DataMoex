@@ -13,14 +13,14 @@
         /// <summary>
         /// Торговая дата.
         /// 
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// </summary>
         public string? TradeDate { get; init; }
 
         /// <summary>
         /// Время торговой точки.
         /// 
-        /// MOEX column: tradetime
+        /// MOEX столбец: tradetime
         /// 
         /// Используется для стыковки с tradestats/orderstats.
         /// </summary>
@@ -29,14 +29,14 @@
         /// <summary>
         /// Код инструмента.
         /// 
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// </summary>
         public string? SecId { get; init; }
 
         /// <summary>
         /// Спред между лучшей ценой покупки и лучшей ценой продажи.
         /// 
-        /// MOEX column: spread_bbo
+        /// MOEX столбец: spread_bbo
         /// 
         /// BBO = Best Bid and Offer.
         /// По-русски: лучшие bid/ask.
@@ -48,7 +48,7 @@
         /// <summary>
         /// Спред/ширина стакана по 10 уровням.
         /// 
-        /// MOEX column: spread_lv10
+        /// MOEX столбец: spread_lv10
         /// 
         /// Показывает, насколько широкий стакан глубже первого уровня.
         /// </summary>
@@ -57,7 +57,7 @@
         /// <summary>
         /// Спред/оценка ликвидности на объём 1 млн.
         /// 
-        /// MOEX column: spread_1mio
+        /// MOEX столбец: spread_1mio
         /// 
         /// Нужен для оценки того, насколько дорого будет набрать крупный объём.
         /// </summary>
@@ -66,7 +66,7 @@
         /// <summary>
         /// Количество уровней стакана на покупку.
         /// 
-        /// MOEX column: levels_b
+        /// MOEX столбец: levels_b
         /// 
         /// b = buy/bid.
         /// </summary>
@@ -75,7 +75,7 @@
         /// <summary>
         /// Количество уровней стакана на продажу.
         /// 
-        /// MOEX column: levels_s
+        /// MOEX столбец: levels_s
         /// 
         /// s = sell/ask.
         /// </summary>
@@ -84,35 +84,35 @@
         /// <summary>
         /// Объём заявок на покупку в стакане.
         /// 
-        /// MOEX column: vol_b
+        /// MOEX столбец: vol_b
         /// </summary>
         public long? VolB { get; init; }
 
         /// <summary>
         /// Объём заявок на продажу в стакане.
         /// 
-        /// MOEX column: vol_s
+        /// MOEX столбец: vol_s
         /// </summary>
         public long? VolS { get; init; }
 
         /// <summary>
         /// Денежный объём заявок на покупку в стакане.
         /// 
-        /// MOEX column: val_b
+        /// MOEX столбец: val_b
         /// </summary>
         public long? ValB { get; init; }
 
         /// <summary>
         /// Денежный объём заявок на продажу в стакане.
         /// 
-        /// MOEX column: val_s
+        /// MOEX столбец: val_s
         /// </summary>
         public long? ValS { get; init; }
 
         /// <summary>
         /// Дисбаланс объёма на лучших bid/ask.
         /// 
-        /// MOEX column: imbalance_vol_bbo
+        /// MOEX столбец: imbalance_vol_bbo
         /// 
         /// Показывает перевес объёма на лучшем уровне покупки/продажи.
         /// </summary>
@@ -121,14 +121,14 @@
         /// <summary>
         /// Денежный дисбаланс на лучших bid/ask.
         /// 
-        /// MOEX column: imbalance_val_bbo
+        /// MOEX столбец: imbalance_val_bbo
         /// </summary>
         public double? ImbalanceValBbo { get; init; }
 
         /// <summary>
         /// Общий дисбаланс объёма стакана.
         /// 
-        /// MOEX column: imbalance_vol
+        /// MOEX столбец: imbalance_vol
         /// 
         /// Показывает общий перевес bid или ask по объёму.
         /// </summary>
@@ -137,14 +137,14 @@
         /// <summary>
         /// Общий денежный дисбаланс стакана.
         /// 
-        /// MOEX column: imbalance_val
+        /// MOEX столбец: imbalance_val
         /// </summary>
         public double? ImbalanceVal { get; init; }
 
         /// <summary>
         /// Средневзвешенная цена заявок на покупку.
         /// 
-        /// MOEX column: vwap_b
+        /// MOEX столбец: vwap_b
         /// 
         /// Это не цена сделок, а цена заявок в стакане.
         /// </summary>
@@ -153,14 +153,14 @@
         /// <summary>
         /// Средневзвешенная цена заявок на продажу.
         /// 
-        /// MOEX column: vwap_s
+        /// MOEX столбец: vwap_s
         /// </summary>
         public double? VwapS { get; init; }
 
         /// <summary>
         /// VWAP покупки для объёма 1 млн.
         /// 
-        /// MOEX column: vwap_b_1mio
+        /// MOEX столбец: vwap_b_1mio
         /// 
         /// Нужен для оценки ликвидности крупной покупки/продажи.
         /// </summary>
@@ -169,14 +169,14 @@
         /// <summary>
         /// VWAP продажи для объёма 1 млн.
         /// 
-        /// MOEX column: vwap_s_1mio
+        /// MOEX столбец: vwap_s_1mio
         /// </summary>
         public double? VwapS1Mio { get; init; }
 
         /// <summary>
         /// Системное время формирования/публикации строки.
         /// 
-        /// MOEX column: SYSTIME
+        /// MOEX столбец: SYSTIME
         /// 
         /// Не использовать как рыночное время.
         /// </summary>

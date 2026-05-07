@@ -5,21 +5,21 @@
         /// <summary>
         /// Торговая дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// </summary>
         public string? TradeDate { get; init; }
 
         /// <summary>
         /// Торговое время.
         ///
-        /// MOEX column: tradetime
+        /// MOEX столбец: tradetime
         /// </summary>
         public string? TradeTime { get; init; }
 
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         ///
         /// Пример:
         /// SBER.
@@ -29,7 +29,7 @@
         /// <summary>
         /// Название метрики HI2.
         ///
-        /// MOEX column: metric
+        /// MOEX столбец: metric
         ///
         /// Примеры:
         /// hhi_agressive,
@@ -44,14 +44,14 @@
         /// <summary>
         /// Значение метрики.
         ///
-        /// MOEX column: value
+        /// MOEX столбец: value
         /// </summary>
         public double? Value { get; init; }
 
         /// <summary>
         /// Справочная информация по метрике.
         ///
-        /// MOEX column: reference
+        /// MOEX столбец: reference
         ///
         /// В примере приходит пустая строка.
         /// </summary>
@@ -60,7 +60,7 @@
         /// <summary>
         /// Системное время формирования записи.
         ///
-        /// MOEX column: SYSTIME
+        /// MOEX столбец: SYSTIME
         /// </summary>
         public DateTime? SysTime { get; init; }
     }

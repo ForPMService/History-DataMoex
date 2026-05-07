@@ -18,7 +18,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Торговая дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// MOEX type: date
         ///
         /// Пример: 2026-05-07
@@ -28,7 +28,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код торговой сессии.
         ///
-        /// MOEX column: tradingsession
+        /// MOEX столбец: tradingsession
         /// MOEX type: int32
         ///
         /// Известные значения: -999 (по наблюдениям из данных).
@@ -39,7 +39,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код режима торгов.
         ///
-        /// MOEX column: boardid
+        /// MOEX столбец: boardid
         /// MOEX type: string
         ///
         /// Пример: TQBR, EQOB, OCAR, MPAU.
@@ -49,7 +49,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// MOEX type: string
         ///
         /// Пустая строка "" — расписание по умолчанию для всего boardid.
@@ -60,7 +60,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип временного слота.
         ///
-        /// MOEX column: type
+        /// MOEX столбец: type
         /// MOEX type: string
         ///
         /// Расшифровка в CalendarSessionTypeDTO.
@@ -71,7 +71,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время начала слота.
         ///
-        /// MOEX column: time_from
+        /// MOEX столбец: time_from
         /// MOEX type: time
         ///
         /// Приходит как строка "HH:mm:ss".
@@ -82,7 +82,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время окончания слота.
         ///
-        /// MOEX column: time_till
+        /// MOEX столбец: time_till
         /// MOEX type: time
         ///
         /// Пример: 09:59:00
@@ -93,7 +93,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время обновления записи.
         ///
-        /// MOEX column: updatetime
+        /// MOEX столбец: updatetime
         /// MOEX type: datetime
         /// </summary>
         public DateTime? UpdateTime { get; init; }

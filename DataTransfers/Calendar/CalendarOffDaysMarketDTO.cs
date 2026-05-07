@@ -20,7 +20,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Календарная дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// MOEX type: date
         ///
         /// Пример: 2026-01-01
@@ -30,7 +30,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Торгуется ли в этот день.
         ///
-        /// MOEX column: is_traded
+        /// MOEX столбец: is_traded
         /// MOEX type: int32
         ///
         /// 0 — нет торгов (праздник);
@@ -41,7 +41,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата торговой сессии, к которой привязан этот день.
         ///
-        /// MOEX column: trade_session_date
+        /// MOEX столбец: trade_session_date
         /// MOEX type: date
         ///
         /// Пример: суббота 2026-01-17 привязана к сессии 2026-01-19.
@@ -52,7 +52,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Причина нерабочего/особого дня.
         ///
-        /// MOEX column: reason
+        /// MOEX столбец: reason
         /// MOEX type: string
         ///
         /// "H" — праздник, "W" — выходной с торгами.
@@ -62,7 +62,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время обновления записи.
         ///
-        /// MOEX column: updatetime
+        /// MOEX столбец: updatetime
         /// MOEX type: datetime
         /// </summary>
         public DateTime? UpdateTime { get; init; }

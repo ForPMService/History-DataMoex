@@ -5,35 +5,35 @@
         /// <summary>
         /// Идентификатор торговой сессии.
         ///
-        /// MOEX column: sess_id
+        /// MOEX столбец: sess_id
         /// </summary>
         public int? SessId { get; init; }
 
         /// <summary>
         /// Номер последовательности записи.
         ///
-        /// MOEX column: seqnum
+        /// MOEX столбец: seqnum
         /// </summary>
         public int? SeqNum { get; init; }
 
         /// <summary>
         /// Торговая дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// </summary>
         public string? TradeDate { get; init; }
 
         /// <summary>
         /// Торговое время.
         ///
-        /// MOEX column: tradetime
+        /// MOEX столбец: tradetime
         /// </summary>
         public string? TradeTime { get; init; }
 
         /// <summary>
         /// Тикер базового инструмента.
         ///
-        /// MOEX column: ticker
+        /// MOEX столбец: ticker
         ///
         /// Пример:
         /// Si.
@@ -43,7 +43,7 @@
         /// <summary>
         /// Группа клиентов.
         ///
-        /// MOEX column: clgroup
+        /// MOEX столбец: clgroup
         ///
         /// Примеры:
         /// FIZ — физические лица,
@@ -54,49 +54,49 @@
         /// <summary>
         /// Итоговая позиция группы клиентов.
         ///
-        /// MOEX column: pos
+        /// MOEX столбец: pos
         /// </summary>
         public long? Pos { get; init; }
 
         /// <summary>
         /// Длинная позиция.
         ///
-        /// MOEX column: pos_long
+        /// MOEX столбец: pos_long
         /// </summary>
         public long? PosLong { get; init; }
 
         /// <summary>
         /// Короткая позиция.
         ///
-        /// MOEX column: pos_short
+        /// MOEX столбец: pos_short
         /// </summary>
         public long? PosShort { get; init; }
 
         /// <summary>
         /// Количество клиентов с длинной позицией.
         ///
-        /// MOEX column: pos_long_num
+        /// MOEX столбец: pos_long_num
         /// </summary>
         public long? PosLongNum { get; init; }
 
         /// <summary>
         /// Количество клиентов с короткой позицией.
         ///
-        /// MOEX column: pos_short_num
+        /// MOEX столбец: pos_short_num
         /// </summary>
         public long? PosShortNum { get; init; }
 
         /// <summary>
         /// Системное время формирования записи.
         ///
-        /// MOEX column: systime
+        /// MOEX столбец: systime
         /// </summary>
         public DateTime? SysTime { get; init; }
 
         /// <summary>
         /// Дата торговой сессии.
         ///
-        /// MOEX column: trade_session_date
+        /// MOEX столбец: trade_session_date
         /// </summary>
         public string? TradeSessionDate { get; init; }
     }

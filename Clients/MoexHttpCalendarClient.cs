@@ -18,7 +18,7 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
         }
 
-        // ── Off Days ────────────────────────────────────────────
+        // ── Выходные дни ────────────────────────────────────────────
 
         public async Task<List<CalendarOffDaysAllDTO>> GetOffDaysAll()
         {
@@ -41,7 +41,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarOffDaysMarket(doc);
         }
 
-        // ── Sessions ────────────────────────────────────────────
+        // ── Сессии ────────────────────────────────────────────
 
         public async Task<List<CalendarStockSessionDTO>> GetStockSession()
         {
@@ -71,7 +71,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarSessionTypes(doc);
         }
 
-        // ── Futures Securities ──────────────────────────────────
+        // ── Фьючерсы ──────────────────────────────────
 
         public async Task<List<CalendarFortsContractDTO>> GetFortsContracts()
         {
@@ -87,7 +87,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarOptionsSeries(doc);
         }
 
-        // ── Suspended (с cursor-пагинацией) ─────────────────────
+        // ── Приостановленные (с cursor-пагинацией) ─────────────────────
 
         public async Task<List<CalendarSuspendedReasonDTO>> GetSuspendedReasons()
         {
@@ -121,7 +121,7 @@ namespace History_DataMoex.Clients
             return all;
         }
 
-        // ── Security Changes (с cursor-пагинацией) ──────────────
+        // ── Изменения по ценным бумагам (с cursor-пагинацией) ──────────────
 
         public async Task<List<CalendarSecurityAttributeDTO>> GetSecurityAttributes()
         {

@@ -18,7 +18,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код инструмента (тикер фьючерса).
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// MOEX type: string
         ///
         /// Пример: SiM6, BRN6, CNYRUBF.
@@ -28,7 +28,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код базового актива.
         ///
-        /// MOEX column: asset_code
+        /// MOEX столбец: asset_code
         /// MOEX type: string
         ///
         /// Пример: Si, BR, CNYRUBTOM, GAZPF.
@@ -38,7 +38,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Короткое название контракта.
         ///
-        /// MOEX column: shortname
+        /// MOEX столбец: shortname
         /// MOEX type: string
         ///
         /// Пример: CNYRUBF, EURRUBF, SiM6.
@@ -48,7 +48,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип исполнения контракта.
         ///
-        /// MOEX column: exec_type
+        /// MOEX столбец: exec_type
         /// MOEX type: string
         ///
         /// "S" — settlement (расчётный),
@@ -59,7 +59,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Полное название контракта.
         ///
-        /// MOEX column: contract_name
+        /// MOEX столбец: contract_name
         /// MOEX type: undefined (строка)
         ///
         /// Пример: "Однодневный фьючерсный контракт с автопролонгацией
@@ -70,7 +70,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата экспирации контракта.
         ///
-        /// MOEX column: expiration_date
+        /// MOEX столбец: expiration_date
         /// MOEX type: date
         ///
         /// Пример: 2026-06-18.
@@ -81,7 +81,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата окончания обращения.
         ///
-        /// MOEX column: end_date
+        /// MOEX столбец: end_date
         /// MOEX type: date
         ///
         /// Часто совпадает с expiration_date.
@@ -91,7 +91,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип экспирации.
         ///
-        /// MOEX column: expiration_type
+        /// MOEX столбец: expiration_type
         /// MOEX type: string
         ///
         /// "mc" — market close (?), "tc" — trading close (?).
@@ -102,7 +102,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время экспирации.
         ///
-        /// MOEX column: expiration_time
+        /// MOEX столбец: expiration_time
         /// MOEX type: time
         ///
         /// Приходит как строка "HH:mm:ss".
@@ -113,7 +113,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Доступен ли в weekend-сессии.
         ///
-        /// MOEX column: weekend_session
+        /// MOEX столбец: weekend_session
         /// MOEX type: int32
         ///
         /// 0 — нет, 1 — да.

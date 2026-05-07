@@ -19,7 +19,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Календарная дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// MOEX type: date
         ///
         /// Пример: 2026-01-01
@@ -29,7 +29,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Валютный рынок: торгуется ли в этот день.
         ///
-        /// MOEX column: currency_workday
+        /// MOEX столбец: currency_workday
         /// MOEX type: int64
         ///
         /// 0 — нет торгов, 1 — торги идут (weekend-сессия).
@@ -39,7 +39,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Валютный рынок: дата торговой сессии, к которой привязан этот день.
         ///
-        /// MOEX column: currency_trade_session_date
+        /// MOEX столбец: currency_trade_session_date
         /// MOEX type: date
         ///
         /// null, если торгов нет.
@@ -49,7 +49,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Валютный рынок: причина нерабочего дня.
         ///
-        /// MOEX column: currency_reason
+        /// MOEX столбец: currency_reason
         /// MOEX type: string
         ///
         /// "H" — праздник, "W" — выходной с торгами, null — обычный выходной.
@@ -59,7 +59,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Срочный рынок: торгуется ли в этот день.
         ///
-        /// MOEX column: futures_workday
+        /// MOEX столбец: futures_workday
         /// MOEX type: int64
         ///
         /// 0 — нет торгов, 1 — торги идут (weekend-сессия).
@@ -69,7 +69,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Срочный рынок: дата торговой сессии, к которой привязан этот день.
         ///
-        /// MOEX column: futures_trade_session_date
+        /// MOEX столбец: futures_trade_session_date
         /// MOEX type: date
         /// </summary>
         public string? FuturesTradeSessionDate { get; init; }
@@ -77,7 +77,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Срочный рынок: причина нерабочего дня.
         ///
-        /// MOEX column: futures_reason
+        /// MOEX столбец: futures_reason
         /// MOEX type: string
         /// </summary>
         public string? FuturesReason { get; init; }
@@ -85,7 +85,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Фондовый рынок: торгуется ли в этот день.
         ///
-        /// MOEX column: stock_workday
+        /// MOEX столбец: stock_workday
         /// MOEX type: int64
         ///
         /// 0 — нет торгов, 1 — торги идут (weekend-сессия).
@@ -95,7 +95,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Фондовый рынок: дата торговой сессии, к которой привязан этот день.
         ///
-        /// MOEX column: stock_trade_session_date
+        /// MOEX столбец: stock_trade_session_date
         /// MOEX type: date
         /// </summary>
         public string? StockTradeSessionDate { get; init; }
@@ -103,7 +103,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Фондовый рынок: причина нерабочего дня.
         ///
-        /// MOEX column: stock_reason
+        /// MOEX столбец: stock_reason
         /// MOEX type: string
         /// </summary>
         public string? StockReason { get; init; }

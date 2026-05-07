@@ -18,7 +18,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Системное имя атрибута.
         ///
-        /// MOEX column: name
+        /// MOEX столбец: name
         /// MOEX type: string
         ///
         /// Используется как ключ для связи с CalendarSecurityChangeDTO.AttributeName.
@@ -29,7 +29,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип данных атрибута.
         ///
-        /// MOEX column: type
+        /// MOEX столбец: type
         /// MOEX type: string
         ///
         /// Наблюдаемые значения:
@@ -44,7 +44,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Человекочитаемое описание атрибута.
         ///
-        /// MOEX column: title
+        /// MOEX столбец: title
         /// MOEX type: string
         ///
         /// Пример: "Дата к которой рассчитывается доходность".

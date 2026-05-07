@@ -18,7 +18,7 @@ namespace History_DataMoex.Parsing
     [JsonSerializable(typeof(List<MegaAlertsAssetsDTO>))]
     [JsonSerializable(typeof(List<MegaAlertsFuturesDTO>))]
 
-    // Calendar DTO lists
+    // Списки DTO календаря
     [JsonSerializable(typeof(List<CalendarOffDaysAllDTO>))]
     [JsonSerializable(typeof(List<CalendarOffDaysMarketDTO>))]
     [JsonSerializable(typeof(List<CalendarStockSessionDTO>))]

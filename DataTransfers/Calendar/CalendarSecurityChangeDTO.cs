@@ -21,7 +21,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время изменения.
         ///
-        /// MOEX column: updatetime
+        /// MOEX столбец: updatetime
         /// MOEX type: datetime
         ///
         /// Пример: 2026-05-07 00:21:04.
@@ -31,7 +31,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип действия.
         ///
-        /// MOEX column: action
+        /// MOEX столбец: action
         /// MOEX type: string
         ///
         /// "updated" — атрибут изменился;
@@ -42,7 +42,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// MOEX type: string
         ///
         /// Пример: SBER, RU000A0JWGV2.
@@ -52,7 +52,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Название атрибута, который изменился.
         ///
-        /// MOEX column: attribute_name
+        /// MOEX столбец: attribute_name
         /// MOEX type: string
         ///
         /// Расшифровка в CalendarSecurityAttributeDTO.
@@ -63,7 +63,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Значение атрибута до изменения.
         ///
-        /// MOEX column: before_value
+        /// MOEX столбец: before_value
         /// MOEX type: string
         ///
         /// Всегда строка, даже для числовых/дат.
@@ -74,7 +74,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Значение атрибута после изменения.
         ///
-        /// MOEX column: after_value
+        /// MOEX столбец: after_value
         /// MOEX type: string
         ///
         /// null — атрибут удалён (action = removed).

@@ -5,21 +5,21 @@
         /// <summary>
         /// Торговая дата.
         ///
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// </summary>
         public string? TradeDate { get; init; }
 
         /// <summary>
         /// Торговое время.
         ///
-        /// MOEX column: tradetime
+        /// MOEX столбец: tradetime
         /// </summary>
         public string? TradeTime { get; init; }
 
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         ///
         /// Пример:
         /// SBER.
@@ -29,7 +29,7 @@
         /// <summary>
         /// Тип алерта.
         ///
-        /// MOEX column: alert_type
+        /// MOEX столбец: alert_type
         ///
         /// Примеры:
         /// vol_s_99_9_pctl,
@@ -42,7 +42,7 @@
         /// <summary>
         /// Пороговое значение, при превышении которого сработал алерт.
         ///
-        /// MOEX column: threshold
+        /// MOEX столбец: threshold
         /// </summary>
         
         public double? Threshold { get; init; }
@@ -50,14 +50,14 @@
         /// <summary>
         /// Фактическое значение показателя.
         ///
-        /// MOEX column: value
+        /// MOEX столбец: value
         /// </summary>
         public double? Value { get; init; }
 
         /// <summary>
         /// Справочная информация по алерту.
         ///
-        /// MOEX column: reference
+        /// MOEX столбец: reference
         ///
         /// В ответе приходит строка, внутри которой находится JSON.
         /// На этом уровне оставляем как string.
@@ -67,7 +67,7 @@
         /// <summary>
         /// Системное время формирования записи.
         ///
-        /// MOEX column: SYSTIME
+        /// MOEX столбец: SYSTIME
         /// </summary>
         public DateTime? SysTime { get; init; }
 

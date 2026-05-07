@@ -20,7 +20,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата торговой сессии.
         ///
-        /// MOEX column: trade_session_date
+        /// MOEX столбец: trade_session_date
         /// MOEX type: date
         ///
         /// Пример: 2026-05-07
@@ -30,7 +30,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код режима торгов.
         ///
-        /// MOEX column: boardid
+        /// MOEX столбец: boardid
         /// MOEX type: string
         ///
         /// "RFUD" — конкретный режим, "-" — общее расписание.
@@ -40,7 +40,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// MOEX type: string
         ///
         /// "-" — расписание для всех инструментов.
@@ -50,7 +50,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип временного слота.
         ///
-        /// MOEX column: type
+        /// MOEX столбец: type
         /// MOEX type: string
         ///
         /// Расшифровка в CalendarSessionTypeDTO.
@@ -62,7 +62,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время начала слота (полная дата+время).
         ///
-        /// MOEX column: time_from
+        /// MOEX столбец: time_from
         /// MOEX type: datetime
         ///
         /// Пример: 2026-05-07 08:50:00
@@ -72,7 +72,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время окончания слота (полная дата+время).
         ///
-        /// MOEX column: time_till
+        /// MOEX столбец: time_till
         /// MOEX type: datetime
         ///
         /// null — окончание не определено (settlement, clearing).
@@ -82,7 +82,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время обновления записи.
         ///
-        /// MOEX column: updatetime
+        /// MOEX столбец: updatetime
         /// MOEX type: datetime
         /// </summary>
         public DateTime? UpdateTime { get; init; }

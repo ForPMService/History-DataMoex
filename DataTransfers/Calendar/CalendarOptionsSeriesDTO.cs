@@ -16,7 +16,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип базового актива (человекочитаемое название).
         ///
-        /// MOEX column: asset_type_name
+        /// MOEX столбец: asset_type_name
         /// MOEX type: string
         ///
         /// Пример: "Акции", "Валюта", "Индекс".
@@ -26,7 +26,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код базового актива.
         ///
-        /// MOEX column: asset_code
+        /// MOEX столбец: asset_code
         /// MOEX type: string
         ///
         /// Пример: ALRS, SBER, Si.
@@ -36,7 +36,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Название серии (код серии).
         ///
-        /// MOEX column: series_name
+        /// MOEX столбец: series_name
         /// MOEX type: string
         ///
         /// Пример: ALRSP190630XE.
@@ -46,7 +46,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип серии.
         ///
-        /// MOEX column: series_type
+        /// MOEX столбец: series_type
         /// MOEX type: string
         ///
         /// Пример: "Q" — квартальная (?).
@@ -56,7 +56,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип исполнения.
         ///
-        /// MOEX column: exec_type
+        /// MOEX столбец: exec_type
         /// MOEX type: string
         ///
         /// "E" — европейский (?), "A" — американский (?).
@@ -66,7 +66,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Стиль маржирования.
         ///
-        /// MOEX column: margin_style
+        /// MOEX столбец: margin_style
         /// MOEX type: string
         ///
         /// "P" — premium style (?).
@@ -76,7 +76,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Полное название контракта.
         ///
-        /// MOEX column: contract_name
+        /// MOEX столбец: contract_name
         /// MOEX type: string
         ///
         /// Пример: "Опцион на обыкновенные акции АК «АЛРОСА» (ПАО)".
@@ -86,7 +86,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата экспирации серии.
         ///
-        /// MOEX column: expiration_date
+        /// MOEX столбец: expiration_date
         /// MOEX type: date
         ///
         /// Пример: 2030-06-19.
@@ -96,7 +96,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Тип экспирации.
         ///
-        /// MOEX column: expiration_type
+        /// MOEX столбец: expiration_type
         /// MOEX type: string
         ///
         /// "tc" — trading close (?).
@@ -106,7 +106,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время экспирации.
         ///
-        /// MOEX column: expiration_time
+        /// MOEX столбец: expiration_time
         /// MOEX type: time
         ///
         /// Приходит как строка "HH:mm:ss".
@@ -117,7 +117,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Доступен ли в weekend-сессии.
         ///
-        /// MOEX column: weekend_session
+        /// MOEX столбец: weekend_session
         /// MOEX type: int32
         ///
         /// 0 — нет, 1 — да.

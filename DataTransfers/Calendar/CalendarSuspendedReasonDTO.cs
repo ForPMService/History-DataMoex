@@ -17,7 +17,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Числовой идентификатор причины.
         ///
-        /// MOEX column: id
+        /// MOEX столбец: id
         /// MOEX type: int32
         ///
         /// Используется как ключ для связи с CalendarSuspendedDTO.ReasonId.
@@ -27,7 +27,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Текстовое описание причины.
         ///
-        /// MOEX column: title
+        /// MOEX столбец: title
         /// MOEX type: string
         ///
         /// Пример: "Торги не проводятся в дату погашения облигаций".

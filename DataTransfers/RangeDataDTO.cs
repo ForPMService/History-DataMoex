@@ -10,14 +10,14 @@
         /// <summary>
         /// Начальная дата доступного диапазона.
         /// 
-        /// MOEX column: from
+        /// MOEX столбец: from
         /// </summary>
         public string? From { get; init; }
 
         /// <summary>
         /// Конечная дата доступного диапазона.
         /// 
-        /// MOEX column: till
+        /// MOEX столбец: till
         /// </summary>
         public string? Till { get; init; }
     }

@@ -36,7 +36,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код типа сессии / слота.
         ///
-        /// MOEX column: type
+        /// MOEX столбец: type
         /// MOEX type: string
         ///
         /// Пример: oa_booking, main_session.
@@ -46,7 +46,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Человекочитаемое название типа.
         ///
-        /// MOEX column: title
+        /// MOEX столбец: title
         /// MOEX type: string
         ///
         /// Пример: "Основная сессия".

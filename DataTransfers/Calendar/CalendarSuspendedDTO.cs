@@ -20,7 +20,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код инструмента.
         ///
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// MOEX type: string
         ///
         /// Пример: AGNC-RM, AMEZ, SBER.
@@ -30,7 +30,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код причины приостановки.
         ///
-        /// MOEX column: reason_id
+        /// MOEX столбец: reason_id
         /// MOEX type: string (!)
         ///
         /// Внимание: metadata говорит string, хотя значения числовые.
@@ -42,7 +42,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата начала приостановки.
         ///
-        /// MOEX column: date_from
+        /// MOEX столбец: date_from
         /// MOEX type: date
         ///
         /// Пример: 2026-01-05.
@@ -52,7 +52,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата окончания приостановки.
         ///
-        /// MOEX column: date_till
+        /// MOEX столбец: date_till
         /// MOEX type: date
         ///
         /// null — приостановка бессрочная / дата окончания не определена.
@@ -62,7 +62,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Код режима торгов.
         ///
-        /// MOEX column: boardid
+        /// MOEX столбец: boardid
         /// MOEX type: string
         ///
         /// Пример: MPTR, PSEQ.
@@ -73,7 +73,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Коды расчётных систем.
         ///
-        /// MOEX column: settle_codes
+        /// MOEX столбец: settle_codes
         /// MOEX type: string
         ///
         /// Пример: "Y2-14", "Z0".
@@ -84,7 +84,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Дата изменения записи.
         ///
-        /// MOEX column: changedate
+        /// MOEX столбец: changedate
         /// MOEX type: date
         ///
         /// Пример: 2025-12-30.
@@ -94,7 +94,7 @@ namespace History_DataMoex.DataTransfers.Calendar
         /// <summary>
         /// Время обновления записи.
         ///
-        /// MOEX column: updatetime
+        /// MOEX столбец: updatetime
         /// MOEX type: datetime
         /// </summary>
         public DateTime? UpdateTime { get; init; }

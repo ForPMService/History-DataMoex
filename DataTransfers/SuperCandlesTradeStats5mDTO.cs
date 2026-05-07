@@ -13,7 +13,7 @@
         /// <summary>
         /// Торговая дата.
         /// 
-        /// MOEX column: tradedate
+        /// MOEX столбец: tradedate
         /// 
         /// Оставляем string?, потому что на текущем этапе проще
         /// сначала принять значение как есть, а потом отдельно разобрать.
@@ -26,7 +26,7 @@
         /// <summary>
         /// Время торговой точки.
         /// 
-        /// MOEX column: tradetime
+        /// MOEX столбец: tradetime
         /// 
         /// Для supercandles это метка конца 5-минутного интервала.
         /// 
@@ -38,7 +38,7 @@
         /// <summary>
         /// Код инструмента на MOEX.
         /// 
-        /// MOEX column: secid
+        /// MOEX столбец: secid
         /// 
         /// Пример:
         /// SBER
@@ -48,35 +48,35 @@
         /// <summary>
         /// Цена открытия 5-минутного интервала.
         /// 
-        /// MOEX column: pr_open
+        /// MOEX столбец: pr_open
         /// </summary>
         public double? PrOpen { get; init; }
 
         /// <summary>
         /// Максимальная цена внутри 5-минутного интервала.
         /// 
-        /// MOEX column: pr_high
+        /// MOEX столбец: pr_high
         /// </summary>
         public double? PrHigh { get; init; }
 
         /// <summary>
         /// Минимальная цена внутри 5-минутного интервала.
         /// 
-        /// MOEX column: pr_low
+        /// MOEX столбец: pr_low
         /// </summary>
         public double? PrLow { get; init; }
 
         /// <summary>
         /// Цена закрытия 5-минутного интервала.
         /// 
-        /// MOEX column: pr_close
+        /// MOEX столбец: pr_close
         /// </summary>
         public double? PrClose { get; init; }
 
         /// <summary>
         /// Стандартное отклонение цены внутри интервала.
         /// 
-        /// MOEX column: pr_std
+        /// MOEX столбец: pr_std
         /// 
         /// Простыми словами: насколько цена "болталась" внутри свечи.
         /// </summary>
@@ -85,7 +85,7 @@
         /// <summary>
         /// Общий объём сделок.
         /// 
-        /// MOEX column: vol
+        /// MOEX столбец: vol
         /// 
         /// Тип в MOEX metadata: int32.
         /// </summary>
@@ -94,7 +94,7 @@
         /// <summary>
         /// Денежный оборот сделок.
         /// 
-        /// MOEX column: val
+        /// MOEX столбец: val
         /// 
         /// Это объём в деньгах.
         /// </summary>
@@ -103,14 +103,14 @@
         /// <summary>
         /// Количество сделок за интервал.
         /// 
-        /// MOEX column: trades
+        /// MOEX столбец: trades
         /// </summary>
         public int? Trades { get; init; }
 
         /// <summary>
         /// Средневзвешенная цена по объёму.
         /// 
-        /// MOEX column: pr_vwap
+        /// MOEX столбец: pr_vwap
         /// 
         /// VWAP — Volume Weighted Average Price.
         /// По-русски: средняя цена сделки с учётом объёма.
@@ -120,7 +120,7 @@
         /// <summary>
         /// Изменение цены за интервал.
         /// 
-        /// MOEX column: pr_change
+        /// MOEX столбец: pr_change
         /// 
         /// Нужна для оценки направления движения внутри интервала.
         /// </summary>
@@ -129,7 +129,7 @@
         /// <summary>
         /// Количество сделок на покупку.
         /// 
-        /// MOEX column: trades_b
+        /// MOEX столбец: trades_b
         /// 
         /// B = buy.
         /// </summary>
@@ -138,7 +138,7 @@
         /// <summary>
         /// Количество сделок на продажу.
         /// 
-        /// MOEX column: trades_s
+        /// MOEX столбец: trades_s
         /// 
         /// S = sell.
         /// </summary>
@@ -147,21 +147,21 @@
         /// <summary>
         /// Денежный оборот покупок.
         /// 
-        /// MOEX column: val_b
+        /// MOEX столбец: val_b
         /// </summary>
         public double? ValB { get; init; }
 
         /// <summary>
         /// Денежный оборот продаж.
         /// 
-        /// MOEX column: val_s
+        /// MOEX столбец: val_s
         /// </summary>
         public double? ValS { get; init; }
 
         /// <summary>
         /// Объём покупок.
         /// 
-        /// MOEX column: vol_b
+        /// MOEX столбец: vol_b
         /// 
         /// Тип в MOEX metadata: int64.
         /// </summary>
@@ -170,7 +170,7 @@
         /// <summary>
         /// Объём продаж.
         /// 
-        /// MOEX column: vol_s
+        /// MOEX столбец: vol_s
         /// 
         /// Тип в MOEX metadata: int64.
         /// </summary>
@@ -179,7 +179,7 @@
         /// <summary>
         /// Дисбаланс покупок и продаж.
         /// 
-        /// MOEX column: disb
+        /// MOEX столбец: disb
         /// 
         /// Простыми словами:
         /// положительное значение — перевес покупок,
@@ -190,7 +190,7 @@
         /// <summary>
         /// VWAP по покупкам.
         /// 
-        /// MOEX column: pr_vwap_b
+        /// MOEX столбец: pr_vwap_b
         /// 
         /// Средневзвешенная цена покупок.
         /// </summary>
@@ -199,7 +199,7 @@
         /// <summary>
         /// VWAP по продажам.
         /// 
-        /// MOEX column: pr_vwap_s
+        /// MOEX столбец: pr_vwap_s
         /// 
         /// Средневзвешенная цена продаж.
         /// </summary>
@@ -208,7 +208,7 @@
         /// <summary>
         /// Системное время формирования/публикации строки.
         /// 
-        /// MOEX column: SYSTIME
+        /// MOEX столбец: SYSTIME
         /// 
         /// Это НЕ рыночное время интервала.
         /// Для стыковки использовать TradeDate + TradeTime.
@@ -218,7 +218,7 @@
         /// <summary>
         /// Секунда внутри интервала, где была цена открытия.
         /// 
-        /// MOEX column: sec_pr_open
+        /// MOEX столбец: sec_pr_open
         /// 
         /// Пока можно хранить, но не использовать в первой аналитике.
         /// </summary>
@@ -227,21 +227,21 @@
         /// <summary>
         /// Секунда внутри интервала, где был максимум цены.
         /// 
-        /// MOEX column: sec_pr_high
+        /// MOEX столбец: sec_pr_high
         /// </summary>
         public int? SecPrHigh { get; init; }
 
         /// <summary>
         /// Секунда внутри интервала, где был минимум цены.
         /// 
-        /// MOEX column: sec_pr_low
+        /// MOEX столбец: sec_pr_low
         /// </summary>
         public int? SecPrLow { get; init; }
 
         /// <summary>
         /// Секунда внутри интервала, где была цена закрытия.
         /// 
-        /// MOEX column: sec_pr_close
+        /// MOEX столбец: sec_pr_close
         /// </summary>
         public int? SecPrClose { get; init; }
     }
