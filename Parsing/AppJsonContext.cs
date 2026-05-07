@@ -1,4 +1,5 @@
 ﻿using History_DataMoex.DataTransfers;
+using History_DataMoex.DataTransfers.Calendar;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace History_DataMoex.Parsing
@@ -16,6 +17,20 @@ namespace History_DataMoex.Parsing
     [JsonSerializable(typeof(List<Hi2FuturesDTO>))]
     [JsonSerializable(typeof(List<MegaAlertsAssetsDTO>))]
     [JsonSerializable(typeof(List<MegaAlertsFuturesDTO>))]
+
+    // Calendar DTO lists
+    [JsonSerializable(typeof(List<CalendarOffDaysAllDTO>))]
+    [JsonSerializable(typeof(List<CalendarOffDaysMarketDTO>))]
+    [JsonSerializable(typeof(List<CalendarStockSessionDTO>))]
+    [JsonSerializable(typeof(List<CalendarFuturesSessionDTO>))]
+    [JsonSerializable(typeof(List<CalendarSessionTypeDTO>))]
+    [JsonSerializable(typeof(List<CalendarFortsContractDTO>))]
+    [JsonSerializable(typeof(List<CalendarOptionsSeriesDTO>))]
+    [JsonSerializable(typeof(List<CalendarSuspendedDTO>))]
+    [JsonSerializable(typeof(List<CalendarSuspendedReasonDTO>))]
+    [JsonSerializable(typeof(List<CalendarSecurityChangeDTO>))]
+    [JsonSerializable(typeof(List<CalendarSecurityAttributeDTO>))]
+
     public partial class AppJsonContext: JsonSerializerContext
     {
         

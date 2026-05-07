@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<MoexHttpIssClient>();
 builder.Services.AddHttpClient<MoexHttpAlgClient>();
+builder.Services.AddHttpClient<MoexHttpCalendarClient>();
 builder.Services.Configure<MoexIssOptions>(
     builder.Configuration.GetSection("MoexIss"));
 builder.Services.Configure<MoexAlgOptions>(

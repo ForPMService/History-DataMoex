@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "8kOpSEN6AAE=",
+  "dgSpecHash": "AM5hrfdW9aY=",
   "success": true,
   "projectFilePath": "C:\\Users\\89263\\Desktop\\Project\\History DataMoex\\History DataMoex\\History DataMoex.csproj",
   "expectedPackageFiles": [
@@ -10,11 +10,11 @@
     "C:\\Users\\89263\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.7\\microsoft.net.illink.tasks.10.0.7.nupkg.sha512",
     "C:\\Users\\89263\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
     "C:\\Users\\89263\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\10.0.7\\runtime.win-x64.microsoft.dotnet.ilcompiler.10.0.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\10.0.7\\runtime.win-x64.microsoft.dotnet.ilcompiler.10.0.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.7\\microsoft.aspnetcore.app.runtime.win-x64.10.0.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.7\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.7.nupkg.sha512",
     "C:\\Users\\89263\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.7\\microsoft.netcore.app.runtime.win-x64.10.0.7.nupkg.sha512",
-    "C:\\Users\\89263\\.nuget\\packages\\microsoft.netcore.app.runtime.nativeaot.win-x64\\10.0.7\\microsoft.netcore.app.runtime.nativeaot.win-x64.10.0.7.nupkg.sha512"
+    "C:\\Users\\89263\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.7\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.7.nupkg.sha512",
+    "C:\\Users\\89263\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.7\\microsoft.aspnetcore.app.runtime.win-x64.10.0.7.nupkg.sha512",
+    "C:\\Users\\89263\\.nuget\\packages\\microsoft.netcore.app.runtime.nativeaot.win-x64\\10.0.7\\microsoft.netcore.app.runtime.nativeaot.win-x64.10.0.7.nupkg.sha512",
+    "C:\\Users\\89263\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\10.0.7\\runtime.win-x64.microsoft.dotnet.ilcompiler.10.0.7.nupkg.sha512"
   ],
   "logs": []
 }
