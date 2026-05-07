@@ -1071,6 +1071,133 @@ namespace History_DataMoex.Parsing
             return tradeStatsList;
         }
 
+        public static List<FutoiDTO> ParseFutoi(JsonDocument jsonDocument)
+        {
+            List<FutoiDTO> futoiList = new List<FutoiDTO>();
+
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement futoi = root.GetProperty("futoi");
+            JsonElement columns = futoi.GetProperty("columns");
+
+            const int arraysize = 13;
+            Span<int> columnIndices = stackalloc int[arraysize];
+
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("sess_id"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("seqnum"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradedate"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradetime"u8))
+                {
+                    columnIndices[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("ticker"u8))
+                {
+                    columnIndices[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("clgroup"u8))
+                {
+                    columnIndices[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pos"u8))
+                {
+                    columnIndices[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pos_long"u8))
+                {
+                    columnIndices[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pos_short"u8))
+                {
+                    columnIndices[8] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pos_long_num"u8))
+                {
+                    columnIndices[9] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("pos_short_num"u8))
+                {
+                    columnIndices[10] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("systime"u8))
+                {
+                    columnIndices[11] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("trade_session_date"u8))
+                {
+                    columnIndices[12] = i;
+                    found++;
+                    continue;
+                }
+            }
+
+            JsonElement datas = futoi.GetProperty("data");
+
+            for (int i = 0; i < datas.GetArrayLength(); i++)
+            {
+                FutoiDTO futoiDTO = new FutoiDTO()
+                {
+                    SessId = ParseHelpers.GetIntOrNull(datas[i][columnIndices[0]]),
+                    SeqNum = ParseHelpers.GetIntOrNull(datas[i][columnIndices[1]]),
+
+                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+
+                    Ticker = ParseHelpers.GetStringOrNull(datas[i][columnIndices[4]]),
+                    ClGroup = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
+
+                    Pos = ParseHelpers.GetLongOrNull(datas[i][columnIndices[6]]),
+                    PosLong = ParseHelpers.GetLongOrNull(datas[i][columnIndices[7]]),
+                    PosShort = ParseHelpers.GetLongOrNull(datas[i][columnIndices[8]]),
+
+                    PosLongNum = ParseHelpers.GetLongOrNull(datas[i][columnIndices[9]]),
+                    PosShortNum = ParseHelpers.GetLongOrNull(datas[i][columnIndices[10]]),
+
+                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[11]]),
+                    TradeSessionDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[12]])
+                };
+
+                futoiList.Add(futoiDTO);
+            }
+
+            return futoiList;
+        }
+
         public static List<SuperCandlesOrderStats5mDTO> ParseAlgOrderStats5m(JsonDocument jsonDocument)
         {
             List<SuperCandlesOrderStats5mDTO> orderStatsList = new List<SuperCandlesOrderStats5mDTO>();

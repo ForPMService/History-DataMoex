@@ -63,11 +63,19 @@ app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient
 
 
 // === FUTOI ===
-app.MapGet("/research/futoi-raw", async (MoexHttpAlgClient c) =>
+app.MapGet("/research/futoi-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
-    string raw = await c.GetRaw("/datashop/algopack/fo/futoi/SiM6.json",
-        new Dictionary<string, string> { ["from"] = "2026-04-28", ["till"] = "2026-04-30" });
-    return Results.Content(raw, "application/json");
+    string url = "/analyticalproducts/futoi/securities/Si.json";
+
+    List<FutoiDTO> response = await moexHttpAlgClient.GetFutoi(
+        url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-05-03",
+            ["till"] = "2026-05-03"
+        });
+
+    return Results.Json(response, AppJsonContext.Default.ListFutoiDTO);
 });
 
 // === HI2 ===

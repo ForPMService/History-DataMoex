@@ -185,6 +185,37 @@ namespace History_DataMoex.Clients
             return orderBookStatsAll;
         }
 
+        public async Task<List<FutoiDTO>> GetFutoi(string method, Dictionary<string, string>? queryParams = null)
+        {
+            int queryStart = 0;
+            queryParams ??= new Dictionary<string, string>();
+
+            if (queryParams.TryGetValue("start", out string? start) && int.TryParse(start, out int parseValue))
+            {
+                queryStart = parseValue;
+            }
+
+            List<FutoiDTO> all = new List<FutoiDTO>();
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                List<FutoiDTO> page = ParsingALG.ParseFutoi(jsonDocument);
+                all.AddRange(page);
+                if (page.Count >= 1000)
+                {
+                    queryStart += 1000;
+                    queryParams["start"] = queryStart.ToString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return all;
+        }
+
         public async Task<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
         {
             queryParams ??= new Dictionary<string, string>();

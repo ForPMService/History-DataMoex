@@ -11,6 +11,7 @@ namespace History_DataMoex.Parsing
     [JsonSerializable(typeof(List<SuperCandlesOrderStats5mDTO>))]
     [JsonSerializable(typeof(List<SuperCandlesFuturesTradeStats5mDTO>))]
     [JsonSerializable(typeof(List<SuperCandlesFuturesOrderBookStats5mDTO>))]
+    [JsonSerializable(typeof(List<FutoiDTO>))]
     public partial class AppJsonContext: JsonSerializerContext
     {
         

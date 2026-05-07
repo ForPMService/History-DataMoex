@@ -53,7 +53,7 @@
         }
       }
     },
-    "/research/futoi-raw": {
+    "/research/futoi-10": {
       "get": {
         "tags": [
           "History DataMoex"
