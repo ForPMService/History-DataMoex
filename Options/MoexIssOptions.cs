@@ -1,8 +1,6 @@
 ﻿namespace History_DataMoex.Options
 {
-    public class MoexIssOptions
+    public class MoexIssOptions : MoexClientOptions
     {
-        public string BaseUrl { get; set; } = string.Empty;
-        
     }
 }
