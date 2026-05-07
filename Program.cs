@@ -219,7 +219,7 @@ app.MapGet("/research/fo-candles-1", async (MoexHttpAlgClient moexHttpAlgClient)
 // === ISS Calendar — Discovery ===
 
 app.MapGet("/calendar/offdays-all", async (MoexHttpCalendarClient c) =>
-    Results.Json(await c.GetOffDaysAll(), AppJsonContext.Default.CalendarOffDaysAllDTO));
+    Results.Json(await c.GetOffDaysAll(), AppJsonContext.Default.ListCalendarOffDaysAllDTO));
 
 app.MapGet("/calendar/stock-offdays", async (MoexHttpCalendarClient c) =>
     Results.Json(await c.GetStockOffDays(), AppJsonContext.Default.ListCalendarOffDaysMarketDTO));

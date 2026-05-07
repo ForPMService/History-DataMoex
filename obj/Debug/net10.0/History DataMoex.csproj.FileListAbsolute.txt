@@ -32,3 +32,4 @@ C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.genruntimeconfig.cache
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\ref\History DataMoex.dll
 C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\History DataMoex.sourcelink.json
+C:\Users\89263\Desktop\Project\History DataMoex\History DataMoex\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
