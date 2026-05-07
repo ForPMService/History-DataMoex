@@ -1,4 +1,4 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Pagination
 {
     /// <summary>
     /// Диапазон дат, который возвращает MOEX в служебном блоке dates.

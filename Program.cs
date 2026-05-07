@@ -1,7 +1,6 @@
 using History_DataMoex.Options;
 using History_DataMoex.Clients;
 using History_DataMoex.Parsing;
-using History_DataMoex.DataTransfers;
 using History_DataMoex.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);

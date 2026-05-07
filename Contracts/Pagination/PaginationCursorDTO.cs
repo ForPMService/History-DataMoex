@@ -1,4 +1,4 @@
-﻿namespace History_DataMoex.DataTransfers
+namespace History_DataMoex.Contracts.Pagination
 {
     /// <summary>
     /// Информация о пагинации MOEX.

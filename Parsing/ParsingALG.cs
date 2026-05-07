@@ -1,5 +1,5 @@
 ﻿using History_DataMoex.Contracts.Dto.Algopack;
-using History_DataMoex.DataTransfers;
+using History_DataMoex.Contracts.Pagination;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
