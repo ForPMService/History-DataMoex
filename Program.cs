@@ -32,7 +32,7 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 
 // === Фьючерсы ===
 
-app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetSuperCandlesFuturesTradeStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/fo/tradestats/SiM6.json";
 
@@ -46,7 +46,7 @@ app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgCli
 
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesTradeStats5mDTO);
 });
-app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetSuperCandlesFuturesOrderBookStat", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/fo/obstats/SiM6.json";
 
@@ -65,7 +65,7 @@ app.MapGet("/research/fo-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient
 
 
 // === FUTOI ===
-app.MapGet("/research/futoi-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetFutoi", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/analyticalproducts/futoi/securities/Si.json";
 
@@ -81,7 +81,7 @@ app.MapGet("/research/futoi-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 });
 
 // === HI2 ===
-app.MapGet("/research/hi2-eq-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetHi2Asset", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/hi2/SBER.json";
 
@@ -95,7 +95,7 @@ app.MapGet("/research/hi2-eq-raw", async (MoexHttpAlgClient moexHttpAlgClient) =
     return Results.Json (response, AppJsonContext.Default.ListHi2AssetDTO);
 });
 
-app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetHi2Furure", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/fo/hi2/SiM6.json";
     List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
@@ -108,7 +108,7 @@ app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient moexHttpAlgClient) =
 });
 
  // === Mega Alerts ===
-app.MapGet("/research/megaalerts-assets", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetMegaAlerts", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/alerts/SBER.json";
 
@@ -123,7 +123,7 @@ app.MapGet("/research/megaalerts-assets", async (MoexHttpAlgClient moexHttpAlgCl
     return Results.Json(response, AppJsonContext.Default.ListMegaAlertsAssetsDTO);
 });
 
-app.MapGet("/research/megaalerts-futures", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetMegaAlertsFutures", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/fo/alerts/SiM6.json";
 
@@ -138,22 +138,8 @@ app.MapGet("/research/megaalerts-futures", async (MoexHttpAlgClient moexHttpAlgC
     return Results.Json(response, AppJsonContext.Default.ListMegaAlertsFuturesDTO);
 });
 
-app.MapGet("/research/alerts-fo", async (MoexHttpAlgClient moexHttpAlgClient) =>
-{
-    string url = "/datashop/algopack/fo/alerts/SiM6.json";
 
-    string response = await moexHttpAlgClient.GetRaw(
-        url,
-        new Dictionary<string, string>
-        {
-            ["from"] = "2026-04-28",
-            ["till"] = "2026-04-30"
-        });
-
-    return Results.Content(response, "application/json");
-});
-
-app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetSuperCandlesTradeStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/tradestats/SMLT.json";
     List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
@@ -166,7 +152,7 @@ app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexH
         );
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
 });
-app.MapGet("/research/supercandles-orderstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetSuperCandlesOrderStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/orderstats/SMLT.json";
     List<SuperCandlesOrderStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderStats5m(url,
@@ -178,7 +164,7 @@ app.MapGet("/research/supercandles-orderstats-10", async (MoexHttpAlgClient moex
         );
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderStats5mDTO);
 });
-app.MapGet("/research/supercandles-obstats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
+app.MapGet("/GetSuperCandlesOrderBookStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/obstats/SMLT.json";
     List<SuperCandlesOrderBookStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url,
@@ -190,7 +176,7 @@ app.MapGet("/research/supercandles-obstats-10", async (MoexHttpAlgClient moexHtt
         );
     return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
 });
-app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) => {
+app.MapGet("/GetCandlesAsset", async (MoexHttpAlgClient moexHttpAlgClient) => {
     string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
     List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
         new Dictionary<string, string>
@@ -204,7 +190,7 @@ app.MapGet("/research/candles-1", async (MoexHttpAlgClient moexHttpAlgClient) =>
     return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
 });
 
-app.MapGet("/research/fo-candles-1", async (MoexHttpAlgClient moexHttpAlgClient) => {
+app.MapGet("/GetCandlesFutures", async (MoexHttpAlgClient moexHttpAlgClient) => {
     string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
     List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
         new Dictionary<string, string>
