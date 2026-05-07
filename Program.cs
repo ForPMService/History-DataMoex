@@ -218,29 +218,44 @@ app.MapGet("/research/fo-candles-1", async (MoexHttpAlgClient moexHttpAlgClient)
 
 // === ISS Calendar — Discovery ===
 
-app.MapGet("/research/calendar-offdays-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars.json"), "application/json"));
+app.MapGet("/calendar/offdays-all", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetOffDaysAll(), AppJsonContext.Default.CalendarOffDaysAllDTO));
 
-app.MapGet("/research/calendar-stock-offdays-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/stock.json"), "application/json"));
+app.MapGet("/calendar/stock-offdays", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetStockOffDays(), AppJsonContext.Default.ListCalendarOffDaysMarketDTO));
 
-app.MapGet("/research/calendar-stock-session-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/stock/session.json"), "application/json"));
+app.MapGet("/calendar/futures-offdays", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetFuturesOffDays(), AppJsonContext.Default.ListCalendarOffDaysMarketDTO));
 
-app.MapGet("/research/calendar-futures-offdays-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/futures.json"), "application/json"));
+app.MapGet("/calendar/stock-session", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetStockSession(), AppJsonContext.Default.ListCalendarStockSessionDTO));
 
-app.MapGet("/research/calendar-futures-securities-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/futures/securities.json"), "application/json"));
+app.MapGet("/calendar/stock-session-types", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetStockSessionTypes(), AppJsonContext.Default.ListCalendarSessionTypeDTO));
 
-app.MapGet("/research/calendar-futures-session-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/futures/session.json"), "application/json"));
+app.MapGet("/calendar/futures-session", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetFuturesSession(), AppJsonContext.Default.ListCalendarFuturesSessionDTO));
 
-app.MapGet("/research/calendar-stock-suspended-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/stock/securities/suspended/details.json"), "application/json"));
+app.MapGet("/calendar/futures-session-types", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetFuturesSessionTypes(), AppJsonContext.Default.ListCalendarSessionTypeDTO));
 
-app.MapGet("/research/calendar-stock-changes-raw", async (MoexHttpAlgClient c) =>
-    Results.Content(await c.GetRaw("/calendars/stock/securities/changes.json"), "application/json"));
+app.MapGet("/calendar/forts-contracts", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetFortsContracts(), AppJsonContext.Default.ListCalendarFortsContractDTO));
+
+app.MapGet("/calendar/options-series", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetOptionsSeries(), AppJsonContext.Default.ListCalendarOptionsSeriesDTO));
+
+app.MapGet("/calendar/suspended-reasons", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetSuspendedReasons(), AppJsonContext.Default.ListCalendarSuspendedReasonDTO));
+
+app.MapGet("/calendar/suspended", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetSuspended(), AppJsonContext.Default.ListCalendarSuspendedDTO));
+
+app.MapGet("/calendar/security-attributes", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetSecurityAttributes(), AppJsonContext.Default.ListCalendarSecurityAttributeDTO));
+
+app.MapGet("/calendar/security-changes", async (MoexHttpCalendarClient c) =>
+    Results.Json(await c.GetSecurityChanges(), AppJsonContext.Default.ListCalendarSecurityChangeDTO));
 
 app.UseHttpsRedirection();
 
