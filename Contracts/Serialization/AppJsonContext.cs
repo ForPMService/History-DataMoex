@@ -1,9 +1,10 @@
-﻿using History_DataMoex.Contracts.Dto.Calendar;
+using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Contracts.Dto.Iss;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-namespace History_DataMoex.Parsing
+
+namespace History_DataMoex.Contracts.Serialization
 {
     [JsonSerializable(typeof(List<FuturesSecurityDTO>))]
     [JsonSerializable(typeof(List<StockSecurityDTO>))]
@@ -32,9 +33,7 @@ namespace History_DataMoex.Parsing
     [JsonSerializable(typeof(List<CalendarSecurityChangeDTO>))]
     [JsonSerializable(typeof(List<CalendarSecurityAttributeDTO>))]
 
-    public partial class AppJsonContext: JsonSerializerContext
+    public partial class AppJsonContext : JsonSerializerContext
     {
-        
-
     }
 }

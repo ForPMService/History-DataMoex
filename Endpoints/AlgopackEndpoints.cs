@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Algopack;
-using History_DataMoex.Parsing;
+using History_DataMoex.Contracts.Serialization;
 using System.Collections.Generic;
 
 namespace History_DataMoex.Endpoints
