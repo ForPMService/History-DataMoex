@@ -14,7 +14,8 @@ namespace History_DataMoex.Parsing
     [JsonSerializable(typeof(List<FutoiDTO>))]
     [JsonSerializable(typeof(List<Hi2AssetDTO>))]
     [JsonSerializable(typeof(List<Hi2FuturesDTO>))]
-    [JsonSerializable(typeof(List<MegaAlertsDTO>))]
+    [JsonSerializable(typeof(List<MegaAlertsAssetsDTO>))]
+    [JsonSerializable(typeof(List<MegaAlertsFuturesDTO>))]
     public partial class AppJsonContext: JsonSerializerContext
     {
         

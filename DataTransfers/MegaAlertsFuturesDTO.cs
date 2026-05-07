@@ -1,6 +1,6 @@
 ﻿namespace History_DataMoex.DataTransfers
 {
-    public record MegaAlertsDTO
+    public record MegaAlertsFuturesDTO
     {
         /// <summary>
         /// Торговая дата.
@@ -17,14 +17,24 @@
         public string? TradeTime { get; init; }
 
         /// <summary>
-        /// Код инструмента.
+        /// Код срочного инструмента.
         ///
         /// MOEX column: secid
         ///
         /// Пример:
-        /// SBER.
+        /// SiM6.
         /// </summary>
         public string? SecId { get; init; }
+
+        /// <summary>
+        /// Код базового актива.
+        ///
+        /// MOEX column: asset_code
+        ///
+        /// Пример:
+        /// Si.
+        /// </summary>
+        public string? AssetCode { get; init; }
 
         /// <summary>
         /// Тип алерта.
@@ -32,10 +42,12 @@
         /// MOEX column: alert_type
         ///
         /// Примеры:
+        /// pr_change_99_9_pctl-,
+        /// pr_low_min,
+        /// vol_99_9_pctl,
         /// vol_s_99_9_pctl,
         /// net_vol_99_9_pctl-,
-        /// vol_99_9_pctl,
-        /// pr_change_99_9_pctl+.
+        /// oi_close_change_99_9_pctl-.
         /// </summary>
         public string? AlertType { get; init; }
 

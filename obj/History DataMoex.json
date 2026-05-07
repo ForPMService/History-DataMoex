@@ -89,7 +89,31 @@
         }
       }
     },
-    "/research/alerts-raw": {
+    "/research/megaalerts-assets": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/megaalerts-futures": {
+      "get": {
+        "tags": [
+          "History DataMoex"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/research/alerts-fo": {
       "get": {
         "tags": [
           "History DataMoex"

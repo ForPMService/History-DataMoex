@@ -1370,9 +1370,9 @@ namespace History_DataMoex.Parsing
             return hi2FuturesList;
         }
 
-        public static List<MegaAlertsDTO> ParseMegaAlerts(JsonDocument jsonDocument)
+        public static List<MegaAlertsAssetsDTO> ParseMegaAlerts(JsonDocument jsonDocument)
         {
-            List<MegaAlertsDTO> megaAlertsList = new List<MegaAlertsDTO>();
+            List<MegaAlertsAssetsDTO> megaAlertsList = new List<MegaAlertsAssetsDTO>();
 
             JsonElement root = jsonDocument.RootElement;
             JsonElement data = root.GetProperty("data");
@@ -1439,7 +1439,7 @@ namespace History_DataMoex.Parsing
 
             for (int i = 0; i < datas.GetArrayLength(); i++)
             {
-                MegaAlertsDTO megaAlertsDTO = new MegaAlertsDTO()
+                MegaAlertsAssetsDTO megaAlertsDTO = new MegaAlertsAssetsDTO()
                 {
                     TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
                     TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
@@ -1458,7 +1458,102 @@ namespace History_DataMoex.Parsing
 
             return megaAlertsList;
         }
+        public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(JsonDocument jsonDocument)
+        {
+            List<MegaAlertsFuturesDTO> megaAlertsFuturesList = new List<MegaAlertsFuturesDTO>();
 
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data");
+            JsonElement columns = data.GetProperty("columns");
+
+            const int arraysize = 9;
+            Span<int> columnIndices = stackalloc int[arraysize];
+
+            int found = 0;
+
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradetime"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("secid"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("asset_code"u8))
+                {
+                    columnIndices[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("alert_type"u8))
+                {
+                    columnIndices[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("threshold"u8))
+                {
+                    columnIndices[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("value"u8))
+                {
+                    columnIndices[6] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("reference"u8))
+                {
+                    columnIndices[7] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SYSTIME"u8))
+                {
+                    columnIndices[8] = i;
+                    found++;
+                    continue;
+                }
+            }
+
+            JsonElement datas = data.GetProperty("data");
+
+            for (int i = 0; i < datas.GetArrayLength(); i++)
+            {
+                MegaAlertsFuturesDTO megaAlertsFuturesDTO = new MegaAlertsFuturesDTO()
+                {
+                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
+                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
+
+                    SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+                    AssetCode = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+
+                    AlertType = ParseHelpers.GetStringOrNull(datas[i][columnIndices[4]]),
+                    Threshold = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[5]]),
+                    Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[6]]),
+                    Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[7]]),
+
+                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[8]])
+                };
+
+                megaAlertsFuturesList.Add(megaAlertsFuturesDTO);
+            }
+
+            return megaAlertsFuturesList;
+        }
         public static List<SuperCandlesOrderStats5mDTO> ParseAlgOrderStats5m(JsonDocument jsonDocument)
         {
             List<SuperCandlesOrderStats5mDTO> orderStatsList = new List<SuperCandlesOrderStats5mDTO>();

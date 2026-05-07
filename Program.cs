@@ -30,6 +30,7 @@ app.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => 
 });
 
 // === Фьючерсы ===
+
 app.MapGet("/research/fo-tradestats-10", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/fo/tradestats/SiM6.json";
@@ -105,12 +106,12 @@ app.MapGet("/research/hi2-fo-raw", async (MoexHttpAlgClient moexHttpAlgClient) =
     return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
 });
 
-// === Mega Alerts ===
-app.MapGet("/research/alerts-raw", async (MoexHttpAlgClient moexHttpAlgClient) =>
+ // === Mega Alerts ===
+app.MapGet("/research/megaalerts-assets", async (MoexHttpAlgClient moexHttpAlgClient) =>
 {
     string url = "/datashop/algopack/eq/alerts/SBER.json";
 
-    List<MegaAlertsDTO> response = await moexHttpAlgClient.GetMegaAlerts(
+    List<MegaAlertsAssetsDTO> response = await moexHttpAlgClient.GetMegaAlerts(
         url,
         new Dictionary<string, string>
         {
@@ -118,7 +119,37 @@ app.MapGet("/research/alerts-raw", async (MoexHttpAlgClient moexHttpAlgClient) =
             ["till"] = "2026-04-30"
         });
 
-    return Results.Json(response, AppJsonContext.Default.ListMegaAlertsDTO);
+    return Results.Json(response, AppJsonContext.Default.ListMegaAlertsAssetsDTO);
+});
+
+app.MapGet("/research/megaalerts-futures", async (MoexHttpAlgClient moexHttpAlgClient) =>
+{
+    string url = "/datashop/algopack/eq/alerts/SiM6.json";
+
+    List<MegaAlertsFuturesDTO> response = await moexHttpAlgClient.GetMegaAlertsFutures(
+        url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-04-28",
+            ["till"] = "2026-04-30"
+        });
+
+    return Results.Json(response, AppJsonContext.Default.ListMegaAlertsFuturesDTO);
+});
+
+app.MapGet("/research/alerts-fo", async (MoexHttpAlgClient moexHttpAlgClient) =>
+{
+    string url = "/datashop/algopack/fo/alerts/SiM6.json";
+
+    string response = await moexHttpAlgClient.GetRaw(
+        url,
+        new Dictionary<string, string>
+        {
+            ["from"] = "2026-04-28",
+            ["till"] = "2026-04-30"
+        });
+
+    return Results.Content(response, "application/json");
 });
 
 app.MapGet("/research/supercandles-tradestat-10", async (MoexHttpAlgClient moexHttpAlgClient) =>

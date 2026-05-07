@@ -110,7 +110,7 @@ namespace History_DataMoex.Clients
 
                 List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
                 PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                hi2FuturesAll.AddRange(hi2FuturesAll);
+                hi2FuturesAll.AddRange(hi2Futures);
                 if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
                 {
                     break;
@@ -123,11 +123,11 @@ namespace History_DataMoex.Clients
             return hi2FuturesAll;
         }
 
-        public async Task<List<MegaAlertsDTO>> GetMegaAlerts(string metod, Dictionary<string, string>? queryParams = null)
+        public async Task<List<MegaAlertsAssetsDTO>> GetMegaAlerts(string metod, Dictionary<string, string>? queryParams = null)
         {
             queryParams ??= new Dictionary<string, string>();
 
-            List<MegaAlertsDTO> megaAlertsAll = new List<MegaAlertsDTO>();
+            List<MegaAlertsAssetsDTO> megaAlertsAll = new List<MegaAlertsAssetsDTO>();
 
             while (true)
             {
@@ -135,7 +135,7 @@ namespace History_DataMoex.Clients
 
                 using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-                List<MegaAlertsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
+                List<MegaAlertsAssetsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
 
                 megaAlertsAll.AddRange(megaAlerts);
@@ -152,6 +152,34 @@ namespace History_DataMoex.Clients
             return megaAlertsAll;
         }
 
+        public async Task<List<MegaAlertsFuturesDTO>> GetMegaAlertsFutures(string method, Dictionary<string, string>? queryParams = null)
+        {
+            queryParams ??= new Dictionary<string, string>();
+
+            List<MegaAlertsFuturesDTO> megaAlertsFuturesAll = new List<MegaAlertsFuturesDTO>();
+
+            while (true)
+            {
+                var response = await SendRequest(method, queryParams);
+
+                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingALG.ParseMegaAlertsFutures(jsonDocument);
+
+                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+
+                megaAlertsFuturesAll.AddRange(megaAlertsFutures);
+
+                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                {
+                    break;
+                }
+
+                queryParams["start"] = (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+            }
+
+            return megaAlertsFuturesAll;
+        }
 
         public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(string method, Dictionary<string, string>? queryParams = null)
         {
