@@ -17,37 +17,43 @@ namespace History_DataMoex.Clients
             _options = options.Value;
             _httpClient = httpClient;
         }
-        public async Task<string> GetRaw(string method)
+        public async Task<string> GetRaw(
+            string method,
+            CancellationToken cancellationToken = default)
         {
             string requestUrl = _options.BaseUrl + method;
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            var response = await _httpClient.SendAsync(request);
-            return await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            return await response.Content.ReadAsStringAsync(cancellationToken);
         }
 
-        public async Task<List<StockSecurityDTO>> GetInfoTradedStockAssets(string method)
+        public async Task<List<StockSecurityDTO>> GetInfoTradedStockAssets(
+            string method,
+            CancellationToken cancellationToken = default)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingISS.ParseIssSecurityStock(jsonDocument);
         }
 
-        public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(string method)
+        public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(
+            string method,
+            CancellationToken cancellationToken = default)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingISS.ParseIssSecurityFutures(jsonDocument);
 
         }

@@ -14,15 +14,19 @@ namespace History_DataMoex.Endpoints
     {
         public static IEndpointRouteBuilder MapReferenceEndpoints(this IEndpointRouteBuilder routes)
         {
-            routes.MapGet("/GetStockMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
+            routes.MapGet("/GetStockMarkets", async (
+                MoexHttpIssClient moexHttpIssClient,
+                CancellationToken ct) => {
                 string url = "/engines/stock/markets/shares/boards/tqbr/securities.json";
-                List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url);
+                List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url, ct);
                 return Results.Json(response, AppJsonContext.Default.ListStockSecurityDTO);
             });
 
-            routes.MapGet("/GetFuturesMarkets", async (MoexHttpIssClient moexHttpIssClient) => {
+            routes.MapGet("/GetFuturesMarkets", async (
+                MoexHttpIssClient moexHttpIssClient,
+                CancellationToken ct) => {
                 string url = "/engines/futures/markets/forts/boards/RFUD/securities.json";
-                List<FuturesSecurityDTO> response = await moexHttpIssClient.GetInfoTradedFuturesAssets(url);
+                List<FuturesSecurityDTO> response = await moexHttpIssClient.GetInfoTradedFuturesAssets(url, ct);
                 return Results.Json(response, AppJsonContext.Default.ListFuturesSecurityDTO);
             });
 

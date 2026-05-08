@@ -20,91 +20,103 @@ namespace History_DataMoex.Clients
 
         // ── Выходные дни ────────────────────────────────────────────
 
-        public async Task<List<CalendarOffDaysAllDTO>> GetOffDaysAll()
+        public async Task<List<CalendarOffDaysAllDTO>> GetOffDaysAll(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarOffDaysAll(doc);
         }
 
-        public async Task<List<CalendarOffDaysMarketDTO>> GetStockOffDays()
+        public async Task<List<CalendarOffDaysMarketDTO>> GetStockOffDays(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/stock.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/stock.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarOffDaysMarket(doc);
         }
 
-        public async Task<List<CalendarOffDaysMarketDTO>> GetFuturesOffDays()
+        public async Task<List<CalendarOffDaysMarketDTO>> GetFuturesOffDays(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/futures.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/futures.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarOffDaysMarket(doc);
         }
 
         // ── Сессии ────────────────────────────────────────────
 
-        public async Task<List<CalendarStockSessionDTO>> GetStockSession()
+        public async Task<List<CalendarStockSessionDTO>> GetStockSession(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/stock/session.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/stock/session.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarStockSession(doc);
         }
 
-        public async Task<List<CalendarSessionTypeDTO>> GetStockSessionTypes()
+        public async Task<List<CalendarSessionTypeDTO>> GetStockSessionTypes(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/stock/session.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/stock/session.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarSessionTypes(doc);
         }
 
-        public async Task<List<CalendarFuturesSessionDTO>> GetFuturesSession()
+        public async Task<List<CalendarFuturesSessionDTO>> GetFuturesSession(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/futures/session.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/futures/session.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarFuturesSession(doc);
         }
 
-        public async Task<List<CalendarSessionTypeDTO>> GetFuturesSessionTypes()
+        public async Task<List<CalendarSessionTypeDTO>> GetFuturesSessionTypes(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/futures/session.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/futures/session.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarSessionTypes(doc);
         }
 
         // ── Фьючерсы ──────────────────────────────────
 
-        public async Task<List<CalendarFortsContractDTO>> GetFortsContracts()
+        public async Task<List<CalendarFortsContractDTO>> GetFortsContracts(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/futures/securities.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/futures/securities.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarFortsContracts(doc);
         }
 
-        public async Task<List<CalendarOptionsSeriesDTO>> GetOptionsSeries()
+        public async Task<List<CalendarOptionsSeriesDTO>> GetOptionsSeries(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/futures/securities.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/futures/securities.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarOptionsSeries(doc);
         }
 
         // ── Приостановленные (с cursor-пагинацией) ─────────────────────
 
-        public async Task<List<CalendarSuspendedReasonDTO>> GetSuspendedReasons()
+        public async Task<List<CalendarSuspendedReasonDTO>> GetSuspendedReasons(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/stock/securities/suspended/details.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/stock/securities/suspended/details.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarSuspendedReasons(doc);
         }
 
-        public async Task<List<CalendarSuspendedDTO>> GetSuspended()
+        public async Task<List<CalendarSuspendedDTO>> GetSuspended(
+            CancellationToken cancellationToken = default)
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
             List<CalendarSuspendedDTO> all = new List<CalendarSuspendedDTO>();
 
             while (true)
             {
-                var response = await SendRequest("/calendars/stock/securities/suspended/details.json", queryParams);
-                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                cancellationToken.ThrowIfCancellationRequested();
+                var response = await SendRequest("/calendars/stock/securities/suspended/details.json", queryParams, cancellationToken);
+                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
 
                 List<CalendarSuspendedDTO> page = ParsingCalendar.ParseCalendarSuspended(doc);
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "suspended.cursor");
@@ -123,22 +135,25 @@ namespace History_DataMoex.Clients
 
         // ── Изменения по ценным бумагам (с cursor-пагинацией) ──────────────
 
-        public async Task<List<CalendarSecurityAttributeDTO>> GetSecurityAttributes()
+        public async Task<List<CalendarSecurityAttributeDTO>> GetSecurityAttributes(
+            CancellationToken cancellationToken = default)
         {
-            var response = await SendRequest("/calendars/stock/securities/changes.json");
-            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var response = await SendRequest("/calendars/stock/securities/changes.json", cancellationToken: cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return ParsingCalendar.ParseCalendarSecurityAttributes(doc);
         }
 
-        public async Task<List<CalendarSecurityChangeDTO>> GetSecurityChanges()
+        public async Task<List<CalendarSecurityChangeDTO>> GetSecurityChanges(
+            CancellationToken cancellationToken = default)
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
             List<CalendarSecurityChangeDTO> all = new List<CalendarSecurityChangeDTO>();
 
             while (true)
             {
-                var response = await SendRequest("/calendars/stock/securities/changes.json", queryParams);
-                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                cancellationToken.ThrowIfCancellationRequested();
+                var response = await SendRequest("/calendars/stock/securities/changes.json", queryParams, cancellationToken);
+                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
 
                 List<CalendarSecurityChangeDTO> page = ParsingCalendar.ParseCalendarSecurityChanges(doc);
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "securities.cursor");
@@ -157,7 +172,10 @@ namespace History_DataMoex.Clients
 
         // ── Инфраструктура ──────────────────────────────────────
 
-        private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null)
+        private async Task<HttpResponseMessage> SendRequest(
+            string method,
+            Dictionary<string, string>? queryParams = null,
+            CancellationToken cancellationToken = default)
         {
             string requestUrl = _options.BaseUrl + method;
             queryParams ??= new Dictionary<string, string>();
@@ -168,7 +186,7 @@ namespace History_DataMoex.Clients
             }
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response;
         }

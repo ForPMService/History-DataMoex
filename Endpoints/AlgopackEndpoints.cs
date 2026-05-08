@@ -15,7 +15,9 @@ namespace History_DataMoex.Endpoints
         public static IEndpointRouteBuilder MapAlgopackEndpoints(this IEndpointRouteBuilder routes)
         {
             // === Фьючерсы ===
-            routes.MapGet("/GetSuperCandlesFuturesTradeStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetSuperCandlesFuturesTradeStats", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/tradestats/SiM6.json";
 
@@ -25,12 +27,15 @@ namespace History_DataMoex.Endpoints
                         {
                             ["from"] = "2026-04-28",
                             ["till"] = "2026-05-05"
-                        });
+                        },
+                        ct);
 
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesTradeStats5mDTO);
             });
 
-            routes.MapGet("/GetSuperCandlesFuturesOrderBookStat", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetSuperCandlesFuturesOrderBookStat", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/obstats/SiM6.json";
 
@@ -41,14 +46,17 @@ namespace History_DataMoex.Endpoints
                         {
                             ["from"] = "2026-04-28",
                             ["till"] = "2026-04-30"
-                        });
+                        },
+                        ct);
 
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesOrderBookStats5mDTO);
             });
 
 
             // === FUTOI ===
-            routes.MapGet("/GetFutoi", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetFutoi", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/analyticalproducts/futoi/securities/Si.json";
 
@@ -58,13 +66,16 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-05-03",
                         ["till"] = "2026-05-03"
-                    });
+                    },
+                    ct);
 
                 return Results.Json(response, AppJsonContext.Default.ListFutoiDTO);
             });
 
             // === HI2 ===
-            routes.MapGet("/GetHi2Asset", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetHi2Asset", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/hi2/SBER.json";
 
@@ -73,12 +84,15 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-05-03",
                         ["till"] = "2026-05-03"
-                    }
+                    },
+                    ct
                     );
                 return Results.Json (response, AppJsonContext.Default.ListHi2AssetDTO);
             });
 
-            routes.MapGet("/GetHi2Furure", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetHi2Furure", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/hi2/SiM6.json";
                 List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
@@ -86,12 +100,15 @@ namespace History_DataMoex.Endpoints
                 {
                     ["from"] = "2026-04-30",
                     ["till"] = "2026-05-04"
-                });
+                },
+                ct);
                 return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
             });
 
              // === Мега-оповещения ===
-            routes.MapGet("/GetMegaAlerts", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetMegaAlerts", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/alerts/SBER.json";
 
@@ -101,12 +118,15 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-04-28",
                         ["till"] = "2026-04-30"
-                    });
+                    },
+                    ct);
 
                 return Results.Json(response, AppJsonContext.Default.ListMegaAlertsAssetsDTO);
             });
 
-            routes.MapGet("/GetMegaAlertsFutures", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetMegaAlertsFutures", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/alerts/SiM6.json";
 
@@ -116,13 +136,16 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-04-28",
                         ["till"] = "2026-04-30"
-                    });
+                    },
+                    ct);
 
                 return Results.Json(response, AppJsonContext.Default.ListMegaAlertsFuturesDTO);
             });
 
 
-            routes.MapGet("/GetSuperCandlesTradeStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetSuperCandlesTradeStats", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/tradestats/SMLT.json";
                 List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
@@ -131,11 +154,14 @@ namespace History_DataMoex.Endpoints
                         [ "from"]= "2026-04-08" ,
                         [ "till"]= "2026-04-17"
                         
-                    }
+                    },
+                    ct
                     );
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
             });
-            routes.MapGet("/GetSuperCandlesOrderStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetSuperCandlesOrderStats", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/orderstats/SMLT.json";
                 List<SuperCandlesOrderStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderStats5m(url,
@@ -143,11 +169,14 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-04-08",
                         ["till"] = "2026-04-17"
-                    }
+                    },
+                    ct
                     );
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderStats5mDTO);
             });
-            routes.MapGet("/GetSuperCandlesOrderBookStats", async (MoexHttpAlgClient moexHttpAlgClient) =>
+            routes.MapGet("/GetSuperCandlesOrderBookStats", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/obstats/SMLT.json";
                 List<SuperCandlesOrderBookStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url,
@@ -155,11 +184,14 @@ namespace History_DataMoex.Endpoints
                     {
                         ["from"] = "2026-04-08",
                         ["till"] = "2026-04-17"
-                    }
+                    },
+                    ct
                     );
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
             });
-            routes.MapGet("/GetCandlesAsset", async (MoexHttpAlgClient moexHttpAlgClient) => {
+            routes.MapGet("/GetCandlesAsset", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) => {
                 string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
                 List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
                     new Dictionary<string, string>
@@ -168,12 +200,15 @@ namespace History_DataMoex.Endpoints
                         [ "from"]= "2026-04-08" ,
                         [ "till"]= "2026-04-17"
                         
-                    }
+                    },
+                    ct
                     );
                 return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
             });
 
-            routes.MapGet("/GetCandlesFutures", async (MoexHttpAlgClient moexHttpAlgClient) => {
+            routes.MapGet("/GetCandlesFutures", async (
+                MoexHttpAlgClient moexHttpAlgClient,
+                CancellationToken ct) => {
                 string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
                 List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
                     new Dictionary<string, string>
@@ -181,7 +216,8 @@ namespace History_DataMoex.Endpoints
                         ["interval"] = "1",
                         ["from"] = "2026-04-28",
                         ["till"] = "2026-05-05"
-                    });
+                    },
+                    ct);
                 return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
             });
 
