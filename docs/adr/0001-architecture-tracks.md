@@ -8,20 +8,44 @@
 
 History-DataMoex — отдельный .NET 10 модуль, который получает исторические рыночные данные из MOEX ISS, MOEX ALGOPACK и MOEX Calendar.
 
-Что сделано после задач TASK-ARCH-001 — TASK-ARCH-009:
+Что сделано после задач TASK-ARCH-001 — TASK-ARCH-013:
 
+Клиенты и ручки:
 - Три HTTP-клиента (`MoexHttpIssClient`, `MoexHttpAlgClient`, `MoexHttpCalendarClient`) отправляют запросы в MOEX и возвращают DTO — объекты, повторяющие структуру ответа MOEX.
 - Ручки в папке `Endpoints/` при каждом вызове идут в MOEX напрямую. Это технические ручки для проверки связи с источником, а не готовый API витрины данных.
+- Все клиенты и ручки принимают `CancellationToken` для корректной отмены запросов, чтения ответов и циклов пагинации.
+
+Контракты и модели:
 - DTO лежат в `Contracts/Dto/`, пагинация в `Contracts/Pagination/`, настройка сериализации в `Contracts/Serialization/AppJsonContext.cs`.
 - Модели загрузки в `Contracts/Ingestion/` — LoadJob, RawObject, Instrument, DataNeed, DataSource и другие.
 - Внутренние модели витрины в `Normalization/Models/` — Candle1m, TradeStats5m, ObStats5m, OrderStats5m, Futoi, Hi2, Alert, TradingCalendarEntry, InstrumentRef.
 - Интерфейс преобразования `IMoexMapper<TDto, TCanonical>` и контекст `MapContext` в `Normalization/Mappers/`.
+
+Пагинация:
+- Три стратегии пагинации MOEX зафиксированы как явные типы в `Contracts/Pagination/`: `MoexPaginationKind` (Cursor, FixedPage500, FixedPage1000), `MoexPageRequest`, `MoexPageResult<T>`, `MoexPaginationDecision`.
+- Клиенты пока не переведены на `MoexPaginationDecision` — это будет отдельная задача.
+
+Каркас загрузки и хранения:
 - Каркас загрузки данных в `Ingestion/Pipeline/` и `Ingestion/Models/`.
 - Каркас хранения: 11 интерфейсов в `Storage/Abstractions/`, 9 черновых SQL-файлов для PostgreSQL, 7 черновых SQL-файлов для ClickHouse с колонкой `row_hash`.
 - Каркас очереди задач: 4 интерфейса в `Queue/Abstractions/`, 3 модели сообщений в `Queue/Models/` для будущего подключения Redis Streams.
+
+Парсинг:
 - `MoexColumnIndexResolver` в `Parsing/ColumnIndex/` подготовлен, но существующие парсеры пока на него не переведены.
 - `MoexHttpException` и `MoexSchemaMismatchException` описывают ошибки взаимодействия с MOEX.
-- PostgreSQL, ClickHouse, Redis и MinIO не подключены. Интерфейсы хранения и очереди не зарегистрированы в DI. Фоновой загрузки нет. API витрины `/api/v1` нет.
+
+Конфигурация:
+- Регистрация клиентов вынесена из `Program.cs` в `Infrastructure/DependencyInjection/MoexClientServiceCollectionExtensions.cs`.
+- `HttpClient.Timeout` и `User-Agent` настраиваются из `MoexClientOptions`.
+- `BaseUrl` валидируется при запуске приложения.
+- `MoexAlg:Key` не проверяется при запуске — ISS-ручки работают без ключа. Проверка происходит только при вызове ALGOPACK и Calendar ручек.
+- Реальный ключ передаётся через user-secrets или переменные окружения, в `appsettings.json` хранится пустая строка.
+
+Не подключено:
+- PostgreSQL, ClickHouse, Redis и MinIO не подключены.
+- Интерфейсы хранения и очереди не зарегистрированы в DI.
+- Фоновой загрузки нет.
+- API витрины `/api/v1` нет.
 
 ## Решение
 
