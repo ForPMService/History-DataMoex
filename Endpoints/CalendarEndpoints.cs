@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Serialization;
@@ -7,8 +5,10 @@ using History_DataMoex.Contracts.Serialization;
 namespace History_DataMoex.Endpoints
 {
     /// <summary>
-    /// Календарные эндпоинты MOEX.
-    /// Эти эндпоинты напрямую возвращают текущие DTO-ответы календаря MOEX.
+    /// Source endpoint-ы MOEX: в момент запроса идут в MOEX,
+    /// парсят ответ и возвращают DTO MOEX.
+    /// Это не ручки витрины для фронта; ручки витрины появятся позже
+    /// и будут читать данные из PostgreSQL/ClickHouse.
     /// </summary>
     public static class CalendarEndpoints
     {
