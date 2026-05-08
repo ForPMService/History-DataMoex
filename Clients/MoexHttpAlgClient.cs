@@ -30,6 +30,7 @@ namespace History_DataMoex.Clients
                 QueryString queryString = QueryString.Create(queryParams);
                 requestUrl += queryString.ToString();
             }
+            EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -425,11 +426,21 @@ namespace History_DataMoex.Clients
                 QueryString queryString = QueryString.Create(queryParams!);
                 requestUrl += queryString.ToString();
             }
+            EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response;
+        }
+
+        private void EnsureApiKeyConfigured()
+        {
+            if (string.IsNullOrWhiteSpace(_options.Key))
+            {
+                throw new InvalidOperationException(
+                    "MOEX ALGOPACK API key is not configured. Set MoexAlg:Key via user-secrets or environment variable.");
+            }
         }
     }
 }

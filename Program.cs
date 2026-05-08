@@ -1,19 +1,11 @@
-using History_DataMoex.Options;
-using History_DataMoex.Clients;
-using History_DataMoex.Parsing;
 using History_DataMoex.Endpoints;
+using History_DataMoex.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Добавляем сервисы в контейнер.
 
-builder.Services.AddHttpClient<MoexHttpIssClient>();
-builder.Services.AddHttpClient<MoexHttpAlgClient>();
-builder.Services.AddHttpClient<MoexHttpCalendarClient>();
-builder.Services.Configure<MoexIssOptions>(
-    builder.Configuration.GetSection("MoexIss"));
-builder.Services.Configure<MoexAlgOptions>(
-    builder.Configuration.GetSection("MoexAlg"));
+builder.Services.AddMoexClients(builder.Configuration);
 
 
 builder.Services.AddOpenApi();

@@ -67,6 +67,26 @@ dotnet run --project ".\History DataMoex.csproj"
 - `MoexAlg:BaseUrl` — задаётся в `appsettings.json`
 - `MoexAlg:Key` — передавать через user-secrets или переменные окружения; не коммитить настоящие ключи
 
+### Ключ MOEX ALGOPACK
+
+Реальный `MoexAlg:Key` нельзя хранить в `appsettings.json` и коммитить в Git.
+
+Для локальной разработки используй user-secrets:
+
+```powershell
+dotnet user-secrets set "MoexAlg:Key" "YOUR_MOEX_ALGOPACK_KEY"
+```
+
+Или переменную окружения:
+
+```powershell
+$env:MoexAlg__Key="YOUR_MOEX_ALGOPACK_KEY"
+```
+
+Справочные ISS-ручки могут работать без `MoexAlg:Key`.
+
+ALGOPACK-ручки и календарные ручки используют `MoexAlg:Key`. Если ключ не задан, при вызове этих ручек будет явная ошибка конфигурации.
+
 ## Архитектурное решение
 
 См. [docs/adr/0001-architecture-tracks.md](docs/adr/0001-architecture-tracks.md)
