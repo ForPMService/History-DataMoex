@@ -2,8 +2,8 @@ namespace History_DataMoex.Contracts.Pagination
 {
     /// <summary>
     /// Диапазон дат, который возвращает MOEX в служебном блоке dates.
-    /// 
-    /// Это не торговая строка, а справочная информация источника.
+    /// Это не пагинация и не торговая строка.
+    /// Для пагинации см. MoexPaginationKind, MoexPageRequest и MoexPageResult.
     /// </summary>
     public record RangeDataDTO
     {

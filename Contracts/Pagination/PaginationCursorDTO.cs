@@ -1,12 +1,9 @@
 namespace History_DataMoex.Contracts.Pagination
 {
     /// <summary>
-    /// Информация о пагинации MOEX.
-    /// 
-    /// Нужна, чтобы понять:
-    /// сколько всего строк есть,
-    /// сколько строк пришло на одной странице,
-    /// с какого индекса загружать следующую страницу.
+    /// Cursor-формат пагинации MOEX.
+    /// Используется, когда источник возвращает служебные поля INDEX, TOTAL и PAGESIZE.
+    /// См. MoexPaginationKind.Cursor.
     /// </summary>
     public record PaginationCursorDTO
     {
