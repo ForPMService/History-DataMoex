@@ -237,10 +237,10 @@ namespace History_DataMoex.Clients
             return tradeStatsall;
         }
 
-                    public async Task<List<SuperCandlesOrderBookStats5mDTO>> GetSuperCandlesOrderBookStats5m(
-                        string method,
-                        Dictionary<string, string>? queryParams = null,
-                        CancellationToken cancellationToken = default)
+        public async Task<List<SuperCandlesOrderBookStats5mDTO>> GetSuperCandlesOrderBookStats5m(
+            string method,
+            Dictionary<string, string>? queryParams = null,
+            CancellationToken cancellationToken = default)
         {
 
             queryParams ??= new Dictionary<string, string>();
