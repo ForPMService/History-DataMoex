@@ -1,5 +1,5 @@
-﻿using History_DataMoex.Contracts.Dto.Algopack;
-using History_DataMoex.Contracts.Pagination;
+﻿using History_DataMoex.Contracts.Dto;
+using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -385,6 +385,7 @@ namespace History_DataMoex.Clients
             List<SuperCandlesFuturesTradeStats5mDTO> tradeStatsAll =
                 new List<SuperCandlesFuturesTradeStats5mDTO>();
 
+            
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -401,35 +402,21 @@ namespace History_DataMoex.Clients
 
                 tradeStatsAll.AddRange(tradeStats);
 
-                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
-                {
-                    break;
-                }
+                //if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                //{
+                //    break;
+                //}
 
-                queryParams["start"] =
-                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+
+                int? next = NextStart(dataCursorPag);
+                if (next == null) break;
+                queryParams["start"] = next.Value.ToString();
+
             }
 
             return tradeStatsAll;
         }
 
-        private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null,CancellationToken cancellationToken = default)
-        {
-            string baseUrl = _options.BaseUrl;
-            string requestUrl = baseUrl + method;
-            queryParams ??= new Dictionary<string, string>();
-            if (queryParams.Count > 0)
-            {
-                QueryString queryString = QueryString.Create(queryParams!);
-                requestUrl += queryString.ToString();
-            }
-            EnsureApiKeyConfigured();
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
-            var response = await _httpClient.SendAsync(request, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            return response;
-        }
 
         private async Task<HttpResponseMessage> SendRequestAsync(string method, Dictionary<string, string>? queryParams = null, CancellationToken cancellationToken = default)
         {
@@ -448,6 +435,30 @@ namespace History_DataMoex.Clients
             response.EnsureSuccessStatusCode();
             return response;
         }
+
+
+        public async Task<List<T>> LoadAllPageAsync<T>(string method, Func<JsonDocument,List<T>> parsePage, Dictionary<string, string>? queryParams = null, CancellationToken cancellationToken = default)
+        {
+            while (true) 
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+
+
+
+                using JsonDocument jsonDocument =
+                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+            }
+        }
+
+        static int? NextStart(PaginationCursorDTO cursor)
+        {
+            if (cursor.Index + cursor.PageSize >= cursor.Total)
+                return null;
+            return cursor.Index!.Value + cursor.PageSize!.Value;
+        }
+
+
 
         private void EnsureApiKeyConfigured()
         {

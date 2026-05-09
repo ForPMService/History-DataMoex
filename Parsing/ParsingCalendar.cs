@@ -1,5 +1,5 @@
-﻿using History_DataMoex.Contracts.Dto.Calendar;
-using History_DataMoex.Contracts.Pagination;
+﻿using History_DataMoex.Contracts.Dto;
+using History_DataMoex.Contracts.Dto.Calendar;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing

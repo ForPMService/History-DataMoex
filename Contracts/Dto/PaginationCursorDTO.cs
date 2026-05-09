@@ -1,4 +1,4 @@
-namespace History_DataMoex.Contracts.Pagination
+namespace History_DataMoex.Contracts.Dto
 {
     /// <summary>
     /// Cursor-формат пагинации MOEX.

@@ -64,8 +64,8 @@ namespace History_DataMoex.Endpoints
                     url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-01-03",
-                        ["till"] = "2026-05-03"
+                        ["from"] = "2026-05-03",
+                        ["till"] = "2026-05-08"
                     },
                     ct);
 
