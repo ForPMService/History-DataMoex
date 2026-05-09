@@ -13,7 +13,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Экспонируемые эндпоинты исходных данных: возвращают DTO MOEX напрямую.
-// Это не финальное production API. В будущем /v1 эндпойнты будут возвращать канонические модели.
+// Это не финальное production API. В будущем /v1 эндпойнты будут возвращать модели Базы.
 app.MapReferenceEndpoints();
 
 // ALGOPACK-эндпоинты исходных данных: возвращают DTO MOEX напрямую.
@@ -21,7 +21,7 @@ app.MapReferenceEndpoints();
 app.MapAlgopackEndpoints();
 
 // Календарные эндпоинты исходных данных: возвращают DTO MOEX напрямую.
-// В будущем календарный /v1 API будет использовать нормализованные модели календаря.
+// В будущем календарный /v1 API будет использовать нормализованные модели календаря и модеи Базы.
 app.MapCalendarEndpoints();
 
 app.UseHttpsRedirection();
