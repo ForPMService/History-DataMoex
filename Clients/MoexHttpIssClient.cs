@@ -36,9 +36,9 @@ namespace History_DataMoex.Clients
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            using var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
             return ParsingISS.ParseIssSecurityStock(jsonDocument);
         }
 
@@ -51,9 +51,9 @@ namespace History_DataMoex.Clients
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            using var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
             return ParsingISS.ParseIssSecurityFutures(jsonDocument);
 
         }

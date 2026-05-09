@@ -25,7 +25,7 @@ namespace History_DataMoex.Endpoints
                     await moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url,
                         new Dictionary<string, string>
                         {
-                            ["from"] = "2026-04-28",
+                            ["from"] = "2026-01-28",
                             ["till"] = "2026-05-05"
                         },
                         ct);
@@ -44,7 +44,7 @@ namespace History_DataMoex.Endpoints
                         url,
                         new Dictionary<string, string>
                         {
-                            ["from"] = "2026-04-28",
+                            ["from"] = "2026-01-28",
                             ["till"] = "2026-04-30"
                         },
                         ct);
@@ -64,7 +64,7 @@ namespace History_DataMoex.Endpoints
                     url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-05-03",
+                        ["from"] = "2026-01-03",
                         ["till"] = "2026-05-03"
                     },
                     ct);
@@ -82,7 +82,7 @@ namespace History_DataMoex.Endpoints
                 List<Hi2AssetDTO> response = await moexHttpAlgClient.GetHi2Asset5m(url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-05-03",
+                        ["from"] = "2024-05-03",
                         ["till"] = "2026-05-03"
                     },
                     ct
@@ -98,7 +98,7 @@ namespace History_DataMoex.Endpoints
                 List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
                 new Dictionary<string, string>
                 {
-                    ["from"] = "2026-04-30",
+                    ["from"] = "2026-01-30",
                     ["till"] = "2026-05-04"
                 },
                 ct);
@@ -116,7 +116,7 @@ namespace History_DataMoex.Endpoints
                     url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-04-28",
+                        ["from"] = "2024-04-28",
                         ["till"] = "2026-04-30"
                     },
                     ct);
@@ -134,7 +134,7 @@ namespace History_DataMoex.Endpoints
                     url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-04-28",
+                        ["from"] = "2026-01-28",
                         ["till"] = "2026-04-30"
                     },
                     ct);
@@ -151,7 +151,7 @@ namespace History_DataMoex.Endpoints
                 List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
                     new Dictionary<string, string>
                     {
-                        [ "from"]= "2026-04-08" ,
+                        [ "from"]= "2024-04-08" ,
                         [ "till"]= "2026-04-17"
                         
                     },
@@ -167,7 +167,7 @@ namespace History_DataMoex.Endpoints
                 List<SuperCandlesOrderStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderStats5m(url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-04-08",
+                        ["from"] = "2024-04-08",
                         ["till"] = "2026-04-17"
                     },
                     ct
@@ -182,7 +182,7 @@ namespace History_DataMoex.Endpoints
                 List<SuperCandlesOrderBookStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2026-04-08",
+                        ["from"] = "2024-04-08",
                         ["till"] = "2026-04-17"
                     },
                     ct
@@ -197,7 +197,7 @@ namespace History_DataMoex.Endpoints
                     new Dictionary<string, string>
                     {
                         [ "interval"]= "1" ,
-                        [ "from"]= "2026-04-08" ,
+                        [ "from"]= "2024-04-08" ,
                         [ "till"]= "2026-04-17"
                         
                     },
@@ -214,7 +214,7 @@ namespace History_DataMoex.Endpoints
                     new Dictionary<string, string>
                     {
                         ["interval"] = "1",
-                        ["from"] = "2026-04-28",
+                        ["from"] = "2026-01-28",
                         ["till"] = "2026-05-05"
                     },
                     ct);

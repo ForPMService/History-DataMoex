@@ -54,8 +54,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
                 List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
@@ -89,8 +89,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
                 List<Hi2AssetDTO> hi2Assets = ParsingALG.ParseHi2Assets(jsonDocument);
@@ -121,8 +121,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
                 List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
@@ -152,9 +152,9 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(metod, queryParams, cancellationToken);
+                using var response = await SendRequestAsync(metod, queryParams, cancellationToken);
 
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 List<MegaAlertsAssetsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
@@ -185,9 +185,9 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
 
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingALG.ParseMegaAlertsFutures(jsonDocument);
 
@@ -219,8 +219,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 
                 List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
@@ -250,9 +250,9 @@ namespace History_DataMoex.Clients
 
             while (true)
             {
-                            cancellationToken.ThrowIfCancellationRequested();
-                            var response = await SendRequest(method, queryParams, cancellationToken);
-                            using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                cancellationToken.ThrowIfCancellationRequested();
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
                 List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingALG.ParseAlgOrderBookStats5m(jsonDocument);
@@ -283,8 +283,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
                 List<SuperCandlesOrderStats5mDTO> orderStats = ParsingALG.ParseAlgOrderStats5m(jsonDocument);
@@ -315,10 +315,10 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
 
                 using JsonDocument jsonDocument =
-                    JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats =
                     ParsingALG.ParseAlgFuturesOrderBook(jsonDocument);
@@ -357,8 +357,8 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 List<FutoiDTO> page = ParsingALG.ParseFutoi(jsonDocument);
                 all.AddRange(page);
@@ -388,10 +388,10 @@ namespace History_DataMoex.Clients
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await SendRequest(method, queryParams, cancellationToken);
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
 
                 using JsonDocument jsonDocument =
-                    JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
                 List<SuperCandlesFuturesTradeStats5mDTO> tradeStats =
                     ParsingALG.ParseFuturesTradeStats(jsonDocument);
@@ -413,10 +413,7 @@ namespace History_DataMoex.Clients
             return tradeStatsAll;
         }
 
-        private async Task<HttpResponseMessage> SendRequest(
-            string method,
-            Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+        private async Task<HttpResponseMessage> SendRequest(string method, Dictionary<string, string>? queryParams = null,CancellationToken cancellationToken = default)
         {
             string baseUrl = _options.BaseUrl;
             string requestUrl = baseUrl + method;
@@ -430,6 +427,24 @@ namespace History_DataMoex.Clients
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
+
+        private async Task<HttpResponseMessage> SendRequestAsync(string method, Dictionary<string, string>? queryParams = null, CancellationToken cancellationToken = default)
+        {
+            string baseUrl = _options.BaseUrl;
+            string requestUrl = baseUrl + method;
+            queryParams ??= new Dictionary<string, string>();
+            if (queryParams.Count > 0)
+            {
+                QueryString queryString = QueryString.Create(queryParams!);
+                requestUrl += queryString.ToString();
+            }
+            EnsureApiKeyConfigured();
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
+            var response = await _httpClient.SendAsync(request,HttpCompletionOption.ResponseHeadersRead ,cancellationToken);
             response.EnsureSuccessStatusCode();
             return response;
         }
