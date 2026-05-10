@@ -402,10 +402,10 @@ namespace History_DataMoex.Clients
 
                 tradeStatsAll.AddRange(tradeStats);
 
-                //if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
-                //{
-                //    break;
-                //}
+                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                {
+                    break;
+                }
 
 
                 int? next = NextStart(dataCursorPag);
@@ -450,6 +450,9 @@ namespace History_DataMoex.Clients
                     await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
             }
         }
+
+
+
 
         static int? NextStart(PaginationCursorDTO cursor)
         {
