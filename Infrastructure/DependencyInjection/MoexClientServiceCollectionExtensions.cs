@@ -29,7 +29,7 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
             return CreateDefaultHandler(options);
-        }); ;
+        }); 
 
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
         {
@@ -37,9 +37,9 @@ public static class MoexClientServiceCollectionExtensions
             ApplyCommonHttpClientOptions(client, options);
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
+            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
-        }); ;
+        }); 
 
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
         {
@@ -47,9 +47,9 @@ public static class MoexClientServiceCollectionExtensions
             ApplyCommonHttpClientOptions(client, options);
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
+            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
-        }); ;
+        }); 
 
         return services;
     }
