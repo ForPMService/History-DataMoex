@@ -58,5 +58,7 @@ namespace History_DataMoex.Clients
 
         }
 
+        
+
     }
 }

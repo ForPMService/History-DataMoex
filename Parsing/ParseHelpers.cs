@@ -58,5 +58,15 @@ namespace History_DataMoex.Parsing
             }
             return null;
         }
+
+        public static int[] ParseColumns(JsonElement columnsArray, byte[][] expected)
+        {
+            
+            int[] columnIndices = new int[columnsArray.GetArrayLength()];
+            Array.Fill(columnIndices, -1);
+
+            return columnIndices;
+        }
+
     }
 }
