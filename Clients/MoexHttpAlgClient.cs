@@ -407,10 +407,8 @@ namespace History_DataMoex.Clients
                     break;
                 }
 
-
-                int? next = NextStart(dataCursorPag);
-                if (next == null) break;
-                queryParams["start"] = next.Value.ToString();
+                queryParams["start"] =
+                   (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
 
             }
 
@@ -436,30 +434,6 @@ namespace History_DataMoex.Clients
             return response;
         }
 
-
-        public async Task<List<T>> LoadAllPageAsync<T>(string method, Func<JsonDocument,List<T>> parsePage, Dictionary<string, string>? queryParams = null, CancellationToken cancellationToken = default)
-        {
-            while (true) 
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-
-
-
-                using JsonDocument jsonDocument =
-                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-            }
-        }
-
-
-
-
-        static int? NextStart(PaginationCursorDTO cursor)
-        {
-            if (cursor.Index + cursor.PageSize >= cursor.Total)
-                return null;
-            return cursor.Index!.Value + cursor.PageSize!.Value;
-        }
 
 
 
