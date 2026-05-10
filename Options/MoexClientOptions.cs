@@ -11,5 +11,9 @@ namespace History_DataMoex.Options
         public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
         public string UserAgent { get; set; } = "HistoryDataMoex/0.1";
+        public int MaxConnectionsPerServer { get; set; } = 32;
+
+
+
     }
 }

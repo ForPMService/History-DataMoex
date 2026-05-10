@@ -122,12 +122,16 @@ namespace History_DataMoex.Clients
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "suspended.cursor");
                 all.AddRange(page);
 
-                if (cursor.Index + cursor.PageSize >= cursor.Total)
+                if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] = (cursor.Index!.Value + cursor.PageSize!.Value).ToString();
+                if (cursor.Index.Value + cursor.PageSize.Value >= cursor.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
             }
 
             return all;
@@ -159,12 +163,16 @@ namespace History_DataMoex.Clients
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "securities.cursor");
                 all.AddRange(page);
 
-                if (cursor.Index + cursor.PageSize >= cursor.Total)
+                if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] = (cursor.Index!.Value + cursor.PageSize!.Value).ToString();
+                if (cursor.Index.Value + cursor.PageSize.Value >= cursor.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
             }
 
             return all;

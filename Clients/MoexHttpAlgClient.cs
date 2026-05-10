@@ -96,11 +96,16 @@ namespace History_DataMoex.Clients
                 List<Hi2AssetDTO> hi2Assets = ParsingALG.ParseHi2Assets(jsonDocument);
                 PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
                 hi2AssetsAll.AddRange(hi2Assets);
-                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
                     break;
                 }
-                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+                if (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value >= dataCursoPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value).ToString();
 
             }
 
@@ -128,11 +133,16 @@ namespace History_DataMoex.Clients
                 List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
                 PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
                 hi2FuturesAll.AddRange(hi2Futures);
-                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
                     break;
                 }
-                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+                if (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value >= dataCursoPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value).ToString();
 
             }
 
@@ -161,13 +171,16 @@ namespace History_DataMoex.Clients
 
                 megaAlertsAll.AddRange(megaAlerts);
 
-                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] =
-                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
 
             return megaAlertsAll;
@@ -195,12 +208,16 @@ namespace History_DataMoex.Clients
 
                 megaAlertsFuturesAll.AddRange(megaAlertsFutures);
 
-                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] = (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
 
             return megaAlertsFuturesAll;
@@ -224,13 +241,18 @@ namespace History_DataMoex.Clients
 
                 
                 List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
-                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
                 tradeStatsall.AddRange(tradeStats);
-                if(dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
-                queryParams!["start"]= (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"]= (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
                 
             }
             
@@ -256,13 +278,18 @@ namespace History_DataMoex.Clients
 
 
                 List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingALG.ParseAlgOrderBookStats5m(jsonDocument);
-                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
                 tradeStatsall.AddRange(orderBookStats);
-                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
-                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
 
@@ -288,13 +315,18 @@ namespace History_DataMoex.Clients
 
 
                 List<SuperCandlesOrderStats5mDTO> orderStats = ParsingALG.ParseAlgOrderStats5m(jsonDocument);
-                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
                 tradeStatsall.AddRange(orderStats);
-                if (dataCursoPag.Index + dataCursoPag.PageSize >= dataCursoPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
-                queryParams!["start"] = (dataCursoPag.Index!.Value + dataCursoPag.PageSize!.Value).ToString();
+
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
 
@@ -328,13 +360,16 @@ namespace History_DataMoex.Clients
 
                 orderBookStatsAll.AddRange(orderBookStats);
 
-                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] =
-                    (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
 
             return orderBookStatsAll;
@@ -402,13 +437,16 @@ namespace History_DataMoex.Clients
 
                 tradeStatsAll.AddRange(tradeStats);
 
-                if (dataCursorPag.Index + dataCursorPag.PageSize >= dataCursorPag.Total)
+                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
                 }
 
-                queryParams["start"] =
-                   (dataCursorPag.Index!.Value + dataCursorPag.PageSize!.Value).ToString();
+                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
+                {
+                    break;
+                }
+                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
 

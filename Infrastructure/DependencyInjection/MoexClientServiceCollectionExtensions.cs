@@ -25,19 +25,31 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
+        }).ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
+            return CreateDefaultHandler(options);
+        }); ;
 
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
+        }).ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
+            return CreateDefaultHandler(options);
+        }); ;
 
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
+        }).ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
+            return CreateDefaultHandler(options);
+        }); ;
 
         return services;
     }
@@ -54,9 +66,12 @@ public static class MoexClientServiceCollectionExtensions
             client.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
         }
     }
-    private static SocketsHttpHandler CreateDefaultHandler() => new()
+    private static SocketsHttpHandler CreateDefaultHandler(MoexClientOptions options) => new()
     {
-        AutomaticDecompression = DecompressionMethods.All
+        AutomaticDecompression = DecompressionMethods.All,
+        PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+        MaxConnectionsPerServer = options.MaxConnectionsPerServer,
     };
     private static bool HasValidBaseUrl(MoexClientOptions options)
     {
