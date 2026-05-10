@@ -1,6 +1,7 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Options;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace History_DataMoex.Infrastructure.DependencyInjection;
 
@@ -24,19 +25,19 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        });
+        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
 
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        });
+        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
 
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
-        });
+        }).ConfigurePrimaryHttpMessageHandler(CreateDefaultHandler); ;
 
         return services;
     }
@@ -53,7 +54,10 @@ public static class MoexClientServiceCollectionExtensions
             client.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
         }
     }
-
+    private static SocketsHttpHandler CreateDefaultHandler() => new()
+    {
+        AutomaticDecompression = DecompressionMethods.All
+    };
     private static bool HasValidBaseUrl(MoexClientOptions options)
     {
         return Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out Uri? uri)
