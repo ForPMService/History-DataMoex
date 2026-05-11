@@ -191,33 +191,44 @@ namespace History_DataMoex.Endpoints
             });
             routes.MapGet("/GetCandlesAsset", async (
                 MoexHttpAlgClient moexHttpAlgClient,
-                CancellationToken ct) => {
+                CancellationToken ct) =>
+            {
                 string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
-                List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
-                    new Dictionary<string, string>
-                    {
-                        [ "interval"]= "1" ,
-                        [ "from"]= "2026-04-17" ,
-                        [ "till"]= "2026-04-20"
-                        
-                    },
-                    ct
-                    );
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["interval"] = "1",
+                    ["from"] = "2026-04-17",
+                    ["till"] = "2026-04-20"
+
+                };
+                List<CandlesDTO> response = new List<CandlesDTO>();
+                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
+                {
+                    response.AddRange(candlesBatch);
+                }
                 return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
             });
 
+
+
             routes.MapGet("/GetCandlesFutures", async (
                 MoexHttpAlgClient moexHttpAlgClient,
-                CancellationToken ct) => {
+                CancellationToken ct) =>
+            {
                 string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
-                List<CandlesDTO> response = await moexHttpAlgClient.GetCandles(url,
-                    new Dictionary<string, string>
-                    {
-                        ["interval"] = "1",
-                        ["from"] = "2026-01-28",
-                        ["till"] = "2026-05-05"
-                    },
-                    ct);
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["interval"] = "1",
+                    ["from"] = "2026-01-28",
+                    ["till"] = "2026-05-05"
+                };
+                    
+                List<CandlesDTO> response = new List<CandlesDTO>();
+                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
+                {
+                    response.AddRange(candlesBatch);
+                }
+
                 return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
             });
 

@@ -3,6 +3,7 @@ using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace History_DataMoex.Clients
@@ -38,10 +39,10 @@ namespace History_DataMoex.Clients
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
 
-        public async Task<List<CandlesDTO>> GetCandles(
+        public async IAsyncEnumerable<List<CandlesDTO>> GetCandles(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             int queryStart = 0;
             queryParams ??= new Dictionary<string, string>();
@@ -50,7 +51,7 @@ namespace History_DataMoex.Clients
             {
                 queryStart = parseValue;
             }
-            List<CandlesDTO> candles = new List<CandlesDTO>();
+            
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -59,7 +60,7 @@ namespace History_DataMoex.Clients
 
 
                 List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
-                candles.AddRange(candlesList);
+                yield return candlesList;
                 if (candlesList.Count>=500)
                 {
                     queryStart += 500;
@@ -73,18 +74,20 @@ namespace History_DataMoex.Clients
 
             }
 
-            return candles;
+            
         }
 
-        public async Task <List<Hi2AssetDTO>> GetHi2Asset5m(
+        
+
+        public async IAsyncEnumerable<List<Hi2AssetDTO>> GetHi2Asset5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
 
             queryParams ??= new Dictionary<string, string>();
 
-            List<Hi2AssetDTO> hi2AssetsAll = new List<Hi2AssetDTO>();
+            
 
             while (true)
             {
@@ -95,7 +98,7 @@ namespace History_DataMoex.Clients
 
                 List<Hi2AssetDTO> hi2Assets = ParsingALG.ParseHi2Assets(jsonDocument);
                 PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                hi2AssetsAll.AddRange(hi2Assets);
+                yield return hi2Assets;
                 if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
                     break;
@@ -110,7 +113,7 @@ namespace History_DataMoex.Clients
             }
 
 
-            return hi2AssetsAll;
+            
         }
 
         public async Task<List<Hi2FuturesDTO>> GetHi2Furures5m(
@@ -408,6 +411,41 @@ namespace History_DataMoex.Clients
                 }
             }
             return all;
+        }
+
+        public async IAsyncEnumerable<List<FutoiDTO>> StreamFutoi(
+            string method,
+            Dictionary<string, string>? queryParams = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            int queryStart = 0;
+            queryParams ??= new Dictionary<string, string>();
+
+            if (queryParams.TryGetValue("start", out string? start) && int.TryParse(start, out int parseValue))
+            {
+                queryStart = parseValue;
+            }
+
+            
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+
+                List<FutoiDTO> page = ParsingALG.ParseFutoi(jsonDocument);
+                yield return page;
+                if (page.Count >= 1000)
+                {
+                    queryStart += 1000;
+                    queryParams["start"] = queryStart.ToString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+            //return all;
         }
 
         public async Task<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(
