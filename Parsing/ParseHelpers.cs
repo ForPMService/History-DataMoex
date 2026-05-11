@@ -65,16 +65,35 @@ namespace History_DataMoex.Parsing
 
         public static void ValidateColumns(JsonElement columns, ColumnAndNumbersForParsing.ExpectedColumn[] expectedColumns)
         {
-                       
-
-            foreach(var expectedColumn in expectedColumns)
+            if (columns.ValueKind != JsonValueKind.Array)
             {
-                if(!columns[expectedColumn.SourceIndex].ValueEquals(expectedColumn.Name))
+                throw new InvalidOperationException("Ошибка валидации столбцов. Ожидался массив columns[].");
+            }
+
+            int columnCount = columns.GetArrayLength();
+
+
+            foreach (var expectedColumn in expectedColumns)
+            {
+                if(expectedColumn.SourceIndex <0 || expectedColumn.SourceIndex >= columnCount )
                 {
-                    throw new InvalidOperationException("Ошибка валидации столбцов. Ожидалось: " + System.Text.Encoding.UTF8.GetString(expectedColumn.Name) + " на позиции " + expectedColumn.SourceIndex);
+                    throw new InvalidOperationException("Ошибка валидации столбцов. Ожидалось: " + System.Text.Encoding.UTF8.GetString(expectedColumn.Name) + " на позиции " + expectedColumn.SourceIndex + ", но всего колонок: " + columnCount);
+                }
+
+                if (!columns[expectedColumn.SourceIndex].ValueEquals(expectedColumn.Name))
+                {
+                    string actualName =
+                        columns[expectedColumn.SourceIndex].ValueKind == JsonValueKind.String
+                            ? columns[expectedColumn.SourceIndex].GetString() ?? "<null>"
+                            : columns[expectedColumn.SourceIndex].ValueKind.ToString();
+
+                    throw new InvalidOperationException("Ошибка валидации столбцов. " + "Ожидалось: " + System.Text.Encoding.UTF8.GetString(expectedColumn.Name) + " на позиции " + expectedColumn.SourceIndex +
+                        ". Фактически: " + actualName);
                 }
 
             }
+
+
             
         }
        

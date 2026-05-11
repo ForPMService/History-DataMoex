@@ -380,7 +380,7 @@
         // fact columnCount: 27
         // parser uses: 9 columns from 27
         public static readonly ExpectedColumn[] IssStockSecurityExpectedColumns =
-                {
+        {
             new(0, "SECID"u8.ToArray()),
             new(1, "BOARDID"u8.ToArray()),
             new(2, "SHORTNAME"u8.ToArray()),

@@ -1200,96 +1200,96 @@ namespace History_DataMoex.Parsing
             return futoiList;
         }
 
-        //public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
-        //{
-        //    List<Hi2AssetDTO> hi2AssetList = new List<Hi2AssetDTO>();
+        public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
+        {
+            List<Hi2AssetDTO> hi2AssetList = new List<Hi2AssetDTO>();
 
-        //    JsonElement root = jsonDocument.RootElement;
-        //    JsonElement data = root.GetProperty("data");
-        //    JsonElement columns = data.GetProperty("columns");
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data");
+            JsonElement columns = data.GetProperty("columns");
 
-        //    const int arraysize = 7;
-        //    Span<int> columnIndices = stackalloc int[arraysize];
-        //    byte[][] Hi2Columns = 
-        //    {
-        //        "tradedate"u8.ToArray(),
-        //        "tradetime"u8.ToArray(),
-        //        "secid"u8.ToArray(),
-        //        "metric"u8.ToArray(),
-        //        "value"u8.ToArray(),
-        //        "reference"u8.ToArray(),
-        //        "SYSTIME"u8.ToArray(),
-        //    };
-        //    int found = 0;
+            const int arraysize = 7;
+            Span<int> columnIndices = stackalloc int[arraysize];
+            byte[][] Hi2Columns =
+            {
+                "tradedate"u8.ToArray(),
+                "tradetime"u8.ToArray(),
+                "secid"u8.ToArray(),
+                "metric"u8.ToArray(),
+                "value"u8.ToArray(),
+                "reference"u8.ToArray(),
+                "SYSTIME"u8.ToArray(),
+            };
+            int found = 0;
 
-        //    for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-        //    {
-        //        if (columns[i].ValueEquals("tradedate"u8))
-        //        {
-        //            columnIndices[0] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("tradetime"u8))
-        //        {
-        //            columnIndices[1] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("secid"u8))
-        //        {
-        //            columnIndices[2] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("metric"u8))
-        //        {
-        //            columnIndices[3] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("value"u8))
-        //        {
-        //            columnIndices[4] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("reference"u8))
-        //        {
-        //            columnIndices[5] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //        else if (columns[i].ValueEquals("SYSTIME"u8))
-        //        {
-        //            columnIndices[6] = i;
-        //            found++;
-        //            continue;
-        //        }
-        //    }
+            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+            {
+                if (columns[i].ValueEquals("tradedate"u8))
+                {
+                    columnIndices[0] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("tradetime"u8))
+                {
+                    columnIndices[1] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("secid"u8))
+                {
+                    columnIndices[2] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("metric"u8))
+                {
+                    columnIndices[3] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("value"u8))
+                {
+                    columnIndices[4] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("reference"u8))
+                {
+                    columnIndices[5] = i;
+                    found++;
+                    continue;
+                }
+                else if (columns[i].ValueEquals("SYSTIME"u8))
+                {
+                    columnIndices[6] = i;
+                    found++;
+                    continue;
+                }
+            }
 
-        //    JsonElement datas = data.GetProperty("data");
+            JsonElement datas = data.GetProperty("data");
 
-        //    for (int i = 0; i < datas.GetArrayLength(); i++)
-        //    {
-        //        Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
-        //        {
-        //            TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
-        //            TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
-        //            SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+            for (int i = 0; i < datas.GetArrayLength(); i++)
+            {
+                Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
+                {
+                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
+                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
+                    SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
 
-        //            Metric = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
-        //            Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
-        //            Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
+                    Metric = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+                    Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
+                    Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
 
-        //            SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[6]])
-        //        };
+                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[6]])
+                };
 
-        //        hi2AssetList.Add(hi2AssetDTO);
-        //    }
+                hi2AssetList.Add(hi2AssetDTO);
+            }
 
-        //    return hi2AssetList;
-        //}
+            return hi2AssetList;
+        }
 
 
 
