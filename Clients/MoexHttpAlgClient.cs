@@ -56,10 +56,12 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                //using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
 
 
-                List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
+                //List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                List<CandlesDTO> candlesList = ParsingAlgUtf8.ParseAlgCandles(bytes);
                 yield return candlesList;
                 if (candlesList.Count>=500)
                 {

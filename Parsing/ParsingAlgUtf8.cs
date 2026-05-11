@@ -19,7 +19,7 @@ namespace History_DataMoex.Parsing
                         {
                             reader.Skip();
                         }
-                        if(reader.ValueTextEquals("columns"u8))
+                        else if(reader.ValueTextEquals("columns"u8))
                         {
                            reader.Read();
                            int number = 0;
@@ -33,7 +33,7 @@ namespace History_DataMoex.Parsing
                                 number++;
                             }
                         }
-                        if(reader.ValueTextEquals("data"u8))
+                        else if(reader.ValueTextEquals("data"u8))
                         {
                             reader.Read();
                             
