@@ -4,9 +4,9 @@
     {
         // Фактические номера колонок из columns-map.json
 
-        private readonly record struct ExpectedColumn(int SourceIndex, byte[] Name);
+        public readonly record struct ExpectedColumn(int SourceIndex, byte[] Name);
 
-        private static readonly ExpectedColumn[] AlgCandlesExpectedColumns =
+        public static readonly ExpectedColumn[] AlgCandlesExpectedColumns =
         {
             new(0, "open"u8.ToArray()),
             new(1, "close"u8.ToArray()),
@@ -18,7 +18,7 @@
             new(7, "end"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] AlgCandlesTradeStatExpectedColumns =
+        public static readonly ExpectedColumn[] AlgCandlesTradeStatExpectedColumns =
         {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -49,7 +49,7 @@
             new(26, "sec_pr_close"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] FuturesTradeStatsExpectedColumns =
+        public static readonly ExpectedColumn[] FuturesTradeStatsExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -86,7 +86,7 @@
             new(32, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] AlgOrderBookStats5mExpectedColumns =
+        public static readonly ExpectedColumn[] AlgOrderBookStats5mExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -111,7 +111,7 @@
             new(20, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] AlgFuturesOrderBookExpectedColumns =
+        public static readonly ExpectedColumn[] AlgFuturesOrderBookExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -150,7 +150,7 @@
             new(34, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] AlgOrderStats5mExpectedColumns =
+        public static readonly ExpectedColumn[] AlgOrderStats5mExpectedColumns =
         {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -180,7 +180,7 @@
             new(25, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] Hi2AssetExpectedColumns =
+        public static readonly ExpectedColumn[] Hi2AssetExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -191,7 +191,7 @@
             new(6, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] Hi2FuturesExpectedColumns =
+        public static readonly ExpectedColumn[] Hi2FuturesExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -203,7 +203,7 @@
             new(7, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] MegaAlertsAssetExpectedColumns =
+        public static readonly ExpectedColumn[] MegaAlertsAssetExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -215,7 +215,7 @@
             new(7, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] MegaAlertsFuturesExpectedColumns =
+        public static readonly ExpectedColumn[] MegaAlertsFuturesExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradetime"u8.ToArray()),
@@ -228,7 +228,7 @@
             new(8, "SYSTIME"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] FutoiExpectedColumns =
+        public static readonly ExpectedColumn[] FutoiExpectedColumns =
                 {
             new(0, "sess_id"u8.ToArray()),
             new(1, "seqnum"u8.ToArray()),
@@ -247,7 +247,7 @@
 
         // Фактические номера колонок Calendar из columns-map.json
 
-        private static readonly ExpectedColumn[] CalendarOffDaysAllExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarOffDaysAllExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "currency_workday"u8.ToArray()),
@@ -261,7 +261,7 @@
             new(9, "stock_reason"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarOffDaysMarketExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarOffDaysMarketExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "is_traded"u8.ToArray()),
@@ -270,7 +270,7 @@
             new(4, "updatetime"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarStockSessionExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarStockSessionExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
             new(1, "tradingsession"u8.ToArray()),
@@ -282,7 +282,7 @@
             new(7, "updatetime"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarFuturesSessionExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarFuturesSessionExpectedColumns =
                 {
             new(0, "trade_session_date"u8.ToArray()),
             new(1, "boardid"u8.ToArray()),
@@ -293,13 +293,13 @@
             new(6, "updatetime"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarSessionTypesExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarSessionTypesExpectedColumns =
                 {
             new(0, "type"u8.ToArray()),
             new(1, "title"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarFortsContractsExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarFortsContractsExpectedColumns =
                 {
             new(0, "secid"u8.ToArray()),
             new(1, "asset_code"u8.ToArray()),
@@ -313,7 +313,7 @@
             new(9, "weekend_session"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarOptionsSeriesExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarOptionsSeriesExpectedColumns =
                 {
             new(0, "asset_type_name"u8.ToArray()),
             new(1, "asset_code"u8.ToArray()),
@@ -328,7 +328,7 @@
             new(10, "weekend_session"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarSuspendedExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarSuspendedExpectedColumns =
                 {
             new(0, "secid"u8.ToArray()),
             new(1, "reason_id"u8.ToArray()),
@@ -340,13 +340,13 @@
             new(7, "updatetime"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarSuspendedReasonsExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarSuspendedReasonsExpectedColumns =
                 {
             new(0, "id"u8.ToArray()),
             new(1, "title"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarSecurityChangesExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarSecurityChangesExpectedColumns =
                 {
             new(0, "updatetime"u8.ToArray()),
             new(1, "action"u8.ToArray()),
@@ -356,14 +356,14 @@
             new(5, "after_value"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarSecurityAttributesExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarSecurityAttributesExpectedColumns =
                 {
             new(0, "name"u8.ToArray()),
             new(1, "type"u8.ToArray()),
             new(2, "title"u8.ToArray()),
         };
 
-        private static readonly ExpectedColumn[] CalendarCursorExpectedColumns =
+        public static readonly ExpectedColumn[] CalendarCursorExpectedColumns =
                 {
             new(0, "INDEX"u8.ToArray()),
             new(1, "TOTAL"u8.ToArray()),
@@ -379,7 +379,7 @@
         // source: Securities (stock TQBR)
         // fact columnCount: 27
         // parser uses: 9 columns from 27
-        private static readonly ExpectedColumn[] IssStockSecurityExpectedColumns =
+        public static readonly ExpectedColumn[] IssStockSecurityExpectedColumns =
                 {
             new(0, "SECID"u8.ToArray()),
             new(1, "BOARDID"u8.ToArray()),
@@ -397,7 +397,7 @@
         // source: Securities (futures RFUD)
         // fact columnCount: 26
         // parser uses: 16 columns from 26
-        private static readonly ExpectedColumn[] IssFuturesSecurityExpectedColumns =
+        public static readonly ExpectedColumn[] IssFuturesSecurityExpectedColumns =
         {
             new(0, "SECID"u8.ToArray()),
             new(2, "SHORTNAME"u8.ToArray()),
