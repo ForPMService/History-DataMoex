@@ -68,7 +68,15 @@ namespace History_DataMoex.Endpoints
             routes.MapGet("/calendar/suspended", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetSuspended(ct), AppJsonContext.Default.ListCalendarSuspendedDTO));
+            {
+                List<CalendarSuspendedDTO> response = new List<CalendarSuspendedDTO>();
+                await foreach (List<CalendarSuspendedDTO> page in c.GetSuspended(ct))
+                {
+                    response.AddRange(page);
+                }
+
+                return Results.Json(response, AppJsonContext.Default.ListCalendarSuspendedDTO);
+            });
 
             routes.MapGet("/calendar/security-attributes", async (
                 MoexHttpCalendarClient c,
@@ -78,7 +86,15 @@ namespace History_DataMoex.Endpoints
             routes.MapGet("/calendar/security-changes", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetSecurityChanges(ct), AppJsonContext.Default.ListCalendarSecurityChangeDTO));
+            {
+                List<CalendarSecurityChangeDTO> response = new List<CalendarSecurityChangeDTO>();
+                await foreach (List<CalendarSecurityChangeDTO> page in c.GetSecurityChanges(ct))
+                {
+                    response.AddRange(page);
+                }
+
+                return Results.Json(response, AppJsonContext.Default.ListCalendarSecurityChangeDTO);
+            });
 
             return routes;
         }

@@ -28,7 +28,8 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(queryParams);
+                QueryString queryString = QueryString.Create(
+                    queryParams.Select(static pair => new KeyValuePair<string, string?>(pair.Key, pair.Value)));
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();
@@ -116,15 +117,13 @@ namespace History_DataMoex.Clients
             
         }
 
-        public async Task<List<Hi2FuturesDTO>> GetHi2Furures5m(
+        public async IAsyncEnumerable<List<Hi2FuturesDTO>> GetHi2Furures5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
 
             queryParams ??= new Dictionary<string, string>();
-
-            List<Hi2FuturesDTO> hi2FuturesAll = new List<Hi2FuturesDTO>();
 
             while (true)
             {
@@ -135,7 +134,7 @@ namespace History_DataMoex.Clients
 
                 List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
                 PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                hi2FuturesAll.AddRange(hi2Futures);
+                yield return hi2Futures;
                 if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
                     break;
@@ -148,19 +147,14 @@ namespace History_DataMoex.Clients
                 queryParams!["start"] = (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value).ToString();
 
             }
-
-
-            return hi2FuturesAll;
         }
 
-        public async Task<List<MegaAlertsAssetsDTO>> GetMegaAlerts(
+        public async IAsyncEnumerable<List<MegaAlertsAssetsDTO>> GetMegaAlerts(
             string metod,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             queryParams ??= new Dictionary<string, string>();
-
-            List<MegaAlertsAssetsDTO> megaAlertsAll = new List<MegaAlertsAssetsDTO>();
 
             while (true)
             {
@@ -172,7 +166,7 @@ namespace History_DataMoex.Clients
                 List<MegaAlertsAssetsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
 
-                megaAlertsAll.AddRange(megaAlerts);
+                yield return megaAlerts;
 
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -185,18 +179,14 @@ namespace History_DataMoex.Clients
                 }
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
-
-            return megaAlertsAll;
         }
 
-        public async Task<List<MegaAlertsFuturesDTO>> GetMegaAlertsFutures(
+        public async IAsyncEnumerable<List<MegaAlertsFuturesDTO>> GetMegaAlertsFutures(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             queryParams ??= new Dictionary<string, string>();
-
-            List<MegaAlertsFuturesDTO> megaAlertsFuturesAll = new List<MegaAlertsFuturesDTO>();
 
             while (true)
             {
@@ -209,7 +199,7 @@ namespace History_DataMoex.Clients
 
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
 
-                megaAlertsFuturesAll.AddRange(megaAlertsFutures);
+                yield return megaAlertsFutures;
 
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -222,19 +212,15 @@ namespace History_DataMoex.Clients
                 }
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
-
-            return megaAlertsFuturesAll;
         }
 
-        public async Task<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(
+        public async IAsyncEnumerable<List<SuperCandlesTradeStats5mDTO>> GetSuperCandlesTradeStats5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             
             queryParams ??= new Dictionary<string, string>();
-
-            List<SuperCandlesTradeStats5mDTO> tradeStatsall = new List<SuperCandlesTradeStats5mDTO>();
             
             while (true)
             {
@@ -245,7 +231,7 @@ namespace History_DataMoex.Clients
                 
                 List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                tradeStatsall.AddRange(tradeStats);
+                yield return tradeStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
@@ -258,20 +244,15 @@ namespace History_DataMoex.Clients
                 queryParams!["start"]= (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
                 
             }
-            
-            
-            return tradeStatsall;
         }
 
-        public async Task<List<SuperCandlesOrderBookStats5mDTO>> GetSuperCandlesOrderBookStats5m(
+        public async IAsyncEnumerable<List<SuperCandlesOrderBookStats5mDTO>> GetSuperCandlesOrderBookStats5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
 
             queryParams ??= new Dictionary<string, string>();
-
-            List<SuperCandlesOrderBookStats5mDTO> tradeStatsall = new List<SuperCandlesOrderBookStats5mDTO>();
 
             while (true)
             {
@@ -282,7 +263,7 @@ namespace History_DataMoex.Clients
 
                 List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingALG.ParseAlgOrderBookStats5m(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                tradeStatsall.AddRange(orderBookStats);
+                yield return orderBookStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
@@ -295,20 +276,15 @@ namespace History_DataMoex.Clients
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
-
-
-            return tradeStatsall;
         }
 
-        public async Task<List<SuperCandlesOrderStats5mDTO>> GetSuperCandlesOrderStats5m(
+        public async IAsyncEnumerable<List<SuperCandlesOrderStats5mDTO>> GetSuperCandlesOrderStats5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
 
             queryParams ??= new Dictionary<string, string>();
-
-            List<SuperCandlesOrderStats5mDTO> tradeStatsall = new List<SuperCandlesOrderStats5mDTO>();
 
             while (true)
             {
@@ -319,7 +295,7 @@ namespace History_DataMoex.Clients
 
                 List<SuperCandlesOrderStats5mDTO> orderStats = ParsingALG.ParseAlgOrderStats5m(jsonDocument);
                 PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
-                tradeStatsall.AddRange(orderStats);
+                yield return orderStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
                     break;
@@ -332,20 +308,14 @@ namespace History_DataMoex.Clients
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
-
-
-            return tradeStatsall;
         }
 
-        public async Task<List<SuperCandlesFuturesOrderBookStats5mDTO>> GetSuperCandlesFuturesOrderBookStats5m(
+        public async IAsyncEnumerable<List<SuperCandlesFuturesOrderBookStats5mDTO>> GetSuperCandlesFuturesOrderBookStats5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             queryParams ??= new Dictionary<string, string>();
-
-            List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStatsAll =
-                new List<SuperCandlesFuturesOrderBookStats5mDTO>();
 
             while (true)
             {
@@ -361,7 +331,7 @@ namespace History_DataMoex.Clients
                 PaginationCursorDTO dataCursorPag =
                     ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
 
-                orderBookStatsAll.AddRange(orderBookStats);
+                yield return orderBookStats;
 
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -374,8 +344,6 @@ namespace History_DataMoex.Clients
                 }
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
             }
-
-            return orderBookStatsAll;
         }
 
         public async Task<List<FutoiDTO>> GetFutoi(
@@ -448,15 +416,12 @@ namespace History_DataMoex.Clients
             //return all;
         }
 
-        public async Task<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(
+        public async IAsyncEnumerable<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(
             string method,
             Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             queryParams ??= new Dictionary<string, string>();
-
-            List<SuperCandlesFuturesTradeStats5mDTO> tradeStatsAll =
-                new List<SuperCandlesFuturesTradeStats5mDTO>();
 
             
             while (true)
@@ -473,7 +438,7 @@ namespace History_DataMoex.Clients
                 PaginationCursorDTO dataCursorPag =
                     ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
 
-                tradeStatsAll.AddRange(tradeStats);
+                yield return tradeStats;
 
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -487,8 +452,6 @@ namespace History_DataMoex.Clients
                 queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
 
             }
-
-            return tradeStatsAll;
         }
 
 
@@ -499,7 +462,8 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(queryParams!);
+                QueryString queryString = QueryString.Create(
+                    queryParams.Select(static pair => new KeyValuePair<string, string?>(pair.Key, pair.Value)));
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();

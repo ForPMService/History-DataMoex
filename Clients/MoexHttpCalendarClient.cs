@@ -3,6 +3,7 @@ using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace History_DataMoex.Clients
@@ -106,11 +107,10 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarSuspendedReasons(doc);
         }
 
-        public async Task<List<CalendarSuspendedDTO>> GetSuspended(
-            CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<List<CalendarSuspendedDTO>> GetSuspended(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
-            List<CalendarSuspendedDTO> all = new List<CalendarSuspendedDTO>();
 
             while (true)
             {
@@ -120,7 +120,7 @@ namespace History_DataMoex.Clients
 
                 List<CalendarSuspendedDTO> page = ParsingCalendar.ParseCalendarSuspended(doc);
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "suspended.cursor");
-                all.AddRange(page);
+                yield return page;
 
                 if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
                 {
@@ -133,8 +133,6 @@ namespace History_DataMoex.Clients
                 }
                 queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
             }
-
-            return all;
         }
 
         // ── Изменения по ценным бумагам (с cursor-пагинацией) ──────────────
@@ -147,11 +145,10 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarSecurityAttributes(doc);
         }
 
-        public async Task<List<CalendarSecurityChangeDTO>> GetSecurityChanges(
-            CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<List<CalendarSecurityChangeDTO>> GetSecurityChanges(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
-            List<CalendarSecurityChangeDTO> all = new List<CalendarSecurityChangeDTO>();
 
             while (true)
             {
@@ -161,7 +158,7 @@ namespace History_DataMoex.Clients
 
                 List<CalendarSecurityChangeDTO> page = ParsingCalendar.ParseCalendarSecurityChanges(doc);
                 PaginationCursorDTO cursor = ParsingCalendar.ParseCursor(doc, "securities.cursor");
-                all.AddRange(page);
+                yield return page;
 
                 if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
                 {
@@ -174,8 +171,6 @@ namespace History_DataMoex.Clients
                 }
                 queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
             }
-
-            return all;
         }
 
         // ── Инфраструктура ──────────────────────────────────────
@@ -189,7 +184,8 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(queryParams);
+                QueryString queryString = QueryString.Create(
+                    queryParams.Select(static pair => new KeyValuePair<string, string?>(pair.Key, pair.Value)));
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();

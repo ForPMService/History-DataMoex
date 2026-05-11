@@ -21,14 +21,19 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/datashop/algopack/fo/tradestats/SiM6.json";
 
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2026-01-28",
+                    ["till"] = "2026-05-05"
+                };
+
                 List<SuperCandlesFuturesTradeStats5mDTO> response =
-                    await moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url,
-                        new Dictionary<string, string>
-                        {
-                            ["from"] = "2026-01-28",
-                            ["till"] = "2026-05-05"
-                        },
-                        ct);
+                    new List<SuperCandlesFuturesTradeStats5mDTO>();
+
+                await foreach (List<SuperCandlesFuturesTradeStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
 
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesTradeStats5mDTO);
             });
@@ -39,15 +44,19 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/datashop/algopack/fo/obstats/SiM6.json";
 
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2026-01-28",
+                    ["till"] = "2026-04-30"
+                };
+
                 List<SuperCandlesFuturesOrderBookStats5mDTO> response =
-                    await moexHttpAlgClient.GetSuperCandlesFuturesOrderBookStats5m(
-                        url,
-                        new Dictionary<string, string>
-                        {
-                            ["from"] = "2026-01-28",
-                            ["till"] = "2026-04-30"
-                        },
-                        ct);
+                    new List<SuperCandlesFuturesOrderBookStats5mDTO>();
+
+                await foreach (List<SuperCandlesFuturesOrderBookStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesFuturesOrderBookStats5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
 
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesOrderBookStats5mDTO);
             });
@@ -60,14 +69,17 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/analyticalproducts/futoi/securities/Si.json";
 
-                List<FutoiDTO> response = await moexHttpAlgClient.GetFutoi(
-                    url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2026-05-03",
-                        ["till"] = "2026-05-08"
-                    },
-                    ct);
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2026-05-03",
+                    ["till"] = "2026-05-08"
+                };
+
+                List<FutoiDTO> response = new List<FutoiDTO>();
+                await foreach (List<FutoiDTO> page in moexHttpAlgClient.StreamFutoi(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
 
                 return Results.Json(response, AppJsonContext.Default.ListFutoiDTO);
             });
@@ -79,15 +91,19 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/datashop/algopack/eq/hi2/SBER.json";
 
-                List<Hi2AssetDTO> response = await moexHttpAlgClient.GetHi2Asset5m(url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2026-05-03",
-                        ["till"] = "2026-05-03"
-                    },
-                    ct
-                    );
-                return Results.Json (response, AppJsonContext.Default.ListHi2AssetDTO);
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2026-05-03",
+                    ["till"] = "2026-05-03"
+                };
+
+                List<Hi2AssetDTO> response = new List<Hi2AssetDTO>();
+                await foreach (List<Hi2AssetDTO> page in moexHttpAlgClient.GetHi2Asset5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
+
+                return Results.Json(response, AppJsonContext.Default.ListHi2AssetDTO);
             });
 
             routes.MapGet("/GetHi2Furure", async (
@@ -95,13 +111,18 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/hi2/SiM6.json";
-                List<Hi2FuturesDTO> response = await moexHttpAlgClient.GetHi2Furures5m(url,
-                new Dictionary<string, string>
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
                     ["from"] = "2026-01-30",
                     ["till"] = "2026-05-04"
-                },
-                ct);
+                };
+
+                List<Hi2FuturesDTO> response = new List<Hi2FuturesDTO>();
+                await foreach (List<Hi2FuturesDTO> page in moexHttpAlgClient.GetHi2Furures5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
+
                 return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
             });
 
@@ -112,14 +133,17 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/datashop/algopack/eq/alerts/SBER.json";
 
-                List<MegaAlertsAssetsDTO> response = await moexHttpAlgClient.GetMegaAlerts(
-                    url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2024-04-28",
-                        ["till"] = "2026-04-30"
-                    },
-                    ct);
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2024-04-28",
+                    ["till"] = "2026-04-30"
+                };
+
+                List<MegaAlertsAssetsDTO> response = new List<MegaAlertsAssetsDTO>();
+                await foreach (List<MegaAlertsAssetsDTO> page in moexHttpAlgClient.GetMegaAlerts(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
 
                 return Results.Json(response, AppJsonContext.Default.ListMegaAlertsAssetsDTO);
             });
@@ -130,14 +154,17 @@ namespace History_DataMoex.Endpoints
             {
                 string url = "/datashop/algopack/fo/alerts/SiM6.json";
 
-                List<MegaAlertsFuturesDTO> response = await moexHttpAlgClient.GetMegaAlertsFutures(
-                    url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2026-01-28",
-                        ["till"] = "2026-04-30"
-                    },
-                    ct);
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2026-01-28",
+                    ["till"] = "2026-04-30"
+                };
+
+                List<MegaAlertsFuturesDTO> response = new List<MegaAlertsFuturesDTO>();
+                await foreach (List<MegaAlertsFuturesDTO> page in moexHttpAlgClient.GetMegaAlertsFutures(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
 
                 return Results.Json(response, AppJsonContext.Default.ListMegaAlertsFuturesDTO);
             });
@@ -148,15 +175,18 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/tradestats/SMLT.json";
-                List<SuperCandlesTradeStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesTradeStats5m(url,
-                    new Dictionary<string, string>
-                    {
-                        [ "from"]= "2024-04-08" ,
-                        [ "till"]= "2026-04-17"
-                        
-                    },
-                    ct
-                    );
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2024-04-08",
+                    ["till"] = "2026-04-17"
+                };
+
+                List<SuperCandlesTradeStats5mDTO> response = new List<SuperCandlesTradeStats5mDTO>();
+                await foreach (List<SuperCandlesTradeStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesTradeStats5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
+
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
             });
             routes.MapGet("/GetSuperCandlesOrderStats", async (
@@ -164,14 +194,18 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/orderstats/SMLT.json";
-                List<SuperCandlesOrderStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderStats5m(url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2024-04-08",
-                        ["till"] = "2026-04-17"
-                    },
-                    ct
-                    );
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2024-04-08",
+                    ["till"] = "2026-04-17"
+                };
+
+                List<SuperCandlesOrderStats5mDTO> response = new List<SuperCandlesOrderStats5mDTO>();
+                await foreach (List<SuperCandlesOrderStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesOrderStats5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
+
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderStats5mDTO);
             });
             routes.MapGet("/GetSuperCandlesOrderBookStats", async (
@@ -179,14 +213,18 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/obstats/SMLT.json";
-                List<SuperCandlesOrderBookStats5mDTO> response = await moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url,
-                    new Dictionary<string, string>
-                    {
-                        ["from"] = "2024-04-08",
-                        ["till"] = "2026-04-17"
-                    },
-                    ct
-                    );
+                Dictionary<string, string> queryParams = new Dictionary<string, string>
+                {
+                    ["from"] = "2024-04-08",
+                    ["till"] = "2026-04-17"
+                };
+
+                List<SuperCandlesOrderBookStats5mDTO> response = new List<SuperCandlesOrderBookStats5mDTO>();
+                await foreach (List<SuperCandlesOrderBookStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url, queryParams, ct))
+                {
+                    response.AddRange(page);
+                }
+
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
             });
             routes.MapGet("/GetCandlesAsset", async (
