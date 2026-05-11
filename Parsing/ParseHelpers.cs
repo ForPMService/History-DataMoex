@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing

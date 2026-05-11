@@ -13,25 +13,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "off_days");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 10;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("currency_workday"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("currency_trade_session_date"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("currency_reason"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("futures_workday"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("futures_trade_session_date"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("futures_reason"u8)) { idx[6] = i; found++; continue; }
-                else if (columns[i].ValueEquals("stock_workday"u8)) { idx[7] = i; found++; continue; }
-                else if (columns[i].ValueEquals("stock_trade_session_date"u8)) { idx[8] = i; found++; continue; }
-                else if (columns[i].ValueEquals("stock_reason"u8)) { idx[9] = i; found++; continue; }
-            }
 
             List<CalendarOffDaysAllDTO> result = new List<CalendarOffDaysAllDTO>(data.GetArrayLength());
 
@@ -39,16 +22,16 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarOffDaysAllDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    CurrencyWorkday = ParseHelpers.GetLongOrNull(data[i][idx[1]]),
-                    CurrencyTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    CurrencyReason = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    FuturesWorkday = ParseHelpers.GetLongOrNull(data[i][idx[4]]),
-                    FuturesTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
-                    FuturesReason = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
-                    StockWorkday = ParseHelpers.GetLongOrNull(data[i][idx[7]]),
-                    StockTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
-                    StockReason = ParseHelpers.GetStringOrNull(data[i][idx[9]])
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[0].SourceIndex]),
+                    CurrencyWorkday = ParseHelpers.GetLongOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[1].SourceIndex]),
+                    CurrencyTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[2].SourceIndex]),
+                    CurrencyReason = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[3].SourceIndex]),
+                    FuturesWorkday = ParseHelpers.GetLongOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[4].SourceIndex]),
+                    FuturesTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[5].SourceIndex]),
+                    FuturesReason = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[6].SourceIndex]),
+                    StockWorkday = ParseHelpers.GetLongOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[7].SourceIndex]),
+                    StockTradeSessionDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[8].SourceIndex]),
+                    StockReason = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysAllExpectedColumns[9].SourceIndex])
                 });
             }
 
@@ -62,20 +45,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "off_days");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 5;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("is_traded"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("trade_session_date"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("reason"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("updatetime"u8)) { idx[4] = i; found++; continue; }
-            }
 
             List<CalendarOffDaysMarketDTO> result = new List<CalendarOffDaysMarketDTO>(data.GetArrayLength());
 
@@ -83,11 +54,11 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarOffDaysMarketDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    IsTraded = ParseHelpers.GetIntOrNull(data[i][idx[1]]),
-                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    Reason = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[4]])
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns[0].SourceIndex]),
+                    IsTraded = ParseHelpers.GetIntOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns[1].SourceIndex]),
+                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns[2].SourceIndex]),
+                    Reason = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns[3].SourceIndex]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarOffDaysMarketExpectedColumns[4].SourceIndex])
                 });
             }
 
@@ -101,23 +72,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "session_schedule");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 8;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("tradedate"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("tradingsession"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("boardid"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("secid"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("type"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("time_from"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("time_till"u8)) { idx[6] = i; found++; continue; }
-                else if (columns[i].ValueEquals("updatetime"u8)) { idx[7] = i; found++; continue; }
-            }
 
             List<CalendarStockSessionDTO> result = new List<CalendarStockSessionDTO>(data.GetArrayLength());
 
@@ -125,14 +81,14 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarStockSessionDTO
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    TradingSession = ParseHelpers.GetIntOrNull(data[i][idx[1]]),
-                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    Type = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
-                    TimeFrom = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
-                    TimeTill = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[7]])
+                    TradeDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[0].SourceIndex]),
+                    TradingSession = ParseHelpers.GetIntOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[1].SourceIndex]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[2].SourceIndex]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[3].SourceIndex]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[4].SourceIndex]),
+                    TimeFrom = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[5].SourceIndex]),
+                    TimeTill = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[6].SourceIndex]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarStockSessionExpectedColumns[7].SourceIndex])
                 });
             }
 
@@ -146,22 +102,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "session_schedule");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 7;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("trade_session_date"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("boardid"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("secid"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("type"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("time_from"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("time_till"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("updatetime"u8)) { idx[6] = i; found++; continue; }
-            }
 
             List<CalendarFuturesSessionDTO> result = new List<CalendarFuturesSessionDTO>(data.GetArrayLength());
 
@@ -169,13 +111,13 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarFuturesSessionDTO
                 {
-                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    Type = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    TimeFrom = ParseHelpers.GetDateTimeOrNull(data[i][idx[4]]),
-                    TimeTill = ParseHelpers.GetDateTimeOrNull(data[i][idx[5]]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[6]])
+                    TradeSessionDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[0].SourceIndex]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[1].SourceIndex]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[2].SourceIndex]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[3].SourceIndex]),
+                    TimeFrom = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[4].SourceIndex]),
+                    TimeTill = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[5].SourceIndex]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarFuturesSessionExpectedColumns[6].SourceIndex])
                 });
             }
 
@@ -189,17 +131,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "session_schedule.types");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarSessionTypesExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 2;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("type"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("title"u8)) { idx[1] = i; found++; continue; }
-            }
 
             List<CalendarSessionTypeDTO> result = new List<CalendarSessionTypeDTO>(data.GetArrayLength());
 
@@ -207,8 +140,8 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarSessionTypeDTO
                 {
-                    Type = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    Title = ParseHelpers.GetStringOrNull(data[i][idx[1]])
+                    Type = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSessionTypesExpectedColumns[0].SourceIndex]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSessionTypesExpectedColumns[1].SourceIndex])
                 });
             }
 
@@ -222,25 +155,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "forts");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 10;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("secid"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("asset_code"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("shortname"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("exec_type"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("contract_name"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_date"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("end_date"u8)) { idx[6] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_type"u8)) { idx[7] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_time"u8)) { idx[8] = i; found++; continue; }
-                else if (columns[i].ValueEquals("weekend_session"u8)) { idx[9] = i; found++; continue; }
-            }
 
             List<CalendarFortsContractDTO> result = new List<CalendarFortsContractDTO>(data.GetArrayLength());
 
@@ -248,16 +164,16 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarFortsContractDTO
                 {
-                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    AssetCode = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    ShortName = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    ExecType = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    ContractName = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
-                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
-                    EndDate = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
-                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][idx[7]]),
-                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
-                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][idx[9]])
+                    SecId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[0].SourceIndex]),
+                    AssetCode = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[1].SourceIndex]),
+                    ShortName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[2].SourceIndex]),
+                    ExecType = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[3].SourceIndex]),
+                    ContractName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[4].SourceIndex]),
+                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[5].SourceIndex]),
+                    EndDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[6].SourceIndex]),
+                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[7].SourceIndex]),
+                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[8].SourceIndex]),
+                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][ColumnAndNumbersForParsing.CalendarFortsContractsExpectedColumns[9].SourceIndex])
                 });
             }
 
@@ -271,26 +187,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "options");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 11;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("asset_type_name"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("asset_code"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("series_name"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("series_type"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("exec_type"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("margin_style"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("contract_name"u8)) { idx[6] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_date"u8)) { idx[7] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_type"u8)) { idx[8] = i; found++; continue; }
-                else if (columns[i].ValueEquals("expiration_time"u8)) { idx[9] = i; found++; continue; }
-                else if (columns[i].ValueEquals("weekend_session"u8)) { idx[10] = i; found++; continue; }
-            }
 
             List<CalendarOptionsSeriesDTO> result = new List<CalendarOptionsSeriesDTO>(data.GetArrayLength());
 
@@ -298,17 +196,17 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarOptionsSeriesDTO
                 {
-                    AssetTypeName = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    AssetCode = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    SeriesName = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    SeriesType = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    ExecType = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
-                    MarginStyle = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
-                    ContractName = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
-                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][idx[7]]),
-                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][idx[8]]),
-                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][idx[9]]),
-                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][idx[10]])
+                    AssetTypeName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[0].SourceIndex]),
+                    AssetCode = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[1].SourceIndex]),
+                    SeriesName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[2].SourceIndex]),
+                    SeriesType = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[3].SourceIndex]),
+                    ExecType = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[4].SourceIndex]),
+                    MarginStyle = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[5].SourceIndex]),
+                    ContractName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[6].SourceIndex]),
+                    ExpirationDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[7].SourceIndex]),
+                    ExpirationType = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[8].SourceIndex]),
+                    ExpirationTime = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[9].SourceIndex]),
+                    WeekendSession = ParseHelpers.GetIntOrNull(data[i][ColumnAndNumbersForParsing.CalendarOptionsSeriesExpectedColumns[10].SourceIndex])
                 });
             }
 
@@ -322,23 +220,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "suspended");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 8;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("secid"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("reason_id"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("date_from"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("date_till"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("boardid"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("settle_codes"u8)) { idx[5] = i; found++; continue; }
-                else if (columns[i].ValueEquals("changedate"u8)) { idx[6] = i; found++; continue; }
-                else if (columns[i].ValueEquals("updatetime"u8)) { idx[7] = i; found++; continue; }
-            }
 
             List<CalendarSuspendedDTO> result = new List<CalendarSuspendedDTO>(data.GetArrayLength());
 
@@ -346,14 +229,14 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarSuspendedDTO
                 {
-                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    ReasonId = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    DateFrom = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    DateTill = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    BoardId = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
-                    SettleCodes = ParseHelpers.GetStringOrNull(data[i][idx[5]]),
-                    ChangeDate = ParseHelpers.GetStringOrNull(data[i][idx[6]]),
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[7]])
+                    SecId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[0].SourceIndex]),
+                    ReasonId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[1].SourceIndex]),
+                    DateFrom = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[2].SourceIndex]),
+                    DateTill = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[3].SourceIndex]),
+                    BoardId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[4].SourceIndex]),
+                    SettleCodes = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[5].SourceIndex]),
+                    ChangeDate = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[6].SourceIndex]),
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedExpectedColumns[7].SourceIndex])
                 });
             }
 
@@ -367,17 +250,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "suspended.reasons");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarSuspendedReasonsExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 2;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("id"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("title"u8)) { idx[1] = i; found++; continue; }
-            }
 
             List<CalendarSuspendedReasonDTO> result = new List<CalendarSuspendedReasonDTO>(data.GetArrayLength());
 
@@ -385,8 +259,8 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarSuspendedReasonDTO
                 {
-                    Id = ParseHelpers.GetIntOrNull(data[i][idx[0]]),
-                    Title = ParseHelpers.GetStringOrNull(data[i][idx[1]])
+                    Id = ParseHelpers.GetIntOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedReasonsExpectedColumns[0].SourceIndex]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSuspendedReasonsExpectedColumns[1].SourceIndex])
                 });
             }
 
@@ -400,21 +274,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "securities");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 6;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("updatetime"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("action"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("secid"u8)) { idx[2] = i; found++; continue; }
-                else if (columns[i].ValueEquals("attribute_name"u8)) { idx[3] = i; found++; continue; }
-                else if (columns[i].ValueEquals("before_value"u8)) { idx[4] = i; found++; continue; }
-                else if (columns[i].ValueEquals("after_value"u8)) { idx[5] = i; found++; continue; }
-            }
 
             List<CalendarSecurityChangeDTO> result = new List<CalendarSecurityChangeDTO>(data.GetArrayLength());
 
@@ -422,12 +283,12 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarSecurityChangeDTO
                 {
-                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][idx[0]]),
-                    Action = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    SecId = ParseHelpers.GetStringOrNull(data[i][idx[2]]),
-                    AttributeName = ParseHelpers.GetStringOrNull(data[i][idx[3]]),
-                    BeforeValue = ParseHelpers.GetStringOrNull(data[i][idx[4]]),
-                    AfterValue = ParseHelpers.GetStringOrNull(data[i][idx[5]])
+                    UpdateTime = ParseHelpers.GetDateTimeOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[0].SourceIndex]),
+                    Action = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[1].SourceIndex]),
+                    SecId = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[2].SourceIndex]),
+                    AttributeName = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[3].SourceIndex]),
+                    BeforeValue = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[4].SourceIndex]),
+                    AfterValue = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityChangesExpectedColumns[5].SourceIndex])
                 });
             }
 
@@ -441,18 +302,8 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, "securities.attributes");
             JsonElement columns = table.GetProperty("columns");
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarSecurityAttributesExpectedColumns);
             JsonElement data = table.GetProperty("data");
-
-            const int arraysize = 3;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("name"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("type"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("title"u8)) { idx[2] = i; found++; continue; }
-            }
 
             List<CalendarSecurityAttributeDTO> result = new List<CalendarSecurityAttributeDTO>(data.GetArrayLength());
 
@@ -460,9 +311,9 @@ namespace History_DataMoex.Parsing
             {
                 result.Add(new CalendarSecurityAttributeDTO
                 {
-                    Name = ParseHelpers.GetStringOrNull(data[i][idx[0]]),
-                    Type = ParseHelpers.GetStringOrNull(data[i][idx[1]]),
-                    Title = ParseHelpers.GetStringOrNull(data[i][idx[2]])
+                    Name = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityAttributesExpectedColumns[0].SourceIndex]),
+                    Type = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityAttributesExpectedColumns[1].SourceIndex]),
+                    Title = ParseHelpers.GetStringOrNull(data[i][ColumnAndNumbersForParsing.CalendarSecurityAttributesExpectedColumns[2].SourceIndex])
                 });
             }
 
@@ -484,25 +335,15 @@ namespace History_DataMoex.Parsing
             JsonElement root = jsonDocument.RootElement;
             JsonElement table = GetTable(root, cursorKey);
             JsonElement columns = table.GetProperty("columns");
-
-            const int arraysize = 3;
-            Span<int> idx = stackalloc int[arraysize];
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("INDEX"u8)) { idx[0] = i; found++; continue; }
-                else if (columns[i].ValueEquals("TOTAL"u8)) { idx[1] = i; found++; continue; }
-                else if (columns[i].ValueEquals("PAGESIZE"u8)) { idx[2] = i; found++; continue; }
-            }
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.CalendarCursorExpectedColumns);
 
             JsonElement datas = table.GetProperty("data");
 
             return new PaginationCursorDTO()
             {
-                Index = ParseHelpers.GetIntOrNull(datas[0][idx[0]]),
-                Total = ParseHelpers.GetIntOrNull(datas[0][idx[1]]),
-                PageSize = ParseHelpers.GetIntOrNull(datas[0][idx[2]])
+                Index = ParseHelpers.GetIntOrNull(datas[0][ColumnAndNumbersForParsing.CalendarCursorExpectedColumns[0].SourceIndex]),
+                Total = ParseHelpers.GetIntOrNull(datas[0][ColumnAndNumbersForParsing.CalendarCursorExpectedColumns[1].SourceIndex]),
+                PageSize = ParseHelpers.GetIntOrNull(datas[0][ColumnAndNumbersForParsing.CalendarCursorExpectedColumns[2].SourceIndex])
             };
         }
 

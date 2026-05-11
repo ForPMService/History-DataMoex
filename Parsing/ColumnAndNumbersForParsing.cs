@@ -180,6 +180,13 @@
             new(25, "SYSTIME"u8.ToArray()),
         };
 
+        public static readonly ExpectedColumn[] AlgCandlesDataCursorExpectedColumns =
+        {
+            new(0, "INDEX"u8.ToArray()),
+            new(1, "TOTAL"u8.ToArray()),
+            new(2, "PAGESIZE"u8.ToArray()),
+        };
+
         public static readonly ExpectedColumn[] Hi2AssetExpectedColumns =
                 {
             new(0, "tradedate"u8.ToArray()),
