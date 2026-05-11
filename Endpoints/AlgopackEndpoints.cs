@@ -82,7 +82,7 @@ namespace History_DataMoex.Endpoints
                 List<Hi2AssetDTO> response = await moexHttpAlgClient.GetHi2Asset5m(url,
                     new Dictionary<string, string>
                     {
-                        ["from"] = "2024-05-03",
+                        ["from"] = "2026-05-03",
                         ["till"] = "2026-05-03"
                     },
                     ct

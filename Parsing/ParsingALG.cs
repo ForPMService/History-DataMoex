@@ -1,5 +1,6 @@
 ﻿using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Algopack;
+
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
@@ -1199,159 +1200,109 @@ namespace History_DataMoex.Parsing
             return futoiList;
         }
 
+        //public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
+        //{
+        //    List<Hi2AssetDTO> hi2AssetList = new List<Hi2AssetDTO>();
+
+        //    JsonElement root = jsonDocument.RootElement;
+        //    JsonElement data = root.GetProperty("data");
+        //    JsonElement columns = data.GetProperty("columns");
+
+        //    const int arraysize = 7;
+        //    Span<int> columnIndices = stackalloc int[arraysize];
+        //    byte[][] Hi2Columns = 
+        //    {
+        //        "tradedate"u8.ToArray(),
+        //        "tradetime"u8.ToArray(),
+        //        "secid"u8.ToArray(),
+        //        "metric"u8.ToArray(),
+        //        "value"u8.ToArray(),
+        //        "reference"u8.ToArray(),
+        //        "SYSTIME"u8.ToArray(),
+        //    };
+        //    int found = 0;
+
+        //    for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
+        //    {
+        //        if (columns[i].ValueEquals("tradedate"u8))
+        //        {
+        //            columnIndices[0] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("tradetime"u8))
+        //        {
+        //            columnIndices[1] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("secid"u8))
+        //        {
+        //            columnIndices[2] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("metric"u8))
+        //        {
+        //            columnIndices[3] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("value"u8))
+        //        {
+        //            columnIndices[4] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("reference"u8))
+        //        {
+        //            columnIndices[5] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //        else if (columns[i].ValueEquals("SYSTIME"u8))
+        //        {
+        //            columnIndices[6] = i;
+        //            found++;
+        //            continue;
+        //        }
+        //    }
+
+        //    JsonElement datas = data.GetProperty("data");
+
+        //    for (int i = 0; i < datas.GetArrayLength(); i++)
+        //    {
+        //        Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
+        //        {
+        //            TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
+        //            TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
+        //            SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
+
+        //            Metric = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
+        //            Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
+        //            Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
+
+        //            SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[6]])
+        //        };
+
+        //        hi2AssetList.Add(hi2AssetDTO);
+        //    }
+
+        //    return hi2AssetList;
+        //}
+
+
+
         public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
         {
-            List<Hi2AssetDTO> hi2AssetList = new List<Hi2AssetDTO>();
+           
 
             JsonElement root = jsonDocument.RootElement;
-            JsonElement data = root.GetProperty("data");
-            JsonElement columns = data.GetProperty("columns");
 
-            const int arraysize = 7;
-            Span<int> columnIndices = stackalloc int[arraysize];
-            byte[][] Hi2Columns = 
-            {
-                "tradedate"u8.ToArray(),
-                "tradetime"u8.ToArray(),
-                "secid"u8.ToArray(),
-                "metric"u8.ToArray(),
-                "value"u8.ToArray(),
-                "reference"u8.ToArray(),
-                "SYSTIME"u8.ToArray(),
-            };
-            int found = 0;
-
-            for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
-            {
-                if (columns[i].ValueEquals("tradedate"u8))
-                {
-                    columnIndices[0] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("tradetime"u8))
-                {
-                    columnIndices[1] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("secid"u8))
-                {
-                    columnIndices[2] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("metric"u8))
-                {
-                    columnIndices[3] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("value"u8))
-                {
-                    columnIndices[4] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("reference"u8))
-                {
-                    columnIndices[5] = i;
-                    found++;
-                    continue;
-                }
-                else if (columns[i].ValueEquals("SYSTIME"u8))
-                {
-                    columnIndices[6] = i;
-                    found++;
-                    continue;
-                }
-            }
-
-            JsonElement datas = data.GetProperty("data");
-
-            for (int i = 0; i < datas.GetArrayLength(); i++)
-            {
-                Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
-                {
-                    TradeDate = ParseHelpers.GetStringOrNull(datas[i][columnIndices[0]]),
-                    TradeTime = ParseHelpers.GetStringOrNull(datas[i][columnIndices[1]]),
-                    SecId = ParseHelpers.GetStringOrNull(datas[i][columnIndices[2]]),
-
-                    Metric = ParseHelpers.GetStringOrNull(datas[i][columnIndices[3]]),
-                    Value = ParseHelpers.GetDoubleOrNull(datas[i][columnIndices[4]]),
-                    Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
-
-                    SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[6]])
-                };
-
-                hi2AssetList.Add(hi2AssetDTO);
-            }
-
-            return hi2AssetList;
-        }
-
-
-
-        public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
-        {
-            const int TradeDateIndex = 0;
-            const int TradeTimeIndex = 1;
-            const int SecIdIndex = 2;
-            const int MetricIndex = 3;
-            const int ValueIndex = 4;
-            const int ReferenceIndex = 5;
-            const int SysTimeIndex = 6;
-
-            const int ExpectedColumnsCount = 7;
-
-            JsonElement root = jsonDocument.RootElement;
             JsonElement data = root.GetProperty("data");
 
             JsonElement columns = data.GetProperty("columns");
-
-            int actualColumnsCount = columns.GetArrayLength();
-
-            if (actualColumnsCount != ExpectedColumnsCount)
-            {
-                return new List<Hi2AssetDTO>();
-            }
-
-            if (!columns[TradeDateIndex].ValueEquals("tradedate"u8))
-            {
-                return new List<Hi2AssetDTO>();
-            }
-
-            if (!columns[TradeTimeIndex].ValueEquals("tradetime"u8))
-            {
-                return new List<Hi2AssetDTO>();
-                    
-            }
-
-            if (!columns[SecIdIndex].ValueEquals("secid"u8))
-            {
-                return new List<Hi2AssetDTO>();
-            }
-
-            if (!columns[MetricIndex].ValueEquals("metric"u8))
-            {
-                return new List<Hi2AssetDTO>();
-                    
-            }
-
-            if (!columns[ValueIndex].ValueEquals("value"u8))
-            {
-                return new List<Hi2AssetDTO>();
-            }
-
-            if (!columns[ReferenceIndex].ValueEquals("reference"u8))
-            {
-                return new List<Hi2AssetDTO>();
-            }
-
-            if (!columns[SysTimeIndex].ValueEquals("SYSTIME"u8))
-            {
-                return new List<Hi2AssetDTO>();
-            }
+            ParseHelpers.ValidateColumns(columns, ColumnAndNumbersForParsing.Hi2AssetExpectedColumns);
 
             JsonElement rows = data.GetProperty("data");
 
@@ -1363,15 +1314,14 @@ namespace History_DataMoex.Parsing
 
                 Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
                 {
-                    TradeDate = ParseHelpers.GetStringOrNull(row[TradeDateIndex]),
-                    TradeTime = ParseHelpers.GetStringOrNull(row[TradeTimeIndex]),
-                    SecId = ParseHelpers.GetStringOrNull(row[SecIdIndex]),
+                    TradeDate = ParseHelpers.GetStringOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[0].SourceIndex]),
+                    TradeTime = ParseHelpers.GetStringOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[1].SourceIndex]),
+                    SecId = ParseHelpers.GetStringOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[2].SourceIndex]),
 
-                    Metric = ParseHelpers.GetStringOrNull(row[MetricIndex]),
-                    Value = ParseHelpers.GetDoubleOrNull(row[ValueIndex]),
-                    Reference = ParseHelpers.GetStringOrNull(row[ReferenceIndex]),
-
-                    SysTime = ParseHelpers.GetDateTimeOrNull(row[SysTimeIndex])
+                    Metric = ParseHelpers.GetStringOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[3].SourceIndex]),
+                    Value = ParseHelpers.GetDoubleOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[4].SourceIndex]),
+                    Reference = ParseHelpers.GetStringOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[5].SourceIndex]),
+                    SysTime = ParseHelpers.GetDateTimeOrNull(row[ColumnAndNumbersForParsing.Hi2AssetExpectedColumns[6].SourceIndex])
                 };
 
                 hi2AssetList.Add(hi2AssetDTO);

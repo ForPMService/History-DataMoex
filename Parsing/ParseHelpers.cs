@@ -1,10 +1,12 @@
 ﻿using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
 {
     internal static class ParseHelpers
     {
+        
         public static string? GetStringOrNull(JsonElement element)
         {
             if (element.ValueKind == JsonValueKind.String)
@@ -60,6 +62,21 @@ namespace History_DataMoex.Parsing
             return null;
         }
 
+
+        public static void ValidateColumns(JsonElement columns, ColumnAndNumbersForParsing.ExpectedColumn[] expectedColumns)
+        {
+                       
+
+            foreach(var expectedColumn in expectedColumns)
+            {
+                if(!columns[expectedColumn.SourceIndex].ValueEquals(expectedColumn.Name))
+                {
+                    throw new InvalidOperationException("Ошибка валидации столбцов. Ожидалось: " + System.Text.Encoding.UTF8.GetString(expectedColumn.Name) + " на позиции " + expectedColumn.SourceIndex);
+                }
+
+            }
+            
+        }
        
 
     }
