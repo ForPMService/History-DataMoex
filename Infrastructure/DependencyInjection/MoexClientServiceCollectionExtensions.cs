@@ -2,7 +2,7 @@ using History_DataMoex.Clients;
 using History_DataMoex.Options;
 using Microsoft.Extensions.Options;
 using System.Net;
-
+using Microsoft.Extensions.Http.Resilience;
 namespace History_DataMoex.Infrastructure.DependencyInjection;
 
 public static class MoexClientServiceCollectionExtensions
@@ -29,6 +29,12 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
             return CreateDefaultHandler(options);
+        })
+        .AddStandardResilienceHandler(options =>
+        {
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
+            options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
+            options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
         }); 
 
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
@@ -39,6 +45,12 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
+        })
+        .AddStandardResilienceHandler(options =>
+        {
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
+            options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
+            options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
         }); 
 
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
@@ -49,6 +61,12 @@ public static class MoexClientServiceCollectionExtensions
         {
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
+        })
+        .AddStandardResilienceHandler(options =>
+        {
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
+            options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
+            options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
         }); 
 
         return services;

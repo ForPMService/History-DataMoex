@@ -11,6 +11,7 @@ builder.Services.AddMoexClients(builder.Configuration);
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.MapDebugEndpoints();
 
 // Экспонируемые эндпоинты исходных данных: возвращают DTO MOEX напрямую.
 // Это не финальное production API. В будущем /v1 эндпойнты будут возвращать модели Базы.

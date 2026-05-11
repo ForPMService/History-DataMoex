@@ -197,8 +197,8 @@ namespace History_DataMoex.Endpoints
                     new Dictionary<string, string>
                     {
                         [ "interval"]= "1" ,
-                        [ "from"]= "2024-04-08" ,
-                        [ "till"]= "2026-04-17"
+                        [ "from"]= "2026-04-17" ,
+                        [ "till"]= "2026-04-20"
                         
                     },
                     ct

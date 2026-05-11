@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 
 namespace History_DataMoex.Parsing
 {
@@ -51,7 +52,7 @@ namespace History_DataMoex.Parsing
         {
             if (element.ValueKind == JsonValueKind.String)
             {
-                if (DateTime.TryParse(element.GetString(), out DateTime dateTime))
+                if (DateTime.TryParseExact(element.GetString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
                 {
                     return dateTime;
                 }

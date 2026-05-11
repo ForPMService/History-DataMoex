@@ -1209,7 +1209,16 @@ namespace History_DataMoex.Parsing
 
             const int arraysize = 7;
             Span<int> columnIndices = stackalloc int[arraysize];
-
+            byte[][] Hi2Columns = 
+            {
+                "tradedate"u8.ToArray(),
+                "tradetime"u8.ToArray(),
+                "secid"u8.ToArray(),
+                "metric"u8.ToArray(),
+                "value"u8.ToArray(),
+                "reference"u8.ToArray(),
+                "SYSTIME"u8.ToArray(),
+            };
             int found = 0;
 
             for (int i = 0; i < columns.GetArrayLength() && found < arraysize; i++)
@@ -1273,6 +1282,96 @@ namespace History_DataMoex.Parsing
                     Reference = ParseHelpers.GetStringOrNull(datas[i][columnIndices[5]]),
 
                     SysTime = ParseHelpers.GetDateTimeOrNull(datas[i][columnIndices[6]])
+                };
+
+                hi2AssetList.Add(hi2AssetDTO);
+            }
+
+            return hi2AssetList;
+        }
+
+
+
+        public static List<Hi2AssetDTO> ParseHi2Assets(JsonDocument jsonDocument)
+        {
+            const int TradeDateIndex = 0;
+            const int TradeTimeIndex = 1;
+            const int SecIdIndex = 2;
+            const int MetricIndex = 3;
+            const int ValueIndex = 4;
+            const int ReferenceIndex = 5;
+            const int SysTimeIndex = 6;
+
+            const int ExpectedColumnsCount = 7;
+
+            JsonElement root = jsonDocument.RootElement;
+            JsonElement data = root.GetProperty("data");
+
+            JsonElement columns = data.GetProperty("columns");
+
+            int actualColumnsCount = columns.GetArrayLength();
+
+            if (actualColumnsCount != ExpectedColumnsCount)
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            if (!columns[TradeDateIndex].ValueEquals("tradedate"u8))
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            if (!columns[TradeTimeIndex].ValueEquals("tradetime"u8))
+            {
+                return new List<Hi2AssetDTO>();
+                    
+            }
+
+            if (!columns[SecIdIndex].ValueEquals("secid"u8))
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            if (!columns[MetricIndex].ValueEquals("metric"u8))
+            {
+                return new List<Hi2AssetDTO>();
+                    
+            }
+
+            if (!columns[ValueIndex].ValueEquals("value"u8))
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            if (!columns[ReferenceIndex].ValueEquals("reference"u8))
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            if (!columns[SysTimeIndex].ValueEquals("SYSTIME"u8))
+            {
+                return new List<Hi2AssetDTO>();
+            }
+
+            JsonElement rows = data.GetProperty("data");
+
+            List<Hi2AssetDTO> hi2AssetList = new List<Hi2AssetDTO>(rows.GetArrayLength());
+
+            for (int i = 0; i < rows.GetArrayLength(); i++)
+            {
+                JsonElement row = rows[i];
+
+                Hi2AssetDTO hi2AssetDTO = new Hi2AssetDTO()
+                {
+                    TradeDate = ParseHelpers.GetStringOrNull(row[TradeDateIndex]),
+                    TradeTime = ParseHelpers.GetStringOrNull(row[TradeTimeIndex]),
+                    SecId = ParseHelpers.GetStringOrNull(row[SecIdIndex]),
+
+                    Metric = ParseHelpers.GetStringOrNull(row[MetricIndex]),
+                    Value = ParseHelpers.GetDoubleOrNull(row[ValueIndex]),
+                    Reference = ParseHelpers.GetStringOrNull(row[ReferenceIndex]),
+
+                    SysTime = ParseHelpers.GetDateTimeOrNull(row[SysTimeIndex])
                 };
 
                 hi2AssetList.Add(hi2AssetDTO);
@@ -1463,9 +1562,13 @@ namespace History_DataMoex.Parsing
         {
             List<MegaAlertsFuturesDTO> megaAlertsFuturesList = new List<MegaAlertsFuturesDTO>();
 
+            
+
             JsonElement root = jsonDocument.RootElement;
             JsonElement data = root.GetProperty("data");
             JsonElement columns = data.GetProperty("columns");
+
+            
 
             const int arraysize = 9;
             Span<int> columnIndices = stackalloc int[arraysize];
