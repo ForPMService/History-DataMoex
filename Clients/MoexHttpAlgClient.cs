@@ -28,8 +28,7 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(
-                    queryParams.Select(static pair => new KeyValuePair<string, string?>(pair.Key, pair.Value)));
+                QueryString queryString = QueryString.Create(queryParams);
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();
@@ -462,8 +461,7 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
-                QueryString queryString = QueryString.Create(
-                    queryParams.Select(static pair => new KeyValuePair<string, string?>(pair.Key, pair.Value)));
+                QueryString queryString = QueryString.Create(queryParams!);
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();
