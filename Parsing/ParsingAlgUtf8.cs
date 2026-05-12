@@ -1187,5 +1187,104 @@ namespace History_DataMoex.Parsing
                 rowIndex++;
             }
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // FUTOI — 13 колонок (B6)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<FutoiDTO> ParseFutoi(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.FutoiSchema;
+            var list = new List<FutoiDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+                    foundData = true;
+                    ReadFutoiData(ref reader, list, schema);
+                }
+                else { reader.Skip(); }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadFutoiData(
+            ref Utf8JsonReader reader,
+            List<FutoiDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                int? sessId = null, seqNum = null;
+                string? tradeDate = null, tradeTime = null, ticker = null, clGroup = null;
+                long? pos = null, posLong = null, posShort = null, posLongNum = null, posShortNum = null;
+                DateTime? sysTime = null;
+                string? tradeSessionDate = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0:  sessId           = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1:  seqNum           = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2:  tradeDate        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3:  tradeTime        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4:  ticker           = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5:  clGroup          = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6:  pos              = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7:  posLong          = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 8:  posShort         = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 9:  posLongNum       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 10: posShortNum      = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 11: sysTime          = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 12: tradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new FutoiDTO
+                {
+                    SessId           = sessId,
+                    SeqNum           = seqNum,
+                    TradeDate        = tradeDate,
+                    TradeTime        = tradeTime,
+                    Ticker           = ticker,
+                    ClGroup          = clGroup,
+                    Pos              = pos,
+                    PosLong          = posLong,
+                    PosShort         = posShort,
+                    PosLongNum       = posLongNum,
+                    PosShortNum      = posShortNum,
+                    SysTime          = sysTime,
+                    TradeSessionDate = tradeSessionDate,
+                });
+                rowIndex++;
+            }
+        }
     }
 }
