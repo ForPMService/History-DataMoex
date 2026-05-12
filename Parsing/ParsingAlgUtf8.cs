@@ -694,5 +694,148 @@ namespace History_DataMoex.Parsing
                 rowIndex++;
             }
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // OrderStats Stock (акции) — 26 колонок (B4)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<SuperCandlesOrderStats5mDTO> ParseOrderStatsStock(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.AlgOrderStats5mSchema;
+            var list = new List<SuperCandlesOrderStats5mDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+
+                    foundData = true;
+                    ReadOrderStatsStockData(ref reader, list, schema);
+                }
+                else
+                {
+                    reader.Skip();
+                }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadOrderStatsStockData(
+            ref Utf8JsonReader reader,
+            List<SuperCandlesOrderStats5mDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null;
+                int? putOrdersB = null, putOrdersS = null;
+                double? putValB = null, putValS = null;
+                int? putVolB = null, putVolS = null;
+                double? putVwapB = null, putVwapS = null;
+                int? putVol = null;
+                double? putVal = null;
+                int? putOrders = null;
+                int? cancelOrdersB = null, cancelOrdersS = null;
+                double? cancelValB = null, cancelValS = null;
+                int? cancelVolB = null;
+                long? cancelVolS = null;
+                double? cancelVwapB = null, cancelVwapS = null;
+                long? cancelVol = null;
+                double? cancelVal = null;
+                long? cancelOrders = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0:  tradeDate     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1:  tradeTime     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2:  secId         = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3:  putOrdersB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4:  putOrdersS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5:  putValB       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6:  putValS       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7:  putVolB       = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 8:  putVolS       = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 9:  putVwapB      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 10: putVwapS      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 11: putVol        = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 12: putVal        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 13: putOrders     = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 14: cancelOrdersB = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 15: cancelOrdersS = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 16: cancelValB    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 17: cancelValS    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 18: cancelVolB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 19: cancelVolS    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 20: cancelVwapB   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 21: cancelVwapS   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 22: cancelVol     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 23: cancelVal     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 24: cancelOrders  = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 25: sysTime       = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new SuperCandlesOrderStats5mDTO
+                {
+                    TradeDate     = tradeDate,
+                    TradeTime     = tradeTime,
+                    SecId         = secId,
+                    PutOrdersB    = putOrdersB,
+                    PutOrdersS    = putOrdersS,
+                    PutValB       = putValB,
+                    PutValS       = putValS,
+                    PutVolB       = putVolB,
+                    PutVolS       = putVolS,
+                    PutVwapB      = putVwapB,
+                    PutVwapS      = putVwapS,
+                    PutVol        = putVol,
+                    PutVal        = putVal,
+                    PutOrders     = putOrders,
+                    CancelOrdersB = cancelOrdersB,
+                    CancelOrdersS = cancelOrdersS,
+                    CancelValB    = cancelValB,
+                    CancelValS    = cancelValS,
+                    CancelVolB    = cancelVolB,
+                    CancelVolS    = cancelVolS,
+                    CancelVwapB   = cancelVwapB,
+                    CancelVwapS   = cancelVwapS,
+                    CancelVol     = cancelVol,
+                    CancelVal     = cancelVal,
+                    CancelOrders  = cancelOrders,
+                    SysTime       = sysTime,
+                });
+
+                rowIndex++;
+            }
+        }
     }
 }
