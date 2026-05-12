@@ -1,4 +1,5 @@
 ﻿
+using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Parsing.Errors;
 using System.Buffers.Text;
 using System.Buffers;
@@ -371,6 +372,90 @@ namespace History_DataMoex.Parsing
             {
                 return null;
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Cursor-парсер (B1)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Второй проход по тем же байтам: находит cursor-блок по имени cursorKey
+        /// и читает одну строку из 3 значений (INDEX, TOTAL, PAGESIZE).
+        ///
+        /// cursorKey примеры:
+        ///   "data.cursor"       — ALGOPACK TradeStats, OBStats, OrderStats, Hi2, MegaAlerts
+        ///   "suspended.cursor"  — Calendar Suspended
+        ///   "securities.cursor" — Calendar SecurityChanges
+        ///
+        /// Если cursor-блок не найден — SkipToRootObject бросает InvalidOperationException.
+        /// </summary>
+        public static PaginationCursorDTO ParseCursorUtf8(
+            ReadOnlySpan<byte> jsonBytes,
+            string cursorKey)
+        {
+            // Схема колонок одинакова для всех cursor-блоков.
+            // RootKey подставляем реальный, чтобы сообщения об ошибках были точными.
+            var schema = ColumnAndNumbersForParsing.CalendarCursorSchema with { RootKey = cursorKey };
+
+            var reader = new Utf8JsonReader(jsonBytes);
+            SkipToRootObject(ref reader, cursorKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+            int? index = null, total = null, pageSize = null;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{cursorKey}] Секция 'data' встретилась до 'columns'. " +
+                            $"Порядок columns → data обязателен.");
+
+                    foundData = true;
+                    ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", cursorKey);
+
+                    while (reader.Read() && reader.TokenType == JsonTokenType.StartArray)
+                    {
+                        ReadDataRow(ref reader, schema, 0,
+                            (ref Utf8JsonReader r, int idx) =>
+                            {
+                                switch (idx)
+                                {
+                                    case 0: index    = ReadInt(ref r, 0, idx, cursorKey); break;
+                                    case 1: total    = ReadInt(ref r, 0, idx, cursorKey); break;
+                                    case 2: pageSize = ReadInt(ref r, 0, idx, cursorKey); break;
+                                }
+                            });
+                    }
+                    // reader стоит на EndArray внешнего data[]
+                }
+                else
+                {
+                    reader.Skip();
+                }
+            }
+
+            ValidateStructure(foundColumns, foundData, cursorKey);
+
+            return new PaginationCursorDTO
+            {
+                Index    = index,
+                Total    = total,
+                PageSize = pageSize,
+            };
         }
     }
 }
