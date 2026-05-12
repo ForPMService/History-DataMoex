@@ -4,7 +4,6 @@ using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 
 namespace History_DataMoex.Clients
 {
@@ -95,11 +94,10 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-
-                List<Hi2AssetDTO> hi2Assets = ParsingALG.ParseHi2Assets(jsonDocument);
-                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(bytes);
+                PaginationCursorDTO dataCursoPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
                 yield return hi2Assets;
                 if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
@@ -130,11 +128,11 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
 
-                List<Hi2FuturesDTO> hi2Futures = ParsingALG.ParseHi2Futures(jsonDocument);
-                PaginationCursorDTO dataCursoPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(bytes);
+                PaginationCursorDTO dataCursoPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
                 yield return hi2Futures;
                 if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
                 {
@@ -161,11 +159,10 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(metod, queryParams, cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-
-                List<MegaAlertsAssetsDTO> megaAlerts = ParsingALG.ParseMegaAlerts(jsonDocument);
-                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(bytes);
+                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
 
                 yield return megaAlerts;
 
@@ -193,12 +190,11 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(bytes);
 
-                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingALG.ParseMegaAlertsFutures(jsonDocument);
-
-                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
 
                 yield return megaAlertsFutures;
 
@@ -227,11 +223,10 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                
-                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingALG.ParseAlgCandlesTradeStat(jsonDocument);
-                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(bytes);
+                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
                 yield return tradeStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -259,11 +254,11 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
 
-                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingALG.ParseAlgOrderBookStats5m(jsonDocument);
-                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(bytes);
+                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
                 yield return orderBookStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -291,11 +286,11 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
 
-                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingALG.ParseAlgOrderStats5m(jsonDocument);
-                PaginationCursorDTO dataCursorPag = ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(bytes);
+                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
                 yield return orderStats;
                 if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
                 {
@@ -322,15 +317,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-
-                using JsonDocument jsonDocument =
-                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
                 List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats =
-                    ParsingALG.ParseAlgFuturesOrderBook(jsonDocument);
+                    ParsingAlgUtf8.ParseOBStatsFutures(bytes);
 
                 PaginationCursorDTO dataCursorPag =
-                    ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                    ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
 
                 yield return orderBookStats;
 
@@ -365,9 +358,9 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<FutoiDTO> page = ParsingALG.ParseFutoi(jsonDocument);
+                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(bytes);
                 all.AddRange(page);
                 if (page.Count >= 1000)
                 {
@@ -400,9 +393,9 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<FutoiDTO> page = ParsingALG.ParseFutoi(jsonDocument);
+                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(bytes);
                 yield return page;
                 if (page.Count >= 1000)
                 {
@@ -429,15 +422,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-
-                using JsonDocument jsonDocument =
-                    await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
                 List<SuperCandlesFuturesTradeStats5mDTO> tradeStats =
-                    ParsingALG.ParseFuturesTradeStats(jsonDocument);
+                    ParsingAlgUtf8.ParseTradeStatsFutures(bytes);
 
                 PaginationCursorDTO dataCursorPag =
-                    ParsingALG.ParseAlgCandlesDataCursor(jsonDocument);
+                    ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
 
                 yield return tradeStats;
 

@@ -2,7 +2,6 @@
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 
 
 namespace History_DataMoex.Clients
@@ -38,8 +37,8 @@ namespace History_DataMoex.Clients
             
             using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-            return ParsingISS.ParseIssSecurityStock(jsonDocument);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return ParsingIssUtf8.ParseIssSecurityStock(bytes);
         }
 
         public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(
@@ -53,8 +52,8 @@ namespace History_DataMoex.Clients
 
             using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
-            using var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-            return ParsingISS.ParseIssSecurityFutures(jsonDocument);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return ParsingIssUtf8.ParseIssSecurityFutures(bytes);
 
         }
 
