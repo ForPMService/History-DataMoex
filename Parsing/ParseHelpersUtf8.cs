@@ -1,5 +1,7 @@
-﻿using History_DataMoex.Contracts.Dto.Algopack;
+﻿
 using History_DataMoex.Parsing.Errors;
+using System.Buffers.Text;
+using System.Buffers;
 using System.Globalization;
 using System.Text.Json;
 
@@ -58,7 +60,6 @@ namespace History_DataMoex.Parsing
                     return;
                 }
 
-                // Не наш ключ — пропустить значение целиком
                 reader.Skip();
             }
 
@@ -73,10 +74,7 @@ namespace History_DataMoex.Parsing
         /// <summary>
         /// Проверка массива columns[] — порядок и количество.
         /// 
-        /// Читает StartArray, проходит по строковым токенам,
-        /// сравнивает каждый с ожидаемым именем через ValueTextEquals (без аллокаций).
-        /// 
-        /// Для схем без пропусков (все ALGOPACK, Calendar) — проверяет все колонки подряд.
+        /// Для схем без пропусков — проверяет все колонки подряд.
         /// Для схем с пропусками (ISS Securities) — проверяет только указанные позиции.
         /// 
         /// Бросает MoexSchemaMismatchException при несовпадении имени колонки.
@@ -133,8 +131,8 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Проверка что парсер нашёл все обязательные секции в JSON.
-        /// Вызывается после завершения основного цикла чтения.
+        /// Проверка что парсер нашёл обязательные секции columns и data.
+        /// SkipToRootObject уже проверил наличие rootKey — здесь не дублируем.
         /// </summary>
         internal static void ValidateStructure(
             bool foundColumns,
@@ -148,6 +146,79 @@ namespace History_DataMoex.Parsing
             if (!foundData)
                 throw new InvalidOperationException(
                     $"[{rootKey}] Блок не содержит секцию 'data'.");
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Универсальное чтение строки данных (A3 + A4)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Читает одну строку data-массива из TotalColumns позиций JSON.
+        /// 
+        /// Для каждой позиции:
+        /// — если позиция совпадает с schema.Columns[expectedIdx].SourceIndex,
+        ///   вызывает делегат onColumn(ref reader, expectedIdx) для записи в поле;
+        /// — иначе reader.TrySkip() — пропуск неиспользуемой колонки.
+        /// 
+        /// A4: если EndArray встретился до окончания ожидаемых колонок —
+        /// MoexSchemaMismatchException с понятным сообщением.
+        /// 
+        /// После вызова reader стоит на EndArray строки.
+        /// </summary>
+        internal delegate void ColumnReader(ref Utf8JsonReader reader, int expectedIdx);
+
+        internal static void ReadDataRow(
+            ref Utf8JsonReader reader,
+            ColumnAndNumbersForParsing.ExpectedSchema schema,
+            int rowIndex,
+            ColumnReader onColumn)
+        {
+            int expectedIdx = 0;
+
+            for (int pos = 0; pos < schema.TotalColumns; pos++)
+            {
+                if (!reader.Read())
+                    throw new InvalidOperationException(
+                        $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                // A4: защита от короткой строки
+                if (reader.TokenType == JsonTokenType.EndArray)
+                {
+                    throw new MoexSchemaMismatchException(
+                        $"[{schema.RootKey}] Короткая строка данных: " +
+                        $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                        $"(строка {rowIndex}).",
+                        expectedColumns: schema.Columns
+                            .Select(c => System.Text.Encoding.UTF8.GetString(c.Name))
+                            .ToList(),
+                        actualColumns: new List<string>(),
+                        missingColumns: new List<string>(),
+                        dataNeedCode: schema.RootKey);
+                }
+
+                // Эта позиция нужна?
+                if (expectedIdx < schema.Columns.Length
+                    && pos == schema.Columns[expectedIdx].SourceIndex)
+                {
+                    if (reader.TokenType != JsonTokenType.Null)
+                    {
+                        onColumn(ref reader, expectedIdx);
+                    }
+                    expectedIdx++;
+                }
+                // Не нужна — значение уже прочитано Read(), просто идём дальше.
+                // TrySkip() не нужен: Read() уже сдвинул reader на скалярное значение.
+                // Для вложенных значений (объект/массив внутри data-строки) —
+                // такого в MOEX не бывает, но на всякий случай:
+                else if (reader.TokenType == JsonTokenType.StartObject
+                      || reader.TokenType == JsonTokenType.StartArray)
+                {
+                    reader.Skip();
+                }
+            }
+
+            // Прочитать EndArray строки
+            ReadAndExpect(ref reader, JsonTokenType.EndArray, $"data row {rowIndex}", schema.RootKey);
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -187,10 +258,71 @@ namespace History_DataMoex.Parsing
         }
 
         /// <summary>
-        /// Прочитать DateTime из текущего строкового токена.
-        /// Формат MOEX: "yyyy-MM-dd HH:mm:ss".
+        /// Прочитать int из текущего токена.
         /// </summary>
-        internal static DateTime? ReadDateTime(
+        internal static int ReadInt(
+            ref Utf8JsonReader reader,
+            int rowIndex,
+            int columnIndex,
+            string rootKey)
+        {
+            if (reader.TokenType != JsonTokenType.Number)
+                throw new InvalidOperationException(
+                    $"[{rootKey}] Ожидался Number (int) в строке {rowIndex}, колонка {columnIndex}, " +
+                    $"получено {reader.TokenType}.");
+
+            return reader.GetInt32();
+        }
+
+        /// <summary>
+        /// Прочитать long из текущего токена.
+        /// </summary>
+        internal static long ReadLong(
+            ref Utf8JsonReader reader,
+            int rowIndex,
+            int columnIndex,
+            string rootKey)
+        {
+            if (reader.TokenType != JsonTokenType.Number)
+                throw new InvalidOperationException(
+                    $"[{rootKey}] Ожидался Number (long) в строке {rowIndex}, колонка {columnIndex}, " +
+                    $"получено {reader.TokenType}.");
+
+            return reader.GetInt64();
+        }
+
+        /// <summary>
+        /// Прочитать string из текущего токена.
+        /// </summary>
+        internal static string? ReadString(
+            ref Utf8JsonReader reader,
+            int rowIndex,
+            int columnIndex,
+            string rootKey)
+        {
+            if (reader.TokenType != JsonTokenType.String)
+                throw new InvalidOperationException(
+                    $"[{rootKey}] Ожидался String в строке {rowIndex}, колонка {columnIndex}, " +
+                    $"получено {reader.TokenType}.");
+
+            return reader.GetString();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // DateTime без аллокаций (A5)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Формат MOEX: "yyyy-MM-dd HH:mm:ss" — ровно 19 байт UTF-8.
+        /// Парсим через Utf8Parser.TryParse по ValueSpan без GetString().
+        /// 
+        /// Убирает string-аллокации на каждую дату.
+        /// При 2 годах минутных свечей — это 30+ млн аллокаций меньше.
+        /// 
+        /// Если токен не String — бросает ошибку.
+        /// Если формат не распознан — возвращает null (MOEX может отдать пустую строку).
+        /// </summary>
+        internal static DateTime? ReadDateTimeUtf8(
             ref Utf8JsonReader reader,
             int rowIndex,
             int columnIndex,
@@ -201,17 +333,44 @@ namespace History_DataMoex.Parsing
                     $"[{rootKey}] Ожидался String (datetime) в строке {rowIndex}, колонка {columnIndex}, " +
                     $"получено {reader.TokenType}.");
 
-            string? value = reader.GetString();
-            if (value is null)
+            // ValueSpan доступен когда JSON не фрагментирован (ReadOnlySpan<byte> вход).
+            // Для PipeReader/Stream в будущем (D1) может понадобиться fallback на GetString().
+            ReadOnlySpan<byte> span = reader.HasValueSequence
+                ? reader.ValueSequence.ToArray()
+                : reader.ValueSpan;
+
+            // "yyyy-MM-dd HH:mm:ss" = 19 байт
+            if (span.Length != 19)
                 return null;
 
-            if (DateTime.TryParseExact(value, "yyyy-MM-dd HH:mm:ss",
-                CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+            // Парсим компоненты напрямую из UTF-8 байт.
+            // Формат фиксированный — позиции гарантированы:
+            // 0123456789012345678
+            // yyyy-MM-dd HH:mm:ss
+
+            if (!Utf8Parser.TryParse(span.Slice(0, 4), out int year, out _)
+                || span[4] != (byte)'-'
+                || !Utf8Parser.TryParse(span.Slice(5, 2), out int month, out _)
+                || span[7] != (byte)'-'
+                || !Utf8Parser.TryParse(span.Slice(8, 2), out int day, out _)
+                || span[10] != (byte)' '
+                || !Utf8Parser.TryParse(span.Slice(11, 2), out int hour, out _)
+                || span[13] != (byte)':'
+                || !Utf8Parser.TryParse(span.Slice(14, 2), out int minute, out _)
+                || span[16] != (byte)':'
+                || !Utf8Parser.TryParse(span.Slice(17, 2), out int second, out _))
             {
-                return dt;
+                return null;
             }
 
-            return null;
+            try
+            {
+                return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Unspecified);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return null;
+            }
         }
     }
 }
