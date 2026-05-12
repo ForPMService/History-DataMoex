@@ -414,5 +414,285 @@ namespace History_DataMoex.Parsing
                 rowIndex++;
             }
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // OBStats Stock (акции) — 21 колонка (B3)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<SuperCandlesOrderBookStats5mDTO> ParseOBStatsStock(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.AlgOrderBookStats5mSchema;
+            var list = new List<SuperCandlesOrderBookStats5mDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+
+                    foundData = true;
+                    ReadOBStatsStockData(ref reader, list, schema);
+                }
+                else
+                {
+                    reader.Skip();
+                }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadOBStatsStockData(
+            ref Utf8JsonReader reader,
+            List<SuperCandlesOrderBookStats5mDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null;
+                double? spreadBbo = null, spreadLv10 = null, spread1Mio = null;
+                int? levelsB = null, levelsS = null;
+                long? volB = null, volS = null, valB = null, valS = null;
+                double? imbalanceVolBbo = null, imbalanceValBbo = null;
+                double? imbalanceVol = null, imbalanceVal = null;
+                double? vwapB = null, vwapS = null, vwapB1Mio = null, vwapS1Mio = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0:  tradeDate        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1:  tradeTime        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2:  secId            = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3:  spreadBbo        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4:  spreadLv10       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5:  spread1Mio       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6:  levelsB          = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7:  levelsS          = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 8:  volB             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 9:  volS             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 10: valB             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 11: valS             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 12: imbalanceVolBbo  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 13: imbalanceValBbo  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 14: imbalanceVol     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 15: imbalanceVal     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 16: vwapB            = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 17: vwapS            = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 18: vwapB1Mio        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 19: vwapS1Mio        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 20: sysTime          = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new SuperCandlesOrderBookStats5mDTO
+                {
+                    TradeDate       = tradeDate,
+                    TradeTime       = tradeTime,
+                    SecId           = secId,
+                    SpreadBbo       = spreadBbo,
+                    SpreadLv10      = spreadLv10,
+                    Spread1Mio      = spread1Mio,
+                    LevelsB         = levelsB,
+                    LevelsS         = levelsS,
+                    VolB            = volB,
+                    VolS            = volS,
+                    ValB            = valB,
+                    ValS            = valS,
+                    ImbalanceVolBbo = imbalanceVolBbo,
+                    ImbalanceValBbo = imbalanceValBbo,
+                    ImbalanceVol    = imbalanceVol,
+                    ImbalanceVal    = imbalanceVal,
+                    VwapB           = vwapB,
+                    VwapS           = vwapS,
+                    VwapB1Mio       = vwapB1Mio,
+                    VwapS1Mio       = vwapS1Mio,
+                    SysTime         = sysTime,
+                });
+
+                rowIndex++;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // OBStats Futures (фьючерсы) — 35 колонок (B3)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseOBStatsFutures(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.AlgFuturesOrderBookSchema;
+            var list = new List<SuperCandlesFuturesOrderBookStats5mDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+
+                    foundData = true;
+                    ReadOBStatsFuturesData(ref reader, list, schema);
+                }
+                else
+                {
+                    reader.Skip();
+                }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadOBStatsFuturesData(
+            ref Utf8JsonReader reader,
+            List<SuperCandlesFuturesOrderBookStats5mDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null, assetCode = null;
+                double? midPrice = null, microPrice = null;
+                double? spreadL1 = null, spreadL2 = null, spreadL3 = null, spreadL5 = null;
+                double? spreadL10 = null, spreadL20 = null;
+                int? levelsB = null, levelsS = null;
+                long? volBL1 = null, volBL2 = null, volBL3 = null, volBL5 = null;
+                long? volBL10 = null, volBL20 = null;
+                long? volSL1 = null, volSL2 = null, volSL3 = null, volSL5 = null;
+                long? volSL10 = null, volSL20 = null;
+                double? vwapBL3 = null, vwapBL5 = null, vwapBL10 = null, vwapBL20 = null;
+                double? vwapSL3 = null, vwapSL5 = null, vwapSL10 = null, vwapSL20 = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0:  tradeDate  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1:  tradeTime  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2:  secId      = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3:  assetCode  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4:  midPrice   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5:  microPrice = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6:  spreadL1   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7:  spreadL2   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 8:  spreadL3   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 9:  spreadL5   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 10: spreadL10  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 11: spreadL20  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 12: levelsB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 13: levelsS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 14: volBL1     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 15: volBL2     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 16: volBL3     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 17: volBL5     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 18: volBL10    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 19: volBL20    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 20: volSL1     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 21: volSL2     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 22: volSL3     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 23: volSL5     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 24: volSL10    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 25: volSL20    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 26: vwapBL3    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 27: vwapBL5    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 28: vwapBL10   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 29: vwapBL20   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 30: vwapSL3    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 31: vwapSL5    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 32: vwapSL10   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 33: vwapSL20   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 34: sysTime    = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new SuperCandlesFuturesOrderBookStats5mDTO
+                {
+                    TradeDate  = tradeDate,
+                    TradeTime  = tradeTime,
+                    SecId      = secId,
+                    AssetCode  = assetCode,
+                    MidPrice   = midPrice,
+                    MicroPrice = microPrice,
+                    SpreadL1   = spreadL1,
+                    SpreadL2   = spreadL2,
+                    SpreadL3   = spreadL3,
+                    SpreadL5   = spreadL5,
+                    SpreadL10  = spreadL10,
+                    SpreadL20  = spreadL20,
+                    LevelsB    = levelsB,
+                    LevelsS    = levelsS,
+                    VolBL1     = volBL1,
+                    VolBL2     = volBL2,
+                    VolBL3     = volBL3,
+                    VolBL5     = volBL5,
+                    VolBL10    = volBL10,
+                    VolBL20    = volBL20,
+                    VolSL1     = volSL1,
+                    VolSL2     = volSL2,
+                    VolSL3     = volSL3,
+                    VolSL5     = volSL5,
+                    VolSL10    = volSL10,
+                    VolSL20    = volSL20,
+                    VwapBL3    = vwapBL3,
+                    VwapBL5    = vwapBL5,
+                    VwapBL10   = vwapBL10,
+                    VwapBL20   = vwapBL20,
+                    VwapSL3    = vwapSL3,
+                    VwapSL5    = vwapSL5,
+                    VwapSL10   = vwapSL10,
+                    VwapSL20   = vwapSL20,
+                    SysTime    = sysTime,
+                });
+
+                rowIndex++;
+            }
+        }
     }
 }
