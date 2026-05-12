@@ -47,6 +47,23 @@ namespace History_DataMoex.Clients
 
         // ── Сессии ────────────────────────────────────────────
 
+        public async Task<(List<CalendarStockSessionDTO> Sessions, List<CalendarSessionTypeDTO> Types)>
+            GetStockSessionWithTypes(CancellationToken cancellationToken = default)
+        {
+            using var response = await SendRequestAsync("/calendars/stock/session.json", cancellationToken: cancellationToken);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return ParsingCalendarUtf8.ParseStockSession(bytes);
+        }
+
+        public async Task<(List<CalendarFuturesSessionDTO> Sessions, List<CalendarSessionTypeDTO> Types)>
+            GetFuturesSessionWithTypes(CancellationToken cancellationToken = default)
+        {
+            using var response = await SendRequestAsync("/calendars/futures/session.json", cancellationToken: cancellationToken);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return ParsingCalendarUtf8.ParseFuturesSession(bytes);
+        }
+
+        [Obsolete("Используйте GetStockSessionWithTypes() — один запрос вместо двух")]
         public async Task<List<CalendarStockSessionDTO>> GetStockSession(
             CancellationToken cancellationToken = default)
         {
@@ -55,6 +72,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarStockSession(doc);
         }
 
+        [Obsolete("Используйте GetStockSessionWithTypes() — один запрос вместо двух")]
         public async Task<List<CalendarSessionTypeDTO>> GetStockSessionTypes(
             CancellationToken cancellationToken = default)
         {
@@ -63,6 +81,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarSessionTypes(doc);
         }
 
+        [Obsolete("Используйте GetFuturesSessionWithTypes() — один запрос вместо двух")]
         public async Task<List<CalendarFuturesSessionDTO>> GetFuturesSession(
             CancellationToken cancellationToken = default)
         {
@@ -71,6 +90,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarFuturesSession(doc);
         }
 
+        [Obsolete("Используйте GetFuturesSessionWithTypes() — один запрос вместо двух")]
         public async Task<List<CalendarSessionTypeDTO>> GetFuturesSessionTypes(
             CancellationToken cancellationToken = default)
         {
@@ -81,6 +101,15 @@ namespace History_DataMoex.Clients
 
         // ── Фьючерсы ──────────────────────────────────
 
+        public async Task<(List<CalendarFortsContractDTO> Forts, List<CalendarOptionsSeriesDTO> Options)>
+            GetFuturesSecuritiesAll(CancellationToken cancellationToken = default)
+        {
+            using var response = await SendRequestAsync("/calendars/futures/securities.json", cancellationToken: cancellationToken);
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return ParsingCalendarUtf8.ParseFuturesSecurities(bytes);
+        }
+
+        [Obsolete("Используйте GetFuturesSecuritiesAll() — один запрос вместо двух")]
         public async Task<List<CalendarFortsContractDTO>> GetFortsContracts(
             CancellationToken cancellationToken = default)
         {
@@ -89,6 +118,7 @@ namespace History_DataMoex.Clients
             return ParsingCalendar.ParseCalendarFortsContracts(doc);
         }
 
+        [Obsolete("Используйте GetFuturesSecuritiesAll() — один запрос вместо двух")]
         public async Task<List<CalendarOptionsSeriesDTO>> GetOptionsSeries(
             CancellationToken cancellationToken = default)
         {

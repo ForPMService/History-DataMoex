@@ -33,32 +33,50 @@ namespace History_DataMoex.Endpoints
             routes.MapGet("/calendar/stock-session", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetStockSession(ct), AppJsonContext.Default.ListCalendarStockSessionDTO));
+            {
+                var (sessions, _) = await c.GetStockSessionWithTypes(ct);
+                return Results.Json(sessions, AppJsonContext.Default.ListCalendarStockSessionDTO);
+            });
 
             routes.MapGet("/calendar/stock-session-types", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetStockSessionTypes(ct), AppJsonContext.Default.ListCalendarSessionTypeDTO));
+            {
+                var (_, types) = await c.GetStockSessionWithTypes(ct);
+                return Results.Json(types, AppJsonContext.Default.ListCalendarSessionTypeDTO);
+            });
 
             routes.MapGet("/calendar/futures-session", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetFuturesSession(ct), AppJsonContext.Default.ListCalendarFuturesSessionDTO));
+            {
+                var (sessions, _) = await c.GetFuturesSessionWithTypes(ct);
+                return Results.Json(sessions, AppJsonContext.Default.ListCalendarFuturesSessionDTO);
+            });
 
             routes.MapGet("/calendar/futures-session-types", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetFuturesSessionTypes(ct), AppJsonContext.Default.ListCalendarSessionTypeDTO));
+            {
+                var (_, types) = await c.GetFuturesSessionWithTypes(ct);
+                return Results.Json(types, AppJsonContext.Default.ListCalendarSessionTypeDTO);
+            });
 
             routes.MapGet("/calendar/forts-contracts", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetFortsContracts(ct), AppJsonContext.Default.ListCalendarFortsContractDTO));
+            {
+                var (forts, _) = await c.GetFuturesSecuritiesAll(ct);
+                return Results.Json(forts, AppJsonContext.Default.ListCalendarFortsContractDTO);
+            });
 
             routes.MapGet("/calendar/options-series", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-                Results.Json(await c.GetOptionsSeries(ct), AppJsonContext.Default.ListCalendarOptionsSeriesDTO));
+            {
+                var (_, options) = await c.GetFuturesSecuritiesAll(ct);
+                return Results.Json(options, AppJsonContext.Default.ListCalendarOptionsSeriesDTO);
+            });
 
             routes.MapGet("/calendar/suspended-reasons", async (
                 MoexHttpCalendarClient c,
