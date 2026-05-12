@@ -837,5 +837,355 @@ namespace History_DataMoex.Parsing
                 rowIndex++;
             }
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // HI2 Stock (акции) — 7 колонок (B5)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<Hi2AssetDTO> ParseHi2Stock(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.Hi2AssetSchema;
+            var list = new List<Hi2AssetDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+                    foundData = true;
+                    ReadHi2StockData(ref reader, list, schema);
+                }
+                else { reader.Skip(); }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadHi2StockData(
+            ref Utf8JsonReader reader,
+            List<Hi2AssetDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null, metric = null, reference = null;
+                double? value = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3: metric    = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new Hi2AssetDTO
+                {
+                    TradeDate = tradeDate,
+                    TradeTime = tradeTime,
+                    SecId     = secId,
+                    Metric    = metric,
+                    Value     = value,
+                    Reference = reference,
+                    SysTime   = sysTime,
+                });
+                rowIndex++;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // HI2 Futures (фьючерсы) — 8 колонок (B5)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<Hi2FuturesDTO> ParseHi2Futures(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.Hi2FuturesSchema;
+            var list = new List<Hi2FuturesDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+                    foundData = true;
+                    ReadHi2FuturesData(ref reader, list, schema);
+                }
+                else { reader.Skip(); }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadHi2FuturesData(
+            ref Utf8JsonReader reader,
+            List<Hi2FuturesDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null, assetCode = null;
+                string? metric = null, reference = null;
+                double? value = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4: metric    = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new Hi2FuturesDTO
+                {
+                    TradeDate = tradeDate,
+                    TradeTime = tradeTime,
+                    SecId     = secId,
+                    AssetCode = assetCode,
+                    Metric    = metric,
+                    Value     = value,
+                    Reference = reference,
+                    SysTime   = sysTime,
+                });
+                rowIndex++;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // MegaAlerts Stock (акции) — 8 колонок (B5)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<MegaAlertsAssetsDTO> ParseMegaAlertsStock(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.MegaAlertsAssetSchema;
+            var list = new List<MegaAlertsAssetsDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+                    foundData = true;
+                    ReadMegaAlertsStockData(ref reader, list, schema);
+                }
+                else { reader.Skip(); }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadMegaAlertsStockData(
+            ref Utf8JsonReader reader,
+            List<MegaAlertsAssetsDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null, alertType = null, reference = null;
+                double? threshold = null, value = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3: alertType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4: threshold = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new MegaAlertsAssetsDTO
+                {
+                    TradeDate = tradeDate,
+                    TradeTime = tradeTime,
+                    SecId     = secId,
+                    AlertType = alertType,
+                    Threshold = threshold,
+                    Value     = value,
+                    Reference = reference,
+                    SysTime   = sysTime,
+                });
+                rowIndex++;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // MegaAlerts Futures (фьючерсы) — 9 колонок (B5)
+        // ═══════════════════════════════════════════════════════════
+
+        public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(ReadOnlySpan<byte> jsonBytes)
+        {
+            var schema = ColumnAndNumbersForParsing.MegaAlertsFuturesSchema;
+            var list = new List<MegaAlertsFuturesDTO>();
+            var reader = new Utf8JsonReader(jsonBytes);
+
+            ParseHelpersUtf8.SkipToRootObject(ref reader, schema.RootKey);
+
+            bool foundColumns = false;
+            bool foundData = false;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+
+                if (reader.ValueTextEquals("columns"u8))
+                {
+                    foundColumns = true;
+                    ParseHelpersUtf8.ValidateColumnsUtf8(ref reader, schema);
+                }
+                else if (reader.ValueTextEquals("data"u8))
+                {
+                    if (!foundColumns)
+                        throw new InvalidOperationException(
+                            $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
+                    foundData = true;
+                    ReadMegaAlertsFuturesData(ref reader, list, schema);
+                }
+                else { reader.Skip(); }
+            }
+
+            ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+            return list;
+        }
+
+        private static void ReadMegaAlertsFuturesData(
+            ref Utf8JsonReader reader,
+            List<MegaAlertsFuturesDTO> list,
+            ColumnAndNumbersForParsing.ExpectedSchema schema)
+        {
+            ParseHelpersUtf8.ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", schema.RootKey);
+
+            int rowIndex = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                string? tradeDate = null, tradeTime = null, secId = null, assetCode = null;
+                string? alertType = null, reference = null;
+                double? threshold = null, value = null;
+                DateTime? sysTime = null;
+
+                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
+                    (ref Utf8JsonReader r, int idx) =>
+                    {
+                        switch (idx)
+                        {
+                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 3: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 4: alertType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 5: threshold = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 6: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 7: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            case 8: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                        }
+                    });
+
+                list.Add(new MegaAlertsFuturesDTO
+                {
+                    TradeDate = tradeDate,
+                    TradeTime = tradeTime,
+                    SecId     = secId,
+                    AssetCode = assetCode,
+                    AlertType = alertType,
+                    Threshold = threshold,
+                    Value     = value,
+                    Reference = reference,
+                    SysTime   = sysTime,
+                });
+                rowIndex++;
+            }
+        }
     }
 }
