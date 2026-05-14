@@ -1,6 +1,7 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Contracts.Serialization;
+using System.Text.Json;
 
 namespace History_DataMoex.Endpoints
 {
@@ -271,6 +272,30 @@ namespace History_DataMoex.Endpoints
             });
 
             return routes;
+        }
+
+        public static async Task WriteCandleToStream(Stream stream, MoexHttpAlgClient moexHttpAlgClient, string url, Dictionary<string, string> queryParams, CancellationToken ct)
+        {
+            Utf8JsonWriter jsonWriter = new Utf8JsonWriter(stream);
+            try
+            {
+                jsonWriter.WriteStartArray();
+                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
+                {
+                    foreach (CandlesDTO candle in candlesBatch)
+                    {
+                        JsonSerializer.Serialize(jsonWriter, candle, AppJsonContext.Default.CandlesDTO);
+
+                    }                    
+
+                }
+                jsonWriter.WriteEndArray();
+                await jsonWriter.FlushAsync(ct);
+            }
+            finally
+            {
+                await jsonWriter.DisposeAsync();
+            }
         }
     }
 }
