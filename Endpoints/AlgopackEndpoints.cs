@@ -228,25 +228,8 @@ namespace History_DataMoex.Endpoints
 
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
             });
-            routes.MapGet("/GetCandlesAsset", async (
-                MoexHttpAlgClient moexHttpAlgClient,
-                CancellationToken ct) =>
-            {
-                string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
-                Dictionary<string, string> queryParams = new Dictionary<string, string>
-                {
-                    ["interval"] = "1",
-                    ["from"] = "2026-04-17",
-                    ["till"] = "2026-04-20"
 
-                };
-                List<CandlesDTO> response = new List<CandlesDTO>();
-                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
-                {
-                    response.AddRange(candlesBatch);
-                }
-                return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
-            });
+            routes.MapGet("/GetCandlesAsset", HandleGetCandlesAsset);
 
 
 
@@ -288,18 +271,25 @@ namespace History_DataMoex.Endpoints
 
                     }                    
               
-                    jsonWriter.WriteEndArray();
+                    
                     await jsonWriter.FlushAsync(ct);
                 }
-                
+                jsonWriter.WriteEndArray();
             }
             finally
             {
                 await jsonWriter.DisposeAsync();
             }
         }
-        public static IResult HandleCandl(MoexHttpAlgClient moexHttpAlgClient, string url, Dictionary<string, string> queryParams, CancellationToken ct)
+        public static IResult HandleGetCandlesAsset(MoexHttpAlgClient moexHttpAlgClient, CancellationToken ct)
         {
+            string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
+            Dictionary<string, string> queryParams = new Dictionary<string, string>
+            {
+                ["interval"] = "1",
+                ["from"] = "2026-04-17",
+                ["till"] = "2026-04-20"
+            };
             return Results.Stream(async stream =>
             {
                 await WriteCandleToStream(stream, moexHttpAlgClient, url, queryParams, ct);
