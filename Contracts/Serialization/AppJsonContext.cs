@@ -76,6 +76,18 @@ namespace History_DataMoex.Contracts.Serialization
     // Добавлять по мере перевода endpoint'ов на потоковую отдачу.
 
     [JsonSerializable(typeof(IAsyncEnumerable<CandlesDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<SuperCandlesTradeStats5mDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<SuperCandlesOrderStats5mDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<SuperCandlesOrderBookStats5mDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<SuperCandlesFuturesTradeStats5mDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<SuperCandlesFuturesOrderBookStats5mDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<FutoiDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<Hi2AssetDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<Hi2FuturesDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<MegaAlertsAssetsDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<MegaAlertsFuturesDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<CalendarSuspendedDTO>))]
+    [JsonSerializable(typeof(IAsyncEnumerable<CalendarSecurityChangeDTO>))]
 
     public partial class AppJsonContext : JsonSerializerContext
     {

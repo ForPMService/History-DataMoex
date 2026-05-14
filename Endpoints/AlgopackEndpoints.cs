@@ -1,9 +1,7 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Algopack;
-using History_DataMoex.Contracts.Serialization;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
+
 
 namespace History_DataMoex.Endpoints
 {
@@ -18,7 +16,7 @@ namespace History_DataMoex.Endpoints
         public static IEndpointRouteBuilder MapAlgopackEndpoints(this IEndpointRouteBuilder routes)
         {
             // === Фьючерсы ===
-            routes.MapGet("/GetSuperCandlesFuturesTradeStats", async (
+            routes.MapGet("/GetSuperCandlesFuturesTradeStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -30,18 +28,10 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-05"
                 };
 
-                List<SuperCandlesFuturesTradeStats5mDTO> response =
-                    new List<SuperCandlesFuturesTradeStats5mDTO>();
-
-                await foreach (List<SuperCandlesFuturesTradeStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesFuturesTradeStats5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesTradeStats5mDTO);
+                return StreamFuturesTradeStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
-            routes.MapGet("/GetSuperCandlesFuturesOrderBookStat", async (
+            routes.MapGet("/GetSuperCandlesFuturesOrderBookStat", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -53,20 +43,12 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
-                List<SuperCandlesFuturesOrderBookStats5mDTO> response =
-                    new List<SuperCandlesFuturesOrderBookStats5mDTO>();
-
-                await foreach (List<SuperCandlesFuturesOrderBookStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesFuturesOrderBookStats5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListSuperCandlesFuturesOrderBookStats5mDTO);
+                return StreamFuturesOrderBookStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
 
             // === FUTOI ===
-            routes.MapGet("/GetFutoi", async (
+            routes.MapGet("/GetFutoi", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -78,17 +60,11 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-08"
                 };
 
-                List<FutoiDTO> response = new List<FutoiDTO>();
-                await foreach (List<FutoiDTO> page in moexHttpAlgClient.StreamFutoi(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListFutoiDTO);
+                return StreamFutoiItems(moexHttpAlgClient, url, queryParams, ct);
             });
 
             // === HI2 ===
-            routes.MapGet("/GetHi2Asset", async (
+            routes.MapGet("/GetHi2Asset", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -100,16 +76,10 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-03"
                 };
 
-                List<Hi2AssetDTO> response = new List<Hi2AssetDTO>();
-                await foreach (List<Hi2AssetDTO> page in moexHttpAlgClient.GetHi2Asset5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListHi2AssetDTO);
+                return StreamHi2Asset(moexHttpAlgClient, url, queryParams, ct);
             });
 
-            routes.MapGet("/GetHi2Furure", async (
+            routes.MapGet("/GetHi2Furure", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -120,17 +90,11 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-04"
                 };
 
-                List<Hi2FuturesDTO> response = new List<Hi2FuturesDTO>();
-                await foreach (List<Hi2FuturesDTO> page in moexHttpAlgClient.GetHi2Furures5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
+                return StreamHi2Futures(moexHttpAlgClient, url, queryParams, ct);
             });
 
             // === Мега-оповещения ===
-            routes.MapGet("/GetMegaAlerts", async (
+            routes.MapGet("/GetMegaAlerts", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -142,16 +106,10 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
-                List<MegaAlertsAssetsDTO> response = new List<MegaAlertsAssetsDTO>();
-                await foreach (List<MegaAlertsAssetsDTO> page in moexHttpAlgClient.GetMegaAlerts(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListMegaAlertsAssetsDTO);
+                return StreamMegaAlerts(moexHttpAlgClient, url, queryParams, ct);
             });
 
-            routes.MapGet("/GetMegaAlertsFutures", async (
+            routes.MapGet("/GetMegaAlertsFutures", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -163,17 +121,11 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
-                List<MegaAlertsFuturesDTO> response = new List<MegaAlertsFuturesDTO>();
-                await foreach (List<MegaAlertsFuturesDTO> page in moexHttpAlgClient.GetMegaAlertsFutures(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListMegaAlertsFuturesDTO);
+                return StreamMegaAlertsFutures(moexHttpAlgClient, url, queryParams, ct);
             });
 
 
-            routes.MapGet("/GetSuperCandlesTradeStats", async (
+            routes.MapGet("/GetSuperCandlesTradeStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -184,15 +136,9 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
-                List<SuperCandlesTradeStats5mDTO> response = new List<SuperCandlesTradeStats5mDTO>();
-                await foreach (List<SuperCandlesTradeStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesTradeStats5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListSuperCandlesTradeStats5mDTO);
+                return StreamTradeStats(moexHttpAlgClient, url, queryParams, ct);
             });
-            routes.MapGet("/GetSuperCandlesOrderStats", async (
+            routes.MapGet("/GetSuperCandlesOrderStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -203,15 +149,9 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
-                List<SuperCandlesOrderStats5mDTO> response = new List<SuperCandlesOrderStats5mDTO>();
-                await foreach (List<SuperCandlesOrderStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesOrderStats5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderStats5mDTO);
+                return StreamOrderStats(moexHttpAlgClient, url, queryParams, ct);
             });
-            routes.MapGet("/GetSuperCandlesOrderBookStats", async (
+            routes.MapGet("/GetSuperCandlesOrderBookStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -222,13 +162,7 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
-                List<SuperCandlesOrderBookStats5mDTO> response = new List<SuperCandlesOrderBookStats5mDTO>();
-                await foreach (List<SuperCandlesOrderBookStats5mDTO> page in moexHttpAlgClient.GetSuperCandlesOrderBookStats5m(url, queryParams, ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
+                return StreamOrderBookStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
             routes.MapGet("/GetCandlesAsset", (
@@ -239,7 +173,7 @@ namespace History_DataMoex.Endpoints
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
                     ["interval"] = "1",
-                    ["from"] = "2026-01-28",
+                    ["from"] = "2025-01-28",
                     ["till"] = "2026-05-05"
                 };
 
@@ -251,7 +185,7 @@ namespace History_DataMoex.Endpoints
 
 
 
-            routes.MapGet("/GetCandlesFutures", async (
+            routes.MapGet("/GetCandlesFutures", (
                MoexHttpAlgClient moexHttpAlgClient,
                CancellationToken ct) =>
            {
@@ -263,13 +197,7 @@ namespace History_DataMoex.Endpoints
                    ["till"] = "2026-05-05"
                };
 
-               List<CandlesDTO> response = new List<CandlesDTO>();
-               await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
-               {
-                   response.AddRange(candlesBatch);
-               }
-
-               return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
+               return StreamCandles(moexHttpAlgClient, url, queryParams, ct);
            });
             return routes;
         }
@@ -280,6 +208,136 @@ namespace History_DataMoex.Endpoints
                 foreach (var candle in candlesBatch)
                 {
                     yield return candle;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<SuperCandlesTradeStats5mDTO> StreamTradeStats(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<SuperCandlesTradeStats5mDTO> batch in client.GetSuperCandlesTradeStats5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<SuperCandlesOrderStats5mDTO> StreamOrderStats(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<SuperCandlesOrderStats5mDTO> batch in client.GetSuperCandlesOrderStats5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<SuperCandlesOrderBookStats5mDTO> StreamOrderBookStats(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<SuperCandlesOrderBookStats5mDTO> batch in client.GetSuperCandlesOrderBookStats5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<SuperCandlesFuturesTradeStats5mDTO> StreamFuturesTradeStats(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<SuperCandlesFuturesTradeStats5mDTO> batch in client.GetSuperCandlesFuturesTradeStats5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<SuperCandlesFuturesOrderBookStats5mDTO> StreamFuturesOrderBookStats(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<SuperCandlesFuturesOrderBookStats5mDTO> batch in client.GetSuperCandlesFuturesOrderBookStats5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<FutoiDTO> StreamFutoiItems(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<FutoiDTO> batch in client.StreamFutoi(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<Hi2AssetDTO> StreamHi2Asset(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<Hi2AssetDTO> batch in client.GetHi2Asset5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<Hi2FuturesDTO> StreamHi2Futures(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<Hi2FuturesDTO> batch in client.GetHi2Furures5m(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<MegaAlertsAssetsDTO> StreamMegaAlerts(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<MegaAlertsAssetsDTO> batch in client.GetMegaAlerts(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<MegaAlertsFuturesDTO> StreamMegaAlertsFutures(
+            MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<MegaAlertsFuturesDTO> batch in client.GetMegaAlertsFutures(url, queryParams, ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
                 }
             }
         }

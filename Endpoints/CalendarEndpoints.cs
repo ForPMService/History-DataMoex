@@ -1,6 +1,7 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Serialization;
+using System.Runtime.CompilerServices;
 
 namespace History_DataMoex.Endpoints
 {
@@ -83,38 +84,48 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
                 Results.Json(await c.GetSuspendedReasons(ct), AppJsonContext.Default.ListCalendarSuspendedReasonDTO));
 
-            routes.MapGet("/calendar/suspended", async (
+            routes.MapGet("/calendar/suspended", (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-            {
-                List<CalendarSuspendedDTO> response = new List<CalendarSuspendedDTO>();
-                await foreach (List<CalendarSuspendedDTO> page in c.GetSuspended(ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListCalendarSuspendedDTO);
-            });
+                StreamSuspended(c, ct));
 
             routes.MapGet("/calendar/security-attributes", async (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
                 Results.Json(await c.GetSecurityAttributes(ct), AppJsonContext.Default.ListCalendarSecurityAttributeDTO));
 
-            routes.MapGet("/calendar/security-changes", async (
+            routes.MapGet("/calendar/security-changes", (
                 MoexHttpCalendarClient c,
                 CancellationToken ct) =>
-            {
-                List<CalendarSecurityChangeDTO> response = new List<CalendarSecurityChangeDTO>();
-                await foreach (List<CalendarSecurityChangeDTO> page in c.GetSecurityChanges(ct))
-                {
-                    response.AddRange(page);
-                }
-
-                return Results.Json(response, AppJsonContext.Default.ListCalendarSecurityChangeDTO);
-            });
+                StreamSecurityChanges(c, ct));
 
             return routes;
+        }
+
+        static async IAsyncEnumerable<CalendarSuspendedDTO> StreamSuspended(
+            MoexHttpCalendarClient client,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<CalendarSuspendedDTO> batch in client.GetSuspended(ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        static async IAsyncEnumerable<CalendarSecurityChangeDTO> StreamSecurityChanges(
+            MoexHttpCalendarClient client,
+            [EnumeratorCancellation] CancellationToken ct)
+        {
+            await foreach (List<CalendarSecurityChangeDTO> batch in client.GetSecurityChanges(ct))
+            {
+                foreach (var item in batch)
+                {
+                    yield return item;
+                }
+            }
         }
     }
 }
