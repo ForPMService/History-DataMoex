@@ -275,6 +275,7 @@ namespace History_DataMoex.Endpoints
                     await jsonWriter.FlushAsync(ct);
                 }
                 jsonWriter.WriteEndArray();
+                await jsonWriter.FlushAsync(ct);
             }
             finally
             {
