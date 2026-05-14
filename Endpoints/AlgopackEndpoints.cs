@@ -1,6 +1,8 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Contracts.Serialization;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace History_DataMoex.Endpoints
@@ -127,7 +129,7 @@ namespace History_DataMoex.Endpoints
                 return Results.Json(response, AppJsonContext.Default.ListHi2FuturesDTO);
             });
 
-             // === Мега-оповещения ===
+            // === Мега-оповещения ===
             routes.MapGet("/GetMegaAlerts", async (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
@@ -229,73 +231,59 @@ namespace History_DataMoex.Endpoints
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
             });
 
-            routes.MapGet("/GetCandlesAsset", HandleGetCandlesAsset);
-
-
-
-            routes.MapGet("/GetCandlesFutures", async (
+            routes.MapGet("/GetCandlesAsset", async (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
-                string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
+                string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
                     ["interval"] = "1",
                     ["from"] = "2026-01-28",
                     ["till"] = "2026-05-05"
                 };
-                    
-                List<CandlesDTO> response = new List<CandlesDTO>();
-                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
-                {
-                    response.AddRange(candlesBatch);
-                }
 
-                return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
+
+
+                return StreamCandles(moexHttpAlgClient, url, queryParams, ct);
             });
 
+
+
+
+            routes.MapGet("/GetCandlesFutures", async (
+               MoexHttpAlgClient moexHttpAlgClient,
+               CancellationToken ct) =>
+           {
+               string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
+               Dictionary<string, string> queryParams = new Dictionary<string, string>
+               {
+                   ["interval"] = "1",
+                   ["from"] = "2026-01-28",
+                   ["till"] = "2026-05-05"
+               };
+
+               List<CandlesDTO> response = new List<CandlesDTO>();
+               await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
+               {
+                   response.AddRange(candlesBatch);
+               }
+
+               return Results.Json(response, AppJsonContext.Default.ListCandlesDTO);
+           });
             return routes;
         }
-
-        public static async Task WriteCandleToStream(Stream stream, MoexHttpAlgClient moexHttpAlgClient, string url, Dictionary<string, string> queryParams, CancellationToken ct)
+        public static async IAsyncEnumerable<CandlesDTO> StreamCandles(this MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams, [EnumeratorCancellation] CancellationToken ct)
         {
-            Utf8JsonWriter jsonWriter = new Utf8JsonWriter(stream);
-            try
+            await foreach (List<CandlesDTO> candlesBatch in client.GetCandles(url, queryParams, ct))
             {
-                jsonWriter.WriteStartArray();
-                await foreach (List<CandlesDTO> candlesBatch in moexHttpAlgClient.GetCandles(url, queryParams, ct))
+                foreach (var candle in candlesBatch)
                 {
-                    foreach (CandlesDTO candle in candlesBatch)
-                    {
-                        JsonSerializer.Serialize(jsonWriter, candle, AppJsonContext.Default.CandlesDTO);
-
-                    }                    
-              
-                    
-                    await jsonWriter.FlushAsync(ct);
+                    yield return candle;
                 }
-                jsonWriter.WriteEndArray();
-                await jsonWriter.FlushAsync(ct);
-            }
-            finally
-            {
-                await jsonWriter.DisposeAsync();
             }
         }
-        public static IResult HandleGetCandlesAsset(MoexHttpAlgClient moexHttpAlgClient, CancellationToken ct)
-        {
-            string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
-            Dictionary<string, string> queryParams = new Dictionary<string, string>
-            {
-                ["interval"] = "1",
-                ["from"] = "2026-04-17",
-                ["till"] = "2026-04-20"
-            };
-            return Results.Stream(async stream =>
-            {
-                await WriteCandleToStream(stream, moexHttpAlgClient, url, queryParams, ct);
-            }, "application/json");
-            
-        }
+
     }
-}
+}    
+

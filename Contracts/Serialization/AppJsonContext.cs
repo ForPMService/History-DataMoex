@@ -6,6 +6,10 @@ using System.Text.Json.Serialization;
 
 namespace History_DataMoex.Contracts.Serialization
 {
+    // ── Списки DTO — для endpoint'ов, которые возвращают Results.Json(list, AppJsonContext.Default.List...) ──
+    // Используются текущими endpoint'ами, которые копят все страницы в List<T> и отдают целиком.
+    // Останутся нужны, пока не все endpoint'ы переведены на потоковую отдачу.
+
     [JsonSerializable(typeof(List<FuturesSecurityDTO>))]
     [JsonSerializable(typeof(List<StockSecurityDTO>))]
     [JsonSerializable(typeof(List<CandlesDTO>))]
@@ -33,6 +37,11 @@ namespace History_DataMoex.Contracts.Serialization
     [JsonSerializable(typeof(List<CalendarSecurityChangeDTO>))]
     [JsonSerializable(typeof(List<CalendarSecurityAttributeDTO>))]
 
+    // ── Одиночные DTO — для поштучной сериализации ──
+    // Нужны source generator'у, чтобы знать как сериализовать один объект.
+    // Используются IAsyncEnumerable-endpoint'ами (фреймворк сериализует по одному элементу)
+    // и могут использоваться в будущем для ручной сериализации через Utf8JsonWriter.
+
     [JsonSerializable(typeof(FuturesSecurityDTO))]
     [JsonSerializable(typeof(StockSecurityDTO))]
     [JsonSerializable(typeof(CandlesDTO))]
@@ -59,6 +68,14 @@ namespace History_DataMoex.Contracts.Serialization
     [JsonSerializable(typeof(CalendarSuspendedReasonDTO))]
     [JsonSerializable(typeof(CalendarSecurityChangeDTO))]
     [JsonSerializable(typeof(CalendarSecurityAttributeDTO))]
+
+    // ── IAsyncEnumerable<T> — для потоковой отдачи через встроенный механизм ASP.NET ──
+    // Когда endpoint возвращает IAsyncEnumerable<T>, фреймворк вызывает
+    // JsonSerializer.SerializeAsync, который внутри использует Utf8JsonWriter.
+    // Source generator должен знать про этот тип, иначе AOT не сможет сериализовать.
+    // Добавлять по мере перевода endpoint'ов на потоковую отдачу.
+
+    [JsonSerializable(typeof(IAsyncEnumerable<CandlesDTO>))]
 
     public partial class AppJsonContext : JsonSerializerContext
     {

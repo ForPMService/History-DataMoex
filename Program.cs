@@ -1,3 +1,4 @@
+using History_DataMoex.Contracts.Serialization;
 using History_DataMoex.Endpoints;
 using History_DataMoex.Infrastructure.DependencyInjection;
 
@@ -6,7 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Добавляем сервисы в контейнер.
 
 builder.Services.AddMoexClients(builder.Configuration);
-
+builder.Services.ConfigureHttpJsonOptions(options=>
+{
+    
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
+});
 
 builder.Services.AddOpenApi();
 

@@ -387,8 +387,7 @@ namespace History_DataMoex.Clients
             {
                 queryStart = parseValue;
             }
-
-            
+           
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
