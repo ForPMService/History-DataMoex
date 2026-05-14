@@ -231,7 +231,7 @@ namespace History_DataMoex.Endpoints
                 return Results.Json(response, AppJsonContext.Default.ListSuperCandlesOrderBookStats5mDTO);
             });
 
-            routes.MapGet("/GetCandlesAsset", async (
+            routes.MapGet("/GetCandlesAsset", (
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
@@ -273,7 +273,7 @@ namespace History_DataMoex.Endpoints
            });
             return routes;
         }
-        public static async IAsyncEnumerable<CandlesDTO> StreamCandles(this MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams, [EnumeratorCancellation] CancellationToken ct)
+        public static async IAsyncEnumerable<CandlesDTO> StreamCandles(MoexHttpAlgClient client, string url, Dictionary<string, string> queryParams, [EnumeratorCancellation] CancellationToken ct)
         {
             await foreach (List<CandlesDTO> candlesBatch in client.GetCandles(url, queryParams, ct))
             {
