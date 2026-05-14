@@ -287,15 +287,24 @@ namespace History_DataMoex.Endpoints
                         JsonSerializer.Serialize(jsonWriter, candle, AppJsonContext.Default.CandlesDTO);
 
                     }                    
-
+              
+                    jsonWriter.WriteEndArray();
+                    await jsonWriter.FlushAsync(ct);
                 }
-                jsonWriter.WriteEndArray();
-                await jsonWriter.FlushAsync(ct);
+                
             }
             finally
             {
                 await jsonWriter.DisposeAsync();
             }
+        }
+        public static IResult HandleCandl(MoexHttpAlgClient moexHttpAlgClient, string url, Dictionary<string, string> queryParams, CancellationToken ct)
+        {
+            return Results.Stream(async stream =>
+            {
+                await WriteCandleToStream(stream, moexHttpAlgClient, url, queryParams, ct);
+            }, "application/json");
+            
         }
     }
 }
