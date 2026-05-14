@@ -33,6 +33,33 @@ namespace History_DataMoex.Contracts.Serialization
     [JsonSerializable(typeof(List<CalendarSecurityChangeDTO>))]
     [JsonSerializable(typeof(List<CalendarSecurityAttributeDTO>))]
 
+    [JsonSerializable(typeof(FuturesSecurityDTO))]
+    [JsonSerializable(typeof(StockSecurityDTO))]
+    [JsonSerializable(typeof(CandlesDTO))]
+    [JsonSerializable(typeof(SuperCandlesTradeStats5mDTO))]
+    [JsonSerializable(typeof(SuperCandlesOrderBookStats5mDTO))]
+    [JsonSerializable(typeof(SuperCandlesOrderStats5mDTO))]
+    [JsonSerializable(typeof(SuperCandlesFuturesTradeStats5mDTO))]
+    [JsonSerializable(typeof(SuperCandlesFuturesOrderBookStats5mDTO))]
+    [JsonSerializable(typeof(FutoiDTO))]
+    [JsonSerializable(typeof(Hi2AssetDTO))]
+    [JsonSerializable(typeof(Hi2FuturesDTO))]
+    [JsonSerializable(typeof(MegaAlertsAssetsDTO))]
+    [JsonSerializable(typeof(MegaAlertsFuturesDTO))]
+
+    // DTO календаря
+    [JsonSerializable(typeof(CalendarOffDaysAllDTO))]
+    [JsonSerializable(typeof(CalendarOffDaysMarketDTO))]
+    [JsonSerializable(typeof(CalendarStockSessionDTO))]
+    [JsonSerializable(typeof(CalendarFuturesSessionDTO))]
+    [JsonSerializable(typeof(CalendarSessionTypeDTO))]
+    [JsonSerializable(typeof(CalendarFortsContractDTO))]
+    [JsonSerializable(typeof(CalendarOptionsSeriesDTO))]
+    [JsonSerializable(typeof(CalendarSuspendedDTO))]
+    [JsonSerializable(typeof(CalendarSuspendedReasonDTO))]
+    [JsonSerializable(typeof(CalendarSecurityChangeDTO))]
+    [JsonSerializable(typeof(CalendarSecurityAttributeDTO))]
+
     public partial class AppJsonContext : JsonSerializerContext
     {
     }

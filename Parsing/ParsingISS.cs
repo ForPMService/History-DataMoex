@@ -5,6 +5,9 @@ namespace History_DataMoex.Parsing
 {
     public static class ParsingISS
     {
+        // HISTORICAL: kept for source-contract audit. All callers migrated to Utf8 parsers (B9.5 / B10).
+        // Uncomment only if need to compare JsonDocument vs Utf8JsonReader output.
+        /*
 
         public static List<StockSecurityDTO> ParseIssSecurityStock(JsonDocument jsonDocument)
         {
@@ -77,6 +80,7 @@ namespace History_DataMoex.Parsing
             return futuresSecurities;
 
         }
+        */
 
     }
 }

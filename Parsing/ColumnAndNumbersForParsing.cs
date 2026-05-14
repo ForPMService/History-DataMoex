@@ -676,12 +676,10 @@
 
         // ═══════════════════════════════════════════════════════════
         // Обратная совместимость
-        // 
-        // Старые парсеры (ParsingALG.cs, ParsingISS.cs, ParsingCalendar.cs)
-        // обращаются к массивам напрямую: AlgCandlesExpectedColumns[i].Name
-        // Пока они не переведены на Schema — оставляем ссылки.
-        // После перевода всех парсеров — удалить.
         // ═══════════════════════════════════════════════════════════
+        // HISTORICAL: backward-compat aliases for old JsonDocument parsers.
+        // All callers migrated to Utf8 parsers. Kept for audit, uncomment if needed.
+        /*
 
         public static ExpectedColumn[] AlgCandlesExpectedColumns => AlgCandlesSchema.Columns;
         public static ExpectedColumn[] AlgCandlesTradeStatExpectedColumns => AlgCandlesTradeStatSchema.Columns;
@@ -709,5 +707,6 @@
         public static ExpectedColumn[] CalendarSecurityChangesExpectedColumns => CalendarSecurityChangesSchema.Columns;
         public static ExpectedColumn[] CalendarSecurityAttributesExpectedColumns => CalendarSecurityAttributesSchema.Columns;
         public static ExpectedColumn[] CalendarCursorExpectedColumns => CalendarCursorSchema.Columns;
+        */
     }
 }

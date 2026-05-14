@@ -7,6 +7,9 @@ namespace History_DataMoex.Parsing
 {
     public static class ParsingALG
     {
+        // HISTORICAL: kept for source-contract audit. All callers migrated to Utf8 parsers (B9.5 / B10).
+        // Uncomment only if need to compare JsonDocument vs Utf8JsonReader output.
+        /*
         public static List<CandlesDTO> ParseAlgCandles(JsonDocument jsonDocument)
         {
             List<CandlesDTO> candlesList = new List<CandlesDTO>();
@@ -541,5 +544,6 @@ namespace History_DataMoex.Parsing
             return paginationCursor;
 
         }
+        */
     }
 }
