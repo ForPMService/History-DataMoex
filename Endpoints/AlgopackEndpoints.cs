@@ -56,7 +56,7 @@ namespace History_DataMoex.Endpoints
 
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
-                    ["from"] = "2026-04-30",
+                    ["from"] = "2026-04-29",
                     ["till"] = "2026-05-05"
                 };
 

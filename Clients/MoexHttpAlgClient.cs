@@ -304,73 +304,55 @@ namespace History_DataMoex.Clients
             }
         }
 
-        public async Task<List<FutoiDTO>> GetFutoi(
-            string method,
-            Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
-        {
-            int queryStart = 0;
-            queryParams ??= new Dictionary<string, string>();
-
-            if (queryParams.TryGetValue("start", out string? start) && int.TryParse(start, out int parseValue))
-            {
-                queryStart = parseValue;
-            }
-
-            List<FutoiDTO> all = new List<FutoiDTO>();
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-
-                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(bytes);
-                all.AddRange(page);
-                if (page.Count >= 1000)
-                {
-                    queryStart += 1000;
-                    queryParams["start"] = queryStart.ToString();
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return all;
-        }
-
         public async IAsyncEnumerable<List<FutoiDTO>> StreamFutoi(
             string method,
             Dictionary<string, string>? queryParams = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            int queryStart = 0;
             queryParams ??= new Dictionary<string, string>();
 
-            if (queryParams.TryGetValue("start", out string? start) && int.TryParse(start, out int parseValue))
+            // FUTOI API не поддерживает пагинацию (start игнорируется, лимит 1000 строк).
+            // Разбиваем диапазон дат по одному дню — один день Si ≈ 470 строк, всегда < 1000.
+
+            if (!queryParams.TryGetValue("from", out string? fromStr)
+                || !queryParams.TryGetValue("till", out string? tillStr))
             {
-                queryStart = parseValue;
+                throw new InvalidOperationException(
+                    "StreamFutoi requires 'from' and 'till' in queryParams.");
             }
-           
-            while (true)
+
+            if (!DateTime.TryParseExact(fromStr, "yyyy-MM-dd",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out DateTime fromDate)
+                || !DateTime.TryParseExact(tillStr, "yyyy-MM-dd",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out DateTime tillDate))
+            {
+                throw new InvalidOperationException(
+                    $"StreamFutoi: invalid date format. from='{fromStr}', till='{tillStr}'. Expected yyyy-MM-dd.");
+            }
+
+            // Убрать start/offset если были — MOEX их игнорирует
+            queryParams.Remove("start");
+            queryParams.Remove("offset");
+
+            for (DateTime date = fromDate; date <= tillDate; date = date.AddDays(1))
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                queryParams["from"] = date.ToString("yyyy-MM-dd");
+                queryParams["till"] = date.ToString("yyyy-MM-dd");
+
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
                 List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(bytes);
-                yield return page;
-                if (page.Count >= 1000)
+
+                if (page.Count > 0)
                 {
-                    queryStart += 1000;
-                    queryParams["offset"] = queryStart.ToString();
-                }
-                else
-                {
-                    break;
+                    yield return page;
                 }
             }
-            //return all;
         }
 
         public async IAsyncEnumerable<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(
