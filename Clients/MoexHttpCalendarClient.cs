@@ -1,5 +1,6 @@
 ﻿using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Calendar;
+using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -147,6 +148,7 @@ namespace History_DataMoex.Clients
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -155,17 +157,13 @@ namespace History_DataMoex.Clients
 
                 var (page, _, cursor) = ParsingCalendarUtf8.ParseSuspendedWithReasons(bytes);
                 yield return page;
-
-                if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (cursor.Index.Value + cursor.PageSize.Value >= cursor.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
             }
         }
 
@@ -185,6 +183,7 @@ namespace History_DataMoex.Clients
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -193,17 +192,13 @@ namespace History_DataMoex.Clients
 
                 var (page, _, cursor) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(bytes);
                 yield return page;
-
-                if (cursor.Index is null || cursor.PageSize is null || cursor.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (cursor.Index.Value + cursor.PageSize.Value >= cursor.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (cursor.Index.Value + cursor.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
             }
         }
 

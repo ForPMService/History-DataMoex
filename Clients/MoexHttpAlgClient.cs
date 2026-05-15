@@ -1,5 +1,6 @@
 ﻿using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Algopack;
+using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -90,25 +91,22 @@ namespace History_DataMoex.Clients
 
             
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(bytes);
-                PaginationCursorDTO dataCursoPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
+                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(bytes, out PaginationCursorDTO cursor);
                 yield return hi2Assets;
-                if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value >= dataCursoPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
 
             }
 
@@ -124,26 +122,22 @@ namespace History_DataMoex.Clients
 
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-
-                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(bytes);
-                PaginationCursorDTO dataCursoPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
+                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(bytes, out PaginationCursorDTO cursor);
                 yield return hi2Futures;
-                if (dataCursoPag.Index is null || dataCursoPag.PageSize is null || dataCursoPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value >= dataCursoPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursoPag.Index.Value + dataCursoPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
 
             }
         }
@@ -155,27 +149,22 @@ namespace History_DataMoex.Clients
         {
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(metod, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(bytes);
-                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
-
+                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(bytes, out PaginationCursorDTO cursor);
                 yield return megaAlerts;
-
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
             }
         }
 
@@ -186,28 +175,22 @@ namespace History_DataMoex.Clients
         {
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(bytes);
-
-                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
-
+                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(bytes, out PaginationCursorDTO cursor);
                 yield return megaAlertsFutures;
-
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
             }
         }
 
@@ -219,25 +202,22 @@ namespace History_DataMoex.Clients
             
             queryParams ??= new Dictionary<string, string>();
             
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(bytes);
-                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
+                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(bytes, out PaginationCursorDTO cursor);
                 yield return tradeStats;
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"]= (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
                 
             }
         }
@@ -250,26 +230,22 @@ namespace History_DataMoex.Clients
 
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-
-                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(bytes);
-                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
+                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(bytes, out PaginationCursorDTO cursor);
                 yield return orderBookStats;
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
 
             }
         }
@@ -282,26 +258,22 @@ namespace History_DataMoex.Clients
 
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-
-                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(bytes);
-                PaginationCursorDTO dataCursorPag = ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
+                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(bytes, out PaginationCursorDTO cursor);
                 yield return orderStats;
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
 
             }
         }
@@ -313,30 +285,22 @@ namespace History_DataMoex.Clients
         {
             queryParams ??= new Dictionary<string, string>();
 
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats =
-                    ParsingAlgUtf8.ParseOBStatsFutures(bytes);
-
-                PaginationCursorDTO dataCursorPag =
-                    ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
-
+                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsFutures(bytes, out PaginationCursorDTO cursor);
                 yield return orderBookStats;
-
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
             }
         }
 
@@ -417,30 +381,22 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             
+            int pagesElapsed = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
-                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats =
-                    ParsingAlgUtf8.ParseTradeStatsFutures(bytes);
-
-                PaginationCursorDTO dataCursorPag =
-                    ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor");
-
+                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsFutures(bytes, out PaginationCursorDTO cursor);
                 yield return tradeStats;
-
-                if (dataCursorPag.Index is null || dataCursorPag.PageSize is null || dataCursorPag.Total is null)
+                pagesElapsed++;
+                PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
+                if (step.IsStop)
                 {
                     break;
                 }
-
-                if (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value >= dataCursorPag.Total.Value)
-                {
-                    break;
-                }
-                queryParams!["start"] = (dataCursorPag.Index.Value + dataCursorPag.PageSize.Value).ToString();
+                queryParams["start"] = step.NextStart.ToString();
 
             }
         }

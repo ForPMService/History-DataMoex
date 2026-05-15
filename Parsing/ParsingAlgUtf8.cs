@@ -129,7 +129,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesTradeStats5mDTO> ParseTradeStatsStock(ReadOnlySpan<byte> jsonBytes)
-            => ParseTradeStatsStock(jsonBytes, out _);
+        {
+            return ParseTradeStatsStock(jsonBytes, out _);
+        }
 
         public static List<SuperCandlesTradeStats5mDTO> ParseTradeStatsStock(
             ReadOnlySpan<byte> jsonBytes,
@@ -291,7 +293,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesFuturesTradeStats5mDTO> ParseTradeStatsFutures(ReadOnlySpan<byte> jsonBytes)
-            => ParseTradeStatsFutures(jsonBytes, out _);
+        {
+            return ParseTradeStatsFutures(jsonBytes, out _);
+        }
 
         public static List<SuperCandlesFuturesTradeStats5mDTO> ParseTradeStatsFutures(
             ReadOnlySpan<byte> jsonBytes,
@@ -465,7 +469,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesOrderBookStats5mDTO> ParseOBStatsStock(ReadOnlySpan<byte> jsonBytes)
-            => ParseOBStatsStock(jsonBytes, out _);
+        {
+            return ParseOBStatsStock(jsonBytes, out _);
+        }
 
         public static List<SuperCandlesOrderBookStats5mDTO> ParseOBStatsStock(
             ReadOnlySpan<byte> jsonBytes,
@@ -611,7 +617,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseOBStatsFutures(ReadOnlySpan<byte> jsonBytes)
-            => ParseOBStatsFutures(jsonBytes, out _);
+        {
+            return ParseOBStatsFutures(jsonBytes, out _);
+        }
 
         public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseOBStatsFutures(
             ReadOnlySpan<byte> jsonBytes,
@@ -789,7 +797,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesOrderStats5mDTO> ParseOrderStatsStock(ReadOnlySpan<byte> jsonBytes)
-            => ParseOrderStatsStock(jsonBytes, out _);
+        {
+            return ParseOrderStatsStock(jsonBytes, out _);
+        }
 
         public static List<SuperCandlesOrderStats5mDTO> ParseOrderStatsStock(
             ReadOnlySpan<byte> jsonBytes,
@@ -954,7 +964,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<Hi2AssetDTO> ParseHi2Stock(ReadOnlySpan<byte> jsonBytes)
-            => ParseHi2Stock(jsonBytes, out _);
+        {
+            return ParseHi2Stock(jsonBytes, out _);
+        }
 
         public static List<Hi2AssetDTO> ParseHi2Stock(
             ReadOnlySpan<byte> jsonBytes,
@@ -1061,7 +1073,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<Hi2FuturesDTO> ParseHi2Futures(ReadOnlySpan<byte> jsonBytes)
-            => ParseHi2Futures(jsonBytes, out _);
+        {
+            return ParseHi2Futures(jsonBytes, out _);
+        }
 
         public static List<Hi2FuturesDTO> ParseHi2Futures(
             ReadOnlySpan<byte> jsonBytes,
@@ -1171,7 +1185,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<MegaAlertsAssetsDTO> ParseMegaAlertsStock(ReadOnlySpan<byte> jsonBytes)
-            => ParseMegaAlertsStock(jsonBytes, out _);
+        {
+            return ParseMegaAlertsStock(jsonBytes, out _);
+        }
 
         public static List<MegaAlertsAssetsDTO> ParseMegaAlertsStock(
             ReadOnlySpan<byte> jsonBytes,
@@ -1280,7 +1296,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(ReadOnlySpan<byte> jsonBytes)
-            => ParseMegaAlertsFutures(jsonBytes, out _);
+        {
+            return ParseMegaAlertsFutures(jsonBytes, out _);
+        }
 
         public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(
             ReadOnlySpan<byte> jsonBytes,
