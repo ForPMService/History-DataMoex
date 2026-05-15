@@ -56,8 +56,8 @@ namespace History_DataMoex.Endpoints
 
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
-                    ["from"] = "2026-05-03",
-                    ["till"] = "2026-05-08"
+                    ["from"] = "2026-04-30",
+                    ["till"] = "2026-05-05"
                 };
 
                 return StreamFutoiItems(moexHttpAlgClient, url, queryParams, ct);
@@ -72,7 +72,7 @@ namespace History_DataMoex.Endpoints
 
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
-                    ["from"] = "2026-05-03",
+                    ["from"] = "2026-01-03",
                     ["till"] = "2026-05-03"
                 };
 
@@ -169,7 +169,7 @@ namespace History_DataMoex.Endpoints
                 MoexHttpAlgClient moexHttpAlgClient,
                 CancellationToken ct) =>
             {
-                string url = "/engines/stock/markets/shares/boards/tqbr/securities/SMLT/candles.json";
+                string url = "/engines/stock/markets/shares/boards/tqbr/securities/SBER/candles.json";
                 Dictionary<string, string> queryParams = new Dictionary<string, string>
                 {
                     ["interval"] = "1",
@@ -193,7 +193,7 @@ namespace History_DataMoex.Endpoints
                Dictionary<string, string> queryParams = new Dictionary<string, string>
                {
                    ["interval"] = "1",
-                   ["from"] = "2026-01-28",
+                   ["from"] = "2025-01-28",
                    ["till"] = "2026-05-05"
                };
 

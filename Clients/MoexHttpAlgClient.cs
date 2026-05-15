@@ -399,7 +399,7 @@ namespace History_DataMoex.Clients
                 if (page.Count >= 1000)
                 {
                     queryStart += 1000;
-                    queryParams["start"] = queryStart.ToString();
+                    queryParams["offset"] = queryStart.ToString();
                 }
                 else
                 {

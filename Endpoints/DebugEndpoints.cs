@@ -212,7 +212,15 @@ namespace History_DataMoex.Endpoints
 
                 return Results.Bytes(stream.ToArray(), "application/json");
             });
-
+            routes.MapGet("/debug/futoi-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string raw = await algClient.GetRaw(
+                    "/analyticalproducts/futoi/securities/Si.json?from=2026-05-05&till=2026-05-08",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
             return routes;
         }
 
