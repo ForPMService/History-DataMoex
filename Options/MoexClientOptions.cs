@@ -13,6 +13,13 @@ namespace History_DataMoex.Options
         public string UserAgent { get; set; } = "HistoryDataMoex/0.1";
         public int MaxConnectionsPerServer { get; set; } = 32;
 
+        /// <summary>
+        /// Максимальное количество страниц за одну загрузку.
+        /// Защита от бесконечного цикла при сбое cursor.
+        /// По умолчанию 10000 — достаточно для любого реального диапазона.
+        /// </summary>
+        public int MaxPagesPerLoad { get; set; } = 10000;
+
 
 
     }

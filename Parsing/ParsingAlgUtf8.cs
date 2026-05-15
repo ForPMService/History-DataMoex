@@ -1,4 +1,5 @@
-﻿using History_DataMoex.Contracts.Dto.Algopack;
+﻿using History_DataMoex.Contracts.Dto;
+using History_DataMoex.Contracts.Dto.Algopack;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing
@@ -128,6 +129,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesTradeStats5mDTO> ParseTradeStatsStock(ReadOnlySpan<byte> jsonBytes)
+            => ParseTradeStatsStock(jsonBytes, out _);
+
+        public static List<SuperCandlesTradeStats5mDTO> ParseTradeStatsStock(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.AlgCandlesTradeStatSchema;
             var list = new List<SuperCandlesTradeStats5mDTO>();
@@ -167,6 +173,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -268,6 +291,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesFuturesTradeStats5mDTO> ParseTradeStatsFutures(ReadOnlySpan<byte> jsonBytes)
+            => ParseTradeStatsFutures(jsonBytes, out _);
+
+        public static List<SuperCandlesFuturesTradeStats5mDTO> ParseTradeStatsFutures(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.FuturesTradeStatsSchema;
             var list = new List<SuperCandlesFuturesTradeStats5mDTO>();
@@ -307,6 +335,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -420,6 +465,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesOrderBookStats5mDTO> ParseOBStatsStock(ReadOnlySpan<byte> jsonBytes)
+            => ParseOBStatsStock(jsonBytes, out _);
+
+        public static List<SuperCandlesOrderBookStats5mDTO> ParseOBStatsStock(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.AlgOrderBookStats5mSchema;
             var list = new List<SuperCandlesOrderBookStats5mDTO>();
@@ -459,6 +509,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -544,6 +611,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseOBStatsFutures(ReadOnlySpan<byte> jsonBytes)
+            => ParseOBStatsFutures(jsonBytes, out _);
+
+        public static List<SuperCandlesFuturesOrderBookStats5mDTO> ParseOBStatsFutures(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.AlgFuturesOrderBookSchema;
             var list = new List<SuperCandlesFuturesOrderBookStats5mDTO>();
@@ -583,6 +655,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -700,6 +789,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<SuperCandlesOrderStats5mDTO> ParseOrderStatsStock(ReadOnlySpan<byte> jsonBytes)
+            => ParseOrderStatsStock(jsonBytes, out _);
+
+        public static List<SuperCandlesOrderStats5mDTO> ParseOrderStatsStock(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.AlgOrderStats5mSchema;
             var list = new List<SuperCandlesOrderStats5mDTO>();
@@ -739,6 +833,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -843,6 +954,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<Hi2AssetDTO> ParseHi2Stock(ReadOnlySpan<byte> jsonBytes)
+            => ParseHi2Stock(jsonBytes, out _);
+
+        public static List<Hi2AssetDTO> ParseHi2Stock(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.Hi2AssetSchema;
             var list = new List<Hi2AssetDTO>();
@@ -877,6 +993,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -928,6 +1061,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<Hi2FuturesDTO> ParseHi2Futures(ReadOnlySpan<byte> jsonBytes)
+            => ParseHi2Futures(jsonBytes, out _);
+
+        public static List<Hi2FuturesDTO> ParseHi2Futures(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.Hi2FuturesSchema;
             var list = new List<Hi2FuturesDTO>();
@@ -962,6 +1100,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -1016,6 +1171,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<MegaAlertsAssetsDTO> ParseMegaAlertsStock(ReadOnlySpan<byte> jsonBytes)
+            => ParseMegaAlertsStock(jsonBytes, out _);
+
+        public static List<MegaAlertsAssetsDTO> ParseMegaAlertsStock(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.MegaAlertsAssetSchema;
             var list = new List<MegaAlertsAssetsDTO>();
@@ -1050,6 +1210,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
@@ -1103,6 +1280,11 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(ReadOnlySpan<byte> jsonBytes)
+            => ParseMegaAlertsFutures(jsonBytes, out _);
+
+        public static List<MegaAlertsFuturesDTO> ParseMegaAlertsFutures(
+            ReadOnlySpan<byte> jsonBytes,
+            out PaginationCursorDTO cursor)
         {
             var schema = ColumnAndNumbersForParsing.MegaAlertsFuturesSchema;
             var list = new List<MegaAlertsFuturesDTO>();
@@ -1137,6 +1319,23 @@ namespace History_DataMoex.Parsing
             }
 
             ParseHelpersUtf8.ValidateStructure(foundColumns, foundData, schema.RootKey);
+
+            // ── Phase 3: cursor ──
+            cursor = new PaginationCursorDTO();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    continue;
+                if (reader.ValueTextEquals("data.cursor"u8))
+                {
+                    cursor = ParseHelpersUtf8.ReadCursorRootObject(ref reader, "data.cursor");
+                    break;
+                }
+                reader.Skip();
+            }
+
             return list;
         }
 
