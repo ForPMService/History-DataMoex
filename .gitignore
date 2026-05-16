@@ -1,16 +1,25 @@
-# Ignore build outputs
+# Build
 bin/
 obj/
 
-# IDE directories
+# IDE
 .vs/
 .idea/
-
-# User and OS files
 *.user
 *.suo
-.DS_Store
 
-# Local appsettings and secrets
-appsettings.*.local.json
+# OS
+.DS_Store
+Thumbs.db
+
+# Секреты
+Клю.txt
 secrets/
+docs/
+appsettings.*.local.json
+
+# Локальные файлы (не код)
+*.docx
+*.xlsx
+*.ps1
+theory-reference.md
