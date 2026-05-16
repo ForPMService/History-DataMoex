@@ -1,4 +1,5 @@
 ﻿using History_DataMoex.Contracts.Dto.Iss;
+using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ namespace History_DataMoex.Clients
             string requestUrl = _options.BaseUrl + method;
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             var response = await _httpClient.SendAsync(request, cancellationToken);
+
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
 
@@ -37,8 +39,12 @@ namespace History_DataMoex.Clients
             
             using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingIssUtf8.ParseIssSecurityStock(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
         }
 
         public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(
@@ -52,8 +58,12 @@ namespace History_DataMoex.Clients
 
             using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingIssUtf8.ParseIssSecurityFutures(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
 
         }
 
