@@ -1,6 +1,7 @@
 ﻿using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Contracts.Pagination;
+using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -60,8 +61,12 @@ namespace History_DataMoex.Clients
 
 
                 //List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-                List<CandlesDTO> candlesList = ParsingAlgUtf8.ParseAlgCandles(bytes);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
+                List<CandlesDTO> candlesList = ParsingAlgUtf8.ParseAlgCandles(rentedArr.Span);
                 yield return candlesList;
                 if (candlesList.Count>=500)
                 {
@@ -96,9 +101,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(bytes, out PaginationCursorDTO cursor);
+                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return hi2Assets;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -127,9 +136,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(bytes, out PaginationCursorDTO cursor);
+                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return hi2Futures;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -154,9 +167,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(metod, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(bytes, out PaginationCursorDTO cursor);
+                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return megaAlerts;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -180,9 +197,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(bytes, out PaginationCursorDTO cursor);
+                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return megaAlertsFutures;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -207,9 +228,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(bytes, out PaginationCursorDTO cursor);
+                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return tradeStats;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -235,9 +260,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(bytes, out PaginationCursorDTO cursor);
+                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return orderBookStats;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -263,9 +292,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(bytes, out PaginationCursorDTO cursor);
+                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return orderStats;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -290,9 +323,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsFutures(bytes, out PaginationCursorDTO cursor);
+                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return orderBookStats;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -344,9 +381,13 @@ namespace History_DataMoex.Clients
                 queryParams["till"] = date.ToString("yyyy-MM-dd");
 
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(bytes);
+                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(rentedArr.Span);
 
                 if (page.Count > 0)
                 {
@@ -368,9 +409,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsFutures(bytes, out PaginationCursorDTO cursor);
+                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
                 yield return tradeStats;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);

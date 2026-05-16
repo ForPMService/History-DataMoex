@@ -1,6 +1,7 @@
 ﻿using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Pagination;
+using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
@@ -25,24 +26,36 @@ namespace History_DataMoex.Clients
             CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysAll(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingCalendarUtf8.ParseOffDaysAll(rentedArr.Span);
         }
 
         public async Task<List<CalendarOffDaysMarketDTO>> GetStockOffDays(
             CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/stock.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysMarket(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
         }
 
         public async Task<List<CalendarOffDaysMarketDTO>> GetFuturesOffDays(
             CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/futures.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysMarket(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
         }
 
         // ── Сессии ────────────────────────────────────────────
@@ -51,16 +64,24 @@ namespace History_DataMoex.Clients
             GetStockSessionWithTypes(CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/stock/session.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseStockSession(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingCalendarUtf8.ParseStockSession(rentedArr.Span);
         }
 
         public async Task<(List<CalendarFuturesSessionDTO> Sessions, List<CalendarSessionTypeDTO> Types)>
             GetFuturesSessionWithTypes(CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/futures/session.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseFuturesSession(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            return ParsingCalendarUtf8.ParseFuturesSession(rentedArr.Span);
         }
 
         // ── B9.5: закомментированы — заменены на GetStockSessionWithTypes/GetFuturesSessionWithTypes/GetFuturesSecuritiesAll ──
@@ -108,8 +129,13 @@ namespace History_DataMoex.Clients
             GetFuturesSecuritiesAll(CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/futures/securities.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            return ParsingCalendarUtf8.ParseFuturesSecurities(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            
+            return ParsingCalendarUtf8.ParseFuturesSecurities(rentedArr.Span);
         }
 
         /*
@@ -138,8 +164,12 @@ namespace History_DataMoex.Clients
             CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/stock/securities/suspended/details.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            var (_, reasons, _) = ParsingCalendarUtf8.ParseSuspendedWithReasons(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            var (_, reasons, _) = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
             return reasons;
         }
 
@@ -153,9 +183,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync("/calendars/stock/securities/suspended/details.json", queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                var (page, _, cursor) = ParsingCalendarUtf8.ParseSuspendedWithReasons(bytes);
+                var (page, _, cursor) = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
                 yield return page;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
@@ -173,8 +207,12 @@ namespace History_DataMoex.Clients
             CancellationToken cancellationToken = default)
         {
             using var response = await SendRequestAsync("/calendars/stock/securities/changes.json", cancellationToken: cancellationToken);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            var (_, attributes, _) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(bytes);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
+            var (_, attributes, _) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
             return attributes;
         }
 
@@ -188,9 +226,13 @@ namespace History_DataMoex.Clients
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var response = await SendRequestAsync("/calendars/stock/securities/changes.json", queryParams, cancellationToken);
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
 
-                var (page, _, cursor) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(bytes);
+                var (page, _, cursor) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
                 yield return page;
                 pagesElapsed++;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
