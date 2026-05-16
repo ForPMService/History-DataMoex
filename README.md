@@ -4,53 +4,92 @@
 
 History-DataMoex — .NET 10 модуль для получения исторических рыночных данных из MOEX ISS, MOEX ALGOPACK и MOEX Calendar.
 
-Сейчас модуль умеет запрашивать данные у MOEX, разбирать ответы и возвращать структурированные объекты. Это ещё не витрина данных — хранения и фоновой загрузки пока нет.
+Модуль запрашивает данные у MOEX, парсит ответы и возвращает структурированные объекты. Это исследовательский модуль для фиксации source contract MOEX — не витрина данных. Хранения и фоновой загрузки нет. Целевой контур витрины — ProjectTraiding.
 
-## Что уже работает
+## Что работает
 
-- Справочные данные MOEX ISS (акции, фьючерсы)
+### Данные
+
+- Справочные данные MOEX ISS (акции TQBR, фьючерсы RFUD)
 - Свечи MOEX ALGOPACK (минутные, акции и фьючерсы)
-- Расширенная статистика MOEX ALGOPACK (TradeStats, OBStats, OrderStats для акций и фьючерсов)
+- Расширенная статистика MOEX ALGOPACK (TradeStats, OBStats, OrderStats — акции и фьючерсы)
 - FUTOI (открытый интерес по фьючерсам в разрезе групп клиентов)
-- HI2 (индекс концентрации рынка для акций и фьючерсов)
+- HI2 (индекс концентрации рынка, акции и фьючерсы)
 - Mega Alerts (акции и фьючерсы)
 - Календарь MOEX (выходные, сессии, контракты FORTS, опционные серии, приостановки, изменения инструментов)
-- Все парсеры работают через Utf8JsonReader без аллокаций (старые JsonDocument-парсеры закомментированы, сохранены для аудита)
-- JSON-сериализация через генератор кода `AppJsonContext`
-- Настройки для компиляции в Native AOT
 
-## Что подготовлено, но ещё не подключено
+### Парсинг
 
-Архитектурный каркас — интерфейсы, модели и черновые SQL-файлы без реализации:
+Все 22 парсера работают через `Utf8JsonReader` без аллокаций (`ParsingAlgUtf8`, `ParsingIssUtf8`, `ParsingCalendarUtf8`). Каждый парсер принимает `ReadOnlySpan<byte>` и использует `ExpectedSchema` для валидации `columns[]` — при несовпадении имени или количества колонок бросается `MoexSchemaMismatchException`. Старые `JsonDocument`-парсеры закомментированы с тегом `HISTORICAL` и из живого кода не вызываются.
 
-- `Contracts/Ingestion` — модели задач загрузки, сырых объектов, инструментов, потребностей в данных, источников
-- `Normalization/Models` — внутренние модели витрины (Candle1m, TradeStats5m, ObStats5m, OrderStats5m, Futoi, Hi2, Alert, TradingCalendarEntry)
-- `Normalization/Mappers` — интерфейс преобразования DTO MOEX во внутренние модели
-- `Ingestion/Pipeline` — интерфейсы загрузки (IHistoricalLoadJob, ILoadJobRunner, IRawJsonStore, IInstrumentLookup)
-- `Storage/Abstractions` — 11 интерфейсов для работы с базами данных (репозитории справочников + записи временных рядов)
-- `Storage/Sql/postgres/_drafts` — 9 черновых SQL-файлов для PostgreSQL
-- `Storage/Sql/clickhouse/_drafts` — 7 черновых SQL-файлов для ClickHouse с колонкой `row_hash`
-- `Queue/Abstractions` — 4 интерфейса очереди задач для будущего подключения Redis Streams
-- `Queue/Models` — 3 модели сообщений очереди
-- `Parsing/ColumnIndex/MoexColumnIndexResolver` — подготовлен для перевода парсеров на безопасный разбор колонок
+### Streaming
+
+Все endpoint'ы возвращают `IAsyncEnumerable<DTO>`. ASP.NET сериализует поэлементно через `AppJsonContext` (source-generated). Клиент получает первые байты (TTFB) за 30–500 мс вне зависимости от объёма данных. Working set стабилен на протяжении всего прогона.
+
+### ArrayPool
+
+HTTP body читается через `RentedBuffer` — `IDisposable`-обёртка над `ArrayPool<byte>.Shared`. Это убирает LOH-аллокации на больших ответах. Результат замеров (прогон #5 vs #4): LOH с 5.4 МБ до 64 байт, gen2 collections -72%, total_allocated -24%, ускорение endpoint'ов со страницами >85 КБ на 10–49%.
+
+### Пагинация
+
+Три стратегии пагинации MOEX:
+
+- **Cursor** (`data.cursor`, `suspended.cursor`, `securities.cursor`) — единый helper `MoexCursorPagination.Next` с тремя причинами остановки: `empty_cursor`, `range_exhausted`, `safety_cap_hit`. Защита от бесконечного цикла через `MaxPagesPerLoad = 10000`.
+- **FixedPage500** — свечи ISS (страница 500 строк).
+- **Без пагинации** — FUTOI (лимит 1000 строк, `start`/`offset` игнорируются MOEX). Решение: подневная разбивка диапазона в `StreamFutoi`.
+
+### HTTP-инфраструктура
+
+- `SocketsHttpHandler` (decompression, connection pooling, `MaxConnectionsPerServer = 32`)
+- `StandardResilienceHandler` через Polly (TotalRequestTimeout = 10 мин, AttemptTimeout = 2 мин, CircuitBreaker = 5 мин)
+- `HttpCompletionOption.ResponseHeadersRead` во всех клиентах
+- `CancellationToken` во всех клиентах и endpoint'ах
+- JSON-сериализация через source-generated `AppJsonContext`
+- Настройки для Native AOT (`PublishAot`, `JsonSerializerIsReflectionEnabledByDefault = false`)
+
+## Что подготовлено, но не реализовано
+
+Архитектурный каркас — интерфейсы, модели и черновые SQL-файлы:
+
+- `Normalization/Models` — внутренние модели витрины (Candle1m, TradeStats5m и др.)
+- `Normalization/Mappers` — интерфейс преобразования DTO во внутренние модели
+- `Ingestion/Pipeline` — интерфейсы загрузки
+- `Storage/Abstractions` — интерфейсы для PostgreSQL и ClickHouse
+- `Storage/Sql/postgres/_drafts` — черновые SQL для PostgreSQL
+- `Storage/Sql/clickhouse/_drafts` — черновые SQL для ClickHouse
+- `Queue/Abstractions` — интерфейсы очереди для Redis Streams
+- `Contracts/Ingestion` — модели задач загрузки
+
+## Что не закрыто
+
+- Typed errors (классификация 429/401/5xx, `MoexHttpException` не бросается клиентами)
+- Структурированное логирование (нет `ILogger` в клиентах)
+- Маппер DTO → canonical model (реализация)
+- Raw object store (реализация)
+- Документы source contract (E1–E7)
+- Запись в PostgreSQL / ClickHouse
+- Фоновая загрузка данных
+- API витрины `/api/v1`
 
 ## Ручки
 
 - `Endpoints/ReferenceEndpoints.cs` — справочники инструментов (акции, фьючерсы)
 - `Endpoints/AlgopackEndpoints.cs` — свечи, расширенная статистика, FUTOI, HI2, Mega Alerts
 - `Endpoints/CalendarEndpoints.cs` — календарь MOEX
+- `Endpoints/DebugEndpoints.cs` — отладка columns-map и FUTOI raw
 
-Эти ручки при каждом вызове идут в MOEX напрямую и возвращают DTO MOEX. Это не готовый API витрины — он появится позже, когда заработают хранение и фоновая загрузка.
+Все ручки идут в MOEX напрямую при каждом вызове и возвращают DTO MOEX. Это не готовый API витрины.
 
-## Что ещё не сделано
+## Замеры производительности
 
-- Запись данных в PostgreSQL
-- Запись временных рядов в ClickHouse
-- Очередь задач через Redis Streams
-- Хранение сырых ответов в MinIO
-- Фоновая загрузка данных
-- API витрины `/api/v1`
-- Повторные попытки и ограничение частоты запросов к MOEX
+5 прогонов 08–16.05.2026 зафиксированы в `performance-summary-all-runs.md`. Ключевые результаты последнего прогона (#5):
+
+- 99% времени тяжёлых endpoint'ов — сетевой round-trip к MOEX
+- TTFB 30–500 мс на любом объёме
+- LOH: 64 байта (было 5.4 МБ)
+- gen2 collections: 62 (было 225)
+- Total allocated: 2.97 ГБ (было 3.9 ГБ)
+- Working set: стабильный ~130–175 МБ
 
 ## Как запустить
 
@@ -65,27 +104,21 @@ dotnet run --project ".\History DataMoex.csproj"
 
 - `MoexIss:BaseUrl` — задаётся в `appsettings.json`
 - `MoexAlg:BaseUrl` — задаётся в `appsettings.json`
-- `MoexAlg:Key` — передавать через user-secrets или переменные окружения; не коммитить настоящие ключи
+- `MoexAlg:Key` — через user-secrets или переменные окружения; не коммитить
 
 ### Ключ MOEX ALGOPACK
-
-Реальный `MoexAlg:Key` нельзя хранить в `appsettings.json` и коммитить в Git.
-
-Для локальной разработки используй user-secrets:
 
 ```powershell
 dotnet user-secrets set "MoexAlg:Key" "YOUR_MOEX_ALGOPACK_KEY"
 ```
 
-Или переменную окружения:
+Или переменная окружения:
 
 ```powershell
 $env:MoexAlg__Key="YOUR_MOEX_ALGOPACK_KEY"
 ```
 
-Справочные ISS-ручки могут работать без `MoexAlg:Key`.
-
-ALGOPACK-ручки и календарные ручки используют `MoexAlg:Key`. Если ключ не задан, при вызове этих ручек будет явная ошибка конфигурации.
+Справочные ISS-ручки работают без ключа. ALGOPACK и Calendar ручки требуют ключ.
 
 ## Архитектурное решение
 
