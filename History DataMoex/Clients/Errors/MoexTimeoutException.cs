@@ -13,11 +13,12 @@ public sealed class MoexTimeoutException : MoexHttpException
     /// <summary>
     /// Инициализирует новый экземпляр для ошибки таймаута.
     /// </summary>
+    /// <param name="message">Описание ошибки (например, «request timeout» vs «attempt timeout»).</param>
     /// <param name="endpoint">Адрес эндпоинта, превысившего таймаут.</param>
-    /// <param name="timeout">Настроенное время ожидания запроса.</param>
+    /// <param name="timeout">Настроенное время ожидания запроса (null если неизвестно).</param>
     /// <param name="inner">Исходное исключение таймаута (например, <see cref="TaskCanceledException"/>).</param>
-    public MoexTimeoutException(string endpoint, TimeSpan? timeout = null, Exception? inner = null)
-        : base($"MOEX request timed out for {endpoint}", inner)
+    public MoexTimeoutException(string message, string endpoint, TimeSpan? timeout = null, Exception? inner = null)
+        : base(message, inner)
     {
         Endpoint = endpoint;
         IsRetryable = true;

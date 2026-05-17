@@ -1,10 +1,12 @@
-﻿using History_DataMoex.Contracts.Dto;
+﻿using History_DataMoex.Clients.Errors;
+using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Algopack;
 using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using Polly.Timeout;
 using System.Runtime.CompilerServices;
 
 namespace History_DataMoex.Clients
@@ -442,9 +444,20 @@ namespace History_DataMoex.Clients
             EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.Key}");
-            var response = await _httpClient.SendAsync(request,HttpCompletionOption.ResponseHeadersRead ,cancellationToken);
-            response.EnsureSuccessStatusCode();
-            return response;
+            try
+            {
+                var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                HttpClientHelpers.EnsureSuccessOrThrow(response, method);
+                return response;
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, _options.RequestTimeout, ex);
+            }
+            catch (TimeoutRejectedException ex)
+            {
+                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, null, ex);
+            }
         }
 
 

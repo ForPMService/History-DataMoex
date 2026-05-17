@@ -1,8 +1,10 @@
-﻿using History_DataMoex.Contracts.Dto.Iss;
+﻿using History_DataMoex.Clients.Errors;
+using History_DataMoex.Contracts.Dto.Iss;
 using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using Microsoft.Extensions.Options;
+using Polly.Timeout;
 
 
 namespace History_DataMoex.Clients
@@ -37,14 +39,25 @@ namespace History_DataMoex.Clients
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             
-            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                await response.Content.ReadAsStreamAsync(cancellationToken),
-                contentLength,
-                cancellationToken);
-            return ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
+            try
+            {
+                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                HttpClientHelpers.EnsureSuccessOrThrow(response, method);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
+                return ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, _options.RequestTimeout, ex);
+            }
+            catch (TimeoutRejectedException ex)
+            {
+                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, null, ex);
+            }
         }
 
         public async Task<List<FuturesSecurityDTO>> GetInfoTradedFuturesAssets(
@@ -56,14 +69,25 @@ namespace History_DataMoex.Clients
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                await response.Content.ReadAsStreamAsync(cancellationToken),
-                contentLength,
-                cancellationToken);
-            return ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
+            try
+            {
+                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                HttpClientHelpers.EnsureSuccessOrThrow(response, method);
+                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    contentLength,
+                    cancellationToken);
+                return ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, _options.RequestTimeout, ex);
+            }
+            catch (TimeoutRejectedException ex)
+            {
+                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, null, ex);
+            }
 
         }
 
