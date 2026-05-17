@@ -30,6 +30,9 @@ public static class MoexClientServiceCollectionExtensions
             MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
             return CreateDefaultHandler(options);
         })
+        .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
+        sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
+        MoexLogSources.Iss))
         // ── Timeout budget ──
         // TotalRequestTimeout = 10 мин (весь запрос включая все retry).
         // AttemptTimeout = 2 мин (одна попытка).
@@ -68,6 +71,9 @@ public static class MoexClientServiceCollectionExtensions
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
         })
+        .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
+        sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
+        MoexLogSources.Algopack))
         .AddStandardResilienceHandler(options =>
         {
             options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
@@ -98,6 +104,9 @@ public static class MoexClientServiceCollectionExtensions
             MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
             return CreateDefaultHandler(options);
         })
+        .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
+        sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
+        MoexLogSources.Calendar))
         .AddStandardResilienceHandler(options =>
         {
             options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
