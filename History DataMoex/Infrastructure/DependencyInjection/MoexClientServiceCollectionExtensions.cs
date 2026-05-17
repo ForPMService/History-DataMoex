@@ -35,6 +35,39 @@ public static class MoexClientServiceCollectionExtensions
             options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
             options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
             options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
+
+            // Учитываем Retry-After из ответа сервера при 429 (rate limit).
+            // Если заголовок присутствует — используем его значение вместо
+            // дефолтного exponential backoff, чтобы не бомбардировать MOEX.
+            options.Retry.DelayGenerator = args =>
+            {
+                // Polly ретраит 429 на уровне pipeline ДО нашего classifier.
+                // Берём Retry-After прямо из HttpResponseMessage.
+                if (args.Outcome.Result is HttpResponseMessage
+                    { StatusCode: (HttpStatusCode)429 } resp)
+                {
+                    TimeSpan? delay = null;
+
+                    if (resp.Headers.RetryAfter?.Delta is { } delta)
+                        delay = delta;
+                    else if (resp.Headers.RetryAfter?.Date is { } date)
+                    {
+                        var diff = date - DateTimeOffset.UtcNow;
+                        delay = diff > TimeSpan.Zero ? diff : TimeSpan.FromSeconds(1);
+                    }
+
+                    // Защита: не зависать дольше 2 минут на серверном Retry-After
+                    if (delay is not null)
+                    {
+                        var maxDelay = TimeSpan.FromMinutes(2);
+                        if (delay > maxDelay)
+                            delay = maxDelay;
+                        return ValueTask.FromResult<TimeSpan?>(delay);
+                    }
+                }
+                // Для остальных ошибок — дефолтный exponential backoff Polly
+                return ValueTask.FromResult<TimeSpan?>(null);
+            };
         }); 
 
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
@@ -51,6 +84,39 @@ public static class MoexClientServiceCollectionExtensions
             options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
             options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
             options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
+
+            // Учитываем Retry-After из ответа сервера при 429 (rate limit).
+            // Если заголовок присутствует — используем его значение вместо
+            // дефолтного exponential backoff, чтобы не бомбардировать MOEX.
+            options.Retry.DelayGenerator = args =>
+            {
+                // Polly ретраит 429 на уровне pipeline ДО нашего classifier.
+                // Берём Retry-After прямо из HttpResponseMessage.
+                if (args.Outcome.Result is HttpResponseMessage
+                    { StatusCode: (HttpStatusCode)429 } resp)
+                {
+                    TimeSpan? delay = null;
+
+                    if (resp.Headers.RetryAfter?.Delta is { } delta)
+                        delay = delta;
+                    else if (resp.Headers.RetryAfter?.Date is { } date)
+                    {
+                        var diff = date - DateTimeOffset.UtcNow;
+                        delay = diff > TimeSpan.Zero ? diff : TimeSpan.FromSeconds(1);
+                    }
+
+                    // Защита: не зависать дольше 2 минут на серверном Retry-After
+                    if (delay is not null)
+                    {
+                        var maxDelay = TimeSpan.FromMinutes(2);
+                        if (delay > maxDelay)
+                            delay = maxDelay;
+                        return ValueTask.FromResult<TimeSpan?>(delay);
+                    }
+                }
+                // Для остальных ошибок — дефолтный exponential backoff Polly
+                return ValueTask.FromResult<TimeSpan?>(null);
+            };
         }); 
 
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
@@ -67,6 +133,39 @@ public static class MoexClientServiceCollectionExtensions
             options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
             options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
             options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
+
+            // Учитываем Retry-After из ответа сервера при 429 (rate limit).
+            // Если заголовок присутствует — используем его значение вместо
+            // дефолтного exponential backoff, чтобы не бомбардировать MOEX.
+            options.Retry.DelayGenerator = args =>
+            {
+                // Polly ретраит 429 на уровне pipeline ДО нашего classifier.
+                // Берём Retry-After прямо из HttpResponseMessage.
+                if (args.Outcome.Result is HttpResponseMessage
+                    { StatusCode: (HttpStatusCode)429 } resp)
+                {
+                    TimeSpan? delay = null;
+
+                    if (resp.Headers.RetryAfter?.Delta is { } delta)
+                        delay = delta;
+                    else if (resp.Headers.RetryAfter?.Date is { } date)
+                    {
+                        var diff = date - DateTimeOffset.UtcNow;
+                        delay = diff > TimeSpan.Zero ? diff : TimeSpan.FromSeconds(1);
+                    }
+
+                    // Защита: не зависать дольше 2 минут на серверном Retry-After
+                    if (delay is not null)
+                    {
+                        var maxDelay = TimeSpan.FromMinutes(2);
+                        if (delay > maxDelay)
+                            delay = maxDelay;
+                        return ValueTask.FromResult<TimeSpan?>(delay);
+                    }
+                }
+                // Для остальных ошибок — дефолтный exponential backoff Polly
+                return ValueTask.FromResult<TimeSpan?>(null);
+            };
         }); 
 
         return services;
