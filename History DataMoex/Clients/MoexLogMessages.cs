@@ -19,20 +19,20 @@ namespace History_DataMoex.Clients
         /// <summary>
         /// Логирует получение HTTP-ответа от MOEX на уровне HttpClient handler-а.
         /// </summary>
-        [LoggerMessage(EventId = 102, EventName = "MoexHttpResponseReceived", Level = LogLevel.Information, Message = "MOEX HTTP response received: source={Source}, method={Method}, endpoint={Endpoint}, status={StatusCode}, timeMs={ElapsedMs}, size={ContentLength}.")]
-        public static partial void HttpResponseReceived(ILogger logger, string source, string method, string endpoint, HttpStatusCode statusCode, long elapsedMs, long? contentLength);
+        [LoggerMessage(EventId = 102, EventName = "MoexHttpResponseReceived", Level = LogLevel.Information, Message = "MOEX HTTP response received: source={Source}, method={Method}, endpoint={Endpoint}, status={StatusCode}, time={ElapsedMs}, size={ContentLength}.")]
+        public static partial void HttpResponseReceived(ILogger logger, string source, string method, string endpoint, HttpStatusCode statusCode, TimeSpan elapsedMs, long? contentLength);
 
         /// <summary>
         /// Логирует повторную попытку запроса, которую выполняет Polly retry policy.
         /// </summary>
-        [LoggerMessage(EventId = 110, EventName = "MoexRetryAttempt", Level = LogLevel.Warning, Message = "MOEX request will be retried: source={Source}, endpoint={Endpoint}, attempt={AttemptNumber}/{MaxAttempts}, error={ErrorType}, waitMs={DelayMs}, status={StatusCode}.")]
-        public static partial void RetryAttempt(ILogger logger, string source, string endpoint, int attemptNumber, int maxAttempts, string errorType, long? delayMs, int? statusCode);
+        [LoggerMessage(EventId = 110, EventName = "MoexRetryAttempt", Level = LogLevel.Warning, Message = "MOEX request will be retried: source={Source}, endpoint={Endpoint}, attempt={AttemptNumber}/{MaxAttempts}, error={ErrorType}, wait={Delay}, status={StatusCode}.")]
+        public static partial void RetryAttempt(ILogger logger, string source, string endpoint, int attemptNumber, int maxAttempts, string errorType, TimeSpan? delay, HttpStatusCode? statusCode);
 
         /// <summary>
         /// Логирует успешно полученную и распарсенную страницу данных.
         /// </summary>
-        [LoggerMessage(EventId = 120, EventName = "MoexPageReceived", Level = LogLevel.Information, Message = "MOEX data page received: endpoint={Endpoint}, page={PageNumber}, rows={Rows}, timeMs={ElapsedMs}.")]
-        public static partial void PageReceived(ILogger logger, string endpoint, int pageNumber, int rows, long elapsedMs);
+        [LoggerMessage(EventId = 120, EventName = "MoexPageReceived", Level = LogLevel.Information, Message = "MOEX data page received: endpoint={Endpoint}, page={PageNumber}, rows={Rows}, time={ElapsedMs}.")]
+        public static partial void PageReceived(ILogger logger, string endpoint, int pageNumber, int rows, TimeSpan elapsedMs);
 
         /// <summary>
         /// Логирует остановку cursor-пагинации с итоговым количеством страниц и строк.
@@ -49,8 +49,8 @@ namespace History_DataMoex.Clients
         /// <summary>
         /// Логирует успешно полученную страницу в сценарии подневной разбивки, например для FUTOI.
         /// </summary>
-        [LoggerMessage(EventId = 123, EventName = "MoexDaySplitPageReceived", Level = LogLevel.Information, Message = "MOEX daily data received: endpoint={Endpoint}, date={Date}, rows={Rows}, timeMs={ElapsedMs}.")]
-        public static partial void DaySplitPageReceived(ILogger logger, string endpoint, string date, int rows, long elapsedMs);
+        [LoggerMessage(EventId = 123, EventName = "MoexDaySplitPageReceived", Level = LogLevel.Information, Message = "MOEX daily data received: endpoint={Endpoint}, date={Date}, rows={Rows}, time={ElapsedMs}.")]
+        public static partial void DaySplitPageReceived(ILogger logger, string endpoint, string date, int rows, TimeSpan elapsedMs);
 
         /// <summary>
         /// Логирует завершение сценария подневной разбивки по диапазону дат.
@@ -61,8 +61,8 @@ namespace History_DataMoex.Clients
         /// <summary>
         /// Логирует успешно полученный и распарсенный одностраничный ответ.
         /// </summary>
-        [LoggerMessage(EventId = 125, EventName = "MoexSinglePageReceived", Level = LogLevel.Information, Message = "MOEX single page processed: endpoint={Endpoint}, rows={Rows}, timeMs={ElapsedMs}.")]
-        public static partial void SinglePageReceived(ILogger logger, string endpoint, int rows, long elapsedMs);
+        [LoggerMessage(EventId = 125, EventName = "MoexSinglePageReceived", Level = LogLevel.Information, Message = "MOEX single page processed: endpoint={Endpoint}, rows={Rows}, time={ElapsedMs}.")]
+        public static partial void SinglePageReceived(ILogger logger, string endpoint, int rows, TimeSpan elapsedMs);
 
         /// <summary>
         /// Логирует типизированную ошибку HTTP/source уровня после классификации ответа MOEX.

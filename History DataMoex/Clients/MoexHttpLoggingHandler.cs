@@ -16,10 +16,10 @@ namespace History_DataMoex.Clients
         {
             string endpoint = request.RequestUri?.ToString() ?? "unknown";
             MoexLogMessages.HttpRequestSent(_logger, _source, request.Method.Method, endpoint);
-            Stopwatch sw = Stopwatch.StartNew();
+            long timeStart = Stopwatch.GetTimestamp();
             HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
-            sw.Stop();
-            MoexLogMessages.HttpResponseReceived(_logger, _source, request.Method.Method, endpoint, response.StatusCode, sw.ElapsedMilliseconds, response.Content.Headers.ContentLength);
+            TimeSpan elapsedMs = Stopwatch.GetElapsedTime(timeStart);
+            MoexLogMessages.HttpResponseReceived(_logger, _source, request.Method.Method, endpoint, response.StatusCode, elapsedMs, response.Content.Headers.ContentLength);
             return response;
         }
 
