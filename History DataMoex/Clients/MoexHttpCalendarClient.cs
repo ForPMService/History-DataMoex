@@ -5,8 +5,12 @@ using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
+using History_DataMoex.Parsing.Errors;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
+using System.Diagnostics;
+using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace History_DataMoex.Clients
@@ -15,11 +19,13 @@ namespace History_DataMoex.Clients
     {
         private readonly MoexAlgOptions _options;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<MoexHttpCalendarClient> _logger;
 
-        public MoexHttpCalendarClient(IOptions<MoexAlgOptions> options, HttpClient httpClient)
+        public MoexHttpCalendarClient(IOptions<MoexAlgOptions> options, HttpClient httpClient, ILogger<MoexHttpCalendarClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         // ── Выходные дни ────────────────────────────────────────────
@@ -27,37 +33,73 @@ namespace History_DataMoex.Clients
         public async Task<List<CalendarOffDaysAllDTO>> GetOffDaysAll(
             CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysAll(rentedArr.Span);
+            try
+            {
+                List<CalendarOffDaysAllDTO> result = ParsingCalendarUtf8.ParseOffDaysAll(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         public async Task<List<CalendarOffDaysMarketDTO>> GetStockOffDays(
             CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/stock.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/stock.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
+            try
+            {
+                List<CalendarOffDaysMarketDTO> result = ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         public async Task<List<CalendarOffDaysMarketDTO>> GetFuturesOffDays(
             CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/futures.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/futures.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            return ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
+            try
+            {
+                List<CalendarOffDaysMarketDTO> result = ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         // ── Сессии ────────────────────────────────────────────
@@ -65,25 +107,49 @@ namespace History_DataMoex.Clients
         public async Task<(List<CalendarStockSessionDTO> Sessions, List<CalendarSessionTypeDTO> Types)>
             GetStockSessionWithTypes(CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/stock/session.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/stock/session.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            return ParsingCalendarUtf8.ParseStockSession(rentedArr.Span);
+            try
+            {
+                var result = ParsingCalendarUtf8.ParseStockSession(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Sessions.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         public async Task<(List<CalendarFuturesSessionDTO> Sessions, List<CalendarSessionTypeDTO> Types)>
             GetFuturesSessionWithTypes(CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/futures/session.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/futures/session.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            return ParsingCalendarUtf8.ParseFuturesSession(rentedArr.Span);
+            try
+            {
+                var result = ParsingCalendarUtf8.ParseFuturesSession(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Sessions.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         // ── B9.5: закомментированы — заменены на GetStockSessionWithTypes/GetFuturesSessionWithTypes/GetFuturesSecuritiesAll ──
@@ -130,14 +196,25 @@ namespace History_DataMoex.Clients
         public async Task<(List<CalendarFortsContractDTO> Forts, List<CalendarOptionsSeriesDTO> Options)>
             GetFuturesSecuritiesAll(CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/futures/securities.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/futures/securities.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            
-            return ParsingCalendarUtf8.ParseFuturesSecurities(rentedArr.Span);
+            try
+            {
+                var result = ParsingCalendarUtf8.ParseFuturesSecurities(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, result.Forts.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         /*
@@ -165,38 +242,67 @@ namespace History_DataMoex.Clients
         public async Task<List<CalendarSuspendedReasonDTO>> GetSuspendedReasons(
             CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/stock/securities/suspended/details.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/stock/securities/suspended/details.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            var (_, reasons, _) = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
-            return reasons;
+            try
+            {
+                var (_, reasons, _) = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, reasons.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return reasons;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         public async IAsyncEnumerable<List<CalendarSuspendedDTO>> GetSuspended(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            const string endpoint = "/calendars/stock/securities/suspended/details.json";
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                using var response = await SendRequestAsync("/calendars/stock/securities/suspended/details.json", queryParams, cancellationToken);
+                long pageStart = Stopwatch.GetTimestamp();
+                using var response = await SendRequestAsync(endpoint, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
                     cancellationToken);
 
-                var (page, _, cursor) = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
-                yield return page;
+                List<CalendarSuspendedDTO> page;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    var parsed = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
+                    page = parsed.Item1;
+                    cursor = parsed.Item3;
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += page.Count;
+                MoexLogMessages.PageReceived(_logger, endpoint, pagesElapsed, page.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return page;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, endpoint, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
@@ -208,38 +314,67 @@ namespace History_DataMoex.Clients
         public async Task<List<CalendarSecurityAttributeDTO>> GetSecurityAttributes(
             CancellationToken cancellationToken = default)
         {
-            using var response = await SendRequestAsync("/calendars/stock/securities/changes.json", cancellationToken: cancellationToken);
+            const string endpoint = "/calendars/stock/securities/changes.json";
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(endpoint, cancellationToken: cancellationToken);
             int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
                 cancellationToken);
-            var (_, attributes, _) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
-            return attributes;
+            try
+            {
+                var (_, attributes, _) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, endpoint, attributes.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return attributes;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
         }
 
         public async IAsyncEnumerable<List<CalendarSecurityChangeDTO>> GetSecurityChanges(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            const string endpoint = "/calendars/stock/securities/changes.json";
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                using var response = await SendRequestAsync("/calendars/stock/securities/changes.json", queryParams, cancellationToken);
+                long pageStart = Stopwatch.GetTimestamp();
+                using var response = await SendRequestAsync(endpoint, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
                     cancellationToken);
 
-                var (page, _, cursor) = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
-                yield return page;
+                List<CalendarSecurityChangeDTO> page;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    var parsed = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
+                    page = parsed.Item1;
+                    cursor = parsed.Item3;
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += page.Count;
+                MoexLogMessages.PageReceived(_logger, endpoint, pagesElapsed, page.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return page;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, endpoint, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
@@ -271,11 +406,20 @@ namespace History_DataMoex.Clients
             }
             catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Calendar, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
             }
             catch (TimeoutRejectedException ex)
             {
-                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Calendar, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
+            }
+            catch (MoexHttpException ex)
+            {
+                MoexLogMessages.RequestFailed(_logger, ex, MoexLogSources.Calendar, method, ex.ErrorCategory, (HttpStatusCode?)ex.StatusCode, null, ex.Message);
+                throw;
             }
         }
 

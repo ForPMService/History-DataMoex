@@ -16,16 +16,22 @@ namespace History_DataMoex.Endpoints
         {
             routes.MapGet("/GetStockMarkets", async (
                 MoexHttpIssClient moexHttpIssClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) => {
                 string url = "/engines/stock/markets/shares/boards/tqbr/securities.json";
+                var logger = loggerFactory.CreateLogger("ReferenceEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetStockMarkets", MoexLogSources.Iss, url, string.Empty);
                 List<StockSecurityDTO> response = await moexHttpIssClient.GetInfoTradedStockAssets(url, ct);
                 return Results.Json(response, AppJsonContext.Default.ListStockSecurityDTO);
             });
 
             routes.MapGet("/GetFuturesMarkets", async (
                 MoexHttpIssClient moexHttpIssClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) => {
                 string url = "/engines/futures/markets/forts/boards/RFUD/securities.json";
+                var logger = loggerFactory.CreateLogger("ReferenceEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetFuturesMarkets", MoexLogSources.Iss, url, string.Empty);
                 List<FuturesSecurityDTO> response = await moexHttpIssClient.GetInfoTradedFuturesAssets(url, ct);
                 return Results.Json(response, AppJsonContext.Default.ListFuturesSecurityDTO);
             });

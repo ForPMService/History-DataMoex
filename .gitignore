@@ -22,4 +22,4 @@ appsettings.*.local.json
 *.docx
 *.xlsx
 *.ps1
-theory-reference.md
+theory-reference.md.claude/

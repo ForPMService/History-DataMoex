@@ -5,8 +5,12 @@ using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
+using History_DataMoex.Parsing.Errors;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
+using System.Diagnostics;
+using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace History_DataMoex.Clients
@@ -15,11 +19,13 @@ namespace History_DataMoex.Clients
     {
         private readonly MoexAlgOptions _options;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<MoexHttpAlgClient> _logger;
 
-        public MoexHttpAlgClient(IOptions<MoexAlgOptions> options, HttpClient httpClient)
+        public MoexHttpAlgClient(IOptions<MoexAlgOptions> options, HttpClient httpClient, ILogger<MoexHttpAlgClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<string> GetRaw(
@@ -54,36 +60,45 @@ namespace History_DataMoex.Clients
             {
                 queryStart = parseValue;
             }
-            
+
+            int pagesElapsed = 0;
+            int totalRows = 0;
+
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
-                //using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-
-
-                //List<CandlesDTO> candlesList = ParsingALG.ParseAlgCandles(jsonDocument);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
                     cancellationToken);
-                List<CandlesDTO> candlesList = ParsingAlgUtf8.ParseAlgCandles(rentedArr.Span);
+                List<CandlesDTO> candlesList;
+                try
+                {
+                    candlesList = ParsingAlgUtf8.ParseAlgCandles(rentedArr.Span);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
+                pagesElapsed++;
+                totalRows += candlesList.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, candlesList.Count, Stopwatch.GetElapsedTime(pageStart));
                 yield return candlesList;
-                if (candlesList.Count>=500)
+                if (candlesList.Count >= 500)
                 {
                     queryStart += 500;
                     queryParams["start"] = queryStart.ToString();
                 }
                 else
                 {
+                    MoexLogMessages.FixedPagePaginationStopped(_logger, method, "last_page_incomplete", pagesElapsed, totalRows, candlesList.Count, 500);
                     break;
                 }
-                
-
             }
-
-            
         }
 
         
@@ -99,9 +114,11 @@ namespace History_DataMoex.Clients
             
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -109,20 +126,29 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<Hi2AssetDTO> hi2Assets = ParsingAlgUtf8.ParseHi2Stock(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return hi2Assets;
+                List<Hi2AssetDTO> hi2Assets;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    hi2Assets = ParsingAlgUtf8.ParseHi2Stock(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += hi2Assets.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, hi2Assets.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return hi2Assets;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-
             }
-
-
-            
         }
 
         public async IAsyncEnumerable<List<Hi2FuturesDTO>> GetHi2Furures5m(
@@ -134,9 +160,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -144,16 +172,28 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<Hi2FuturesDTO> hi2Futures = ParsingAlgUtf8.ParseHi2Futures(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return hi2Futures;
+                List<Hi2FuturesDTO> hi2Futures;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    hi2Futures = ParsingAlgUtf8.ParseHi2Futures(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += hi2Futures.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, hi2Futures.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return hi2Futures;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-
             }
         }
 
@@ -165,9 +205,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(metod, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -175,18 +217,30 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<MegaAlertsAssetsDTO> megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return megaAlerts;
+                List<MegaAlertsAssetsDTO> megaAlerts;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    megaAlerts = ParsingAlgUtf8.ParseMegaAlertsStock(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, metod, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += megaAlerts.Count;
+                MoexLogMessages.PageReceived(_logger, metod, pagesElapsed, megaAlerts.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return megaAlerts;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, metod, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
             }
         }
-
         public async IAsyncEnumerable<List<MegaAlertsFuturesDTO>> GetMegaAlertsFutures(
             string method,
             Dictionary<string, string>? queryParams = null,
@@ -195,9 +249,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -205,12 +261,25 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<MegaAlertsFuturesDTO> megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return megaAlertsFutures;
+                List<MegaAlertsFuturesDTO> megaAlertsFutures;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    megaAlertsFutures = ParsingAlgUtf8.ParseMegaAlertsFutures(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += megaAlertsFutures.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, megaAlertsFutures.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return megaAlertsFutures;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
@@ -224,11 +293,13 @@ namespace History_DataMoex.Clients
         {
             
             queryParams ??= new Dictionary<string, string>();
-            
+
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -236,16 +307,28 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<SuperCandlesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return tradeStats;
+                List<SuperCandlesTradeStats5mDTO> tradeStats;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    tradeStats = ParsingAlgUtf8.ParseTradeStatsStock(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += tradeStats.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, tradeStats.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return tradeStats;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-                
             }
         }
 
@@ -258,9 +341,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -268,16 +353,28 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<SuperCandlesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return orderBookStats;
+                List<SuperCandlesOrderBookStats5mDTO> orderBookStats;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    orderBookStats = ParsingAlgUtf8.ParseOBStatsStock(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += orderBookStats.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, orderBookStats.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return orderBookStats;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-
             }
         }
 
@@ -290,9 +387,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -300,16 +399,28 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<SuperCandlesOrderStats5mDTO> orderStats = ParsingAlgUtf8.ParseOrderStatsStock(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return orderStats;
+                List<SuperCandlesOrderStats5mDTO> orderStats;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    orderStats = ParsingAlgUtf8.ParseOrderStatsStock(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += orderStats.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, orderStats.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return orderStats;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-
             }
         }
 
@@ -321,9 +432,11 @@ namespace History_DataMoex.Clients
             queryParams ??= new Dictionary<string, string>();
 
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -331,12 +444,25 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats = ParsingAlgUtf8.ParseOBStatsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return orderBookStats;
+                List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    orderBookStats = ParsingAlgUtf8.ParseOBStatsFutures(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += orderBookStats.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, orderBookStats.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return orderBookStats;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
@@ -375,6 +501,9 @@ namespace History_DataMoex.Clients
             queryParams.Remove("start");
             queryParams.Remove("offset");
 
+            int dayIndex = 0;
+            int totalRows = 0;
+
             for (DateTime date = fromDate; date <= tillDate; date = date.AddDays(1))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -382,6 +511,7 @@ namespace History_DataMoex.Clients
                 queryParams["from"] = date.ToString("yyyy-MM-dd");
                 queryParams["till"] = date.ToString("yyyy-MM-dd");
 
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -389,13 +519,26 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<FutoiDTO> page = ParsingAlgUtf8.ParseFutoi(rentedArr.Span);
+                List<FutoiDTO> page;
+                try
+                {
+                    page = ParsingAlgUtf8.ParseFutoi(rentedArr.Span);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
+                dayIndex++;
+                totalRows += page.Count;
+                MoexLogMessages.DaySplitPageReceived(_logger, method, date.ToString("yyyy-MM-dd"), page.Count, Stopwatch.GetElapsedTime(pageStart));
 
                 if (page.Count > 0)
                 {
                     yield return page;
                 }
             }
+            MoexLogMessages.DaySplitCompleted(_logger, method, fromStr, tillStr, dayIndex, totalRows);
         }
 
         public async IAsyncEnumerable<List<SuperCandlesFuturesTradeStats5mDTO>> GetSuperCandlesFuturesTradeStats5m(
@@ -405,11 +548,12 @@ namespace History_DataMoex.Clients
         {
             queryParams ??= new Dictionary<string, string>();
 
-            
             int pagesElapsed = 0;
+            int totalRows = 0;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                long pageStart = Stopwatch.GetTimestamp();
                 using var response = await SendRequestAsync(method, queryParams, cancellationToken);
                 int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
@@ -417,16 +561,28 @@ namespace History_DataMoex.Clients
                     contentLength,
                     cancellationToken);
 
-                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats = ParsingAlgUtf8.ParseTradeStatsFutures(rentedArr.Span, out PaginationCursorDTO cursor);
-                yield return tradeStats;
+                List<SuperCandlesFuturesTradeStats5mDTO> tradeStats;
+                PaginationCursorDTO cursor;
+                try
+                {
+                    tradeStats = ParsingAlgUtf8.ParseTradeStatsFutures(rentedArr.Span, out cursor);
+                }
+                catch (MoexSchemaMismatchException ex)
+                {
+                    MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                    throw;
+                }
                 pagesElapsed++;
+                totalRows += tradeStats.Count;
+                MoexLogMessages.PageReceived(_logger, method, pagesElapsed, tradeStats.Count, Stopwatch.GetElapsedTime(pageStart));
+                yield return tradeStats;
                 PaginationStep step = MoexCursorPagination.Next(cursor, pagesElapsed, _options.MaxPagesPerLoad);
                 if (step.IsStop)
                 {
+                    MoexLogMessages.PaginationStopped(_logger, method, step.StopReason!, pagesElapsed, totalRows);
                     break;
                 }
                 queryParams["start"] = step.NextStart.ToString();
-
             }
         }
 
@@ -452,11 +608,20 @@ namespace History_DataMoex.Clients
             }
             catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Algopack, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
             }
             catch (TimeoutRejectedException ex)
             {
-                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Algopack, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
+            }
+            catch (MoexHttpException ex)
+            {
+                MoexLogMessages.RequestFailed(_logger, ex, MoexLogSources.Algopack, method, ex.ErrorCategory, (HttpStatusCode?)ex.StatusCode, null, ex.Message);
+                throw;
             }
         }
 

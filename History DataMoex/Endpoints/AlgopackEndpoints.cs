@@ -18,6 +18,7 @@ namespace History_DataMoex.Endpoints
             // === Фьючерсы ===
             routes.MapGet("/GetSuperCandlesFuturesTradeStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/tradestats/SiM6.json";
@@ -28,11 +29,14 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-05"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetSuperCandlesFuturesTradeStats", MoexLogSources.Algopack, url, "from=2026-01-28&till=2026-05-05");
                 return StreamFuturesTradeStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
             routes.MapGet("/GetSuperCandlesFuturesOrderBookStat", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/obstats/SiM6.json";
@@ -43,6 +47,8 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetSuperCandlesFuturesOrderBookStat", MoexLogSources.Algopack, url, "from=2026-01-28&till=2026-04-30");
                 return StreamFuturesOrderBookStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
@@ -50,6 +56,7 @@ namespace History_DataMoex.Endpoints
             // === FUTOI ===
             routes.MapGet("/GetFutoi", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/analyticalproducts/futoi/securities/Si.json";
@@ -60,12 +67,15 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-05"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetFutoi", MoexLogSources.Algopack, url, "from=2026-04-29&till=2026-05-05");
                 return StreamFutoiItems(moexHttpAlgClient, url, queryParams, ct);
             });
 
             // === HI2 ===
             routes.MapGet("/GetHi2Asset", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/hi2/SBER.json";
@@ -76,11 +86,14 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-03"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetHi2Asset", MoexLogSources.Algopack, url, "from=2026-01-03&till=2026-05-03");
                 return StreamHi2Asset(moexHttpAlgClient, url, queryParams, ct);
             });
 
             routes.MapGet("/GetHi2Furure", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/hi2/SiM6.json";
@@ -90,12 +103,15 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-04"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetHi2Furure", MoexLogSources.Algopack, url, "from=2026-01-30&till=2026-05-04");
                 return StreamHi2Futures(moexHttpAlgClient, url, queryParams, ct);
             });
 
             // === Мега-оповещения ===
             routes.MapGet("/GetMegaAlerts", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/alerts/SBER.json";
@@ -106,11 +122,14 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetMegaAlerts", MoexLogSources.Algopack, url, "from=2024-04-28&till=2026-04-30");
                 return StreamMegaAlerts(moexHttpAlgClient, url, queryParams, ct);
             });
 
             routes.MapGet("/GetMegaAlertsFutures", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/fo/alerts/SiM6.json";
@@ -121,12 +140,15 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-30"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetMegaAlertsFutures", MoexLogSources.Algopack, url, "from=2026-01-28&till=2026-04-30");
                 return StreamMegaAlertsFutures(moexHttpAlgClient, url, queryParams, ct);
             });
 
 
             routes.MapGet("/GetSuperCandlesTradeStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/tradestats/SMLT.json";
@@ -136,10 +158,13 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetSuperCandlesTradeStats", MoexLogSources.Algopack, url, "from=2024-04-08&till=2026-04-17");
                 return StreamTradeStats(moexHttpAlgClient, url, queryParams, ct);
             });
             routes.MapGet("/GetSuperCandlesOrderStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/orderstats/SMLT.json";
@@ -149,10 +174,13 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetSuperCandlesOrderStats", MoexLogSources.Algopack, url, "from=2024-04-08&till=2026-04-17");
                 return StreamOrderStats(moexHttpAlgClient, url, queryParams, ct);
             });
             routes.MapGet("/GetSuperCandlesOrderBookStats", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/datashop/algopack/eq/obstats/SMLT.json";
@@ -162,11 +190,14 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-04-17"
                 };
 
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetSuperCandlesOrderBookStats", MoexLogSources.Algopack, url, "from=2024-04-08&till=2026-04-17");
                 return StreamOrderBookStats(moexHttpAlgClient, url, queryParams, ct);
             });
 
             routes.MapGet("/GetCandlesAsset", (
                 MoexHttpAlgClient moexHttpAlgClient,
+                ILoggerFactory loggerFactory,
                 CancellationToken ct) =>
             {
                 string url = "/engines/stock/markets/shares/boards/tqbr/securities/SBER/candles.json";
@@ -177,8 +208,8 @@ namespace History_DataMoex.Endpoints
                     ["till"] = "2026-05-05"
                 };
 
-
-
+                var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+                MoexLogMessages.LoadStarted(logger, "GetCandlesAsset", MoexLogSources.Algopack, url, "interval=1&from=2025-01-28&till=2026-05-05");
                 return StreamCandles(moexHttpAlgClient, url, queryParams, ct);
             });
 
@@ -187,6 +218,7 @@ namespace History_DataMoex.Endpoints
 
             routes.MapGet("/GetCandlesFutures", (
                MoexHttpAlgClient moexHttpAlgClient,
+               ILoggerFactory loggerFactory,
                CancellationToken ct) =>
            {
                string url = "/engines/futures/markets/forts/boards/RFUD/securities/SiM6/candles.json";
@@ -197,6 +229,8 @@ namespace History_DataMoex.Endpoints
                    ["till"] = "2026-05-05"
                };
 
+               var logger = loggerFactory.CreateLogger("AlgopackEndpoints");
+               MoexLogMessages.LoadStarted(logger, "GetCandlesFutures", MoexLogSources.Algopack, url, "interval=1&from=2025-01-28&till=2026-05-05");
                return StreamCandles(moexHttpAlgClient, url, queryParams, ct);
            });
             return routes;

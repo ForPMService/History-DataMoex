@@ -3,8 +3,12 @@ using History_DataMoex.Contracts.Dto.Iss;
 using History_DataMoex.Infrastructure.Buffers;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
+using History_DataMoex.Parsing.Errors;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
+using System.Diagnostics;
+using System.Net;
 
 
 namespace History_DataMoex.Clients
@@ -13,11 +17,13 @@ namespace History_DataMoex.Clients
     {
         private readonly MoexIssOptions _options;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<MoexHttpIssClient> _logger;
 
-        public MoexHttpIssClient(IOptions<MoexIssOptions> options, HttpClient httpClient)
+        public MoexHttpIssClient(IOptions<MoexIssOptions> options, HttpClient httpClient, ILogger<MoexHttpIssClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
+            _logger = logger;
         }
         public async Task<string> GetRaw(
             string method,
@@ -34,29 +40,23 @@ namespace History_DataMoex.Clients
             string method,
             CancellationToken cancellationToken = default)
         {
-            string baseUrl = _options.BaseUrl;
-            string requestUrl = baseUrl + method;
-
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(method, cancellationToken);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
             try
             {
-                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                HttpClientHelpers.EnsureSuccessOrThrow(response, method);
-                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                    await response.Content.ReadAsStreamAsync(cancellationToken),
-                    contentLength,
-                    cancellationToken);
-                return ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
+                List<StockSecurityDTO> result = ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, method, result.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
             }
-            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            catch (MoexSchemaMismatchException ex)
             {
-                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
-            }
-            catch (TimeoutRejectedException ex)
-            {
-                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                throw;
             }
         }
 
@@ -64,34 +64,54 @@ namespace History_DataMoex.Clients
             string method,
             CancellationToken cancellationToken = default)
         {
-            string baseUrl = _options.BaseUrl;
-            string requestUrl = baseUrl + method;
-
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-
+            long startTimestamp = Stopwatch.GetTimestamp();
+            using var response = await SendRequestAsync(method, cancellationToken);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                contentLength,
+                cancellationToken);
             try
             {
-                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                List<FuturesSecurityDTO> result = ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
+                MoexLogMessages.SinglePageReceived(_logger, method, result.Count, Stopwatch.GetElapsedTime(startTimestamp));
+                return result;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
+                throw;
+            }
+        }
+
+        private async Task<HttpResponseMessage> SendRequestAsync(string method, CancellationToken cancellationToken)
+        {
+            string requestUrl = _options.BaseUrl + method;
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            try
+            {
+                var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                 HttpClientHelpers.EnsureSuccessOrThrow(response, method);
-                int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-                using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                    await response.Content.ReadAsStreamAsync(cancellationToken),
-                    contentLength,
-                    cancellationToken);
-                return ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
+                return response;
             }
             catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Iss, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
             }
             catch (TimeoutRejectedException ex)
             {
-                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                var timeoutEx = new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
+                MoexLogMessages.RequestFailed(_logger, timeoutEx, MoexLogSources.Iss, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                throw timeoutEx;
             }
-
+            catch (MoexHttpException ex)
+            {
+                MoexLogMessages.RequestFailed(_logger, ex, MoexLogSources.Iss, method, ex.ErrorCategory, (HttpStatusCode?)ex.StatusCode, (ex as MoexTimeoutException)?.TimeoutSource, ex.Message);
+                throw;
+            }
         }
-
-        
 
     }
 }
