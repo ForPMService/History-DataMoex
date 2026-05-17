@@ -18,4 +18,6 @@ public sealed class MoexServerException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = true;
     }
+
+    public override string ErrorCategory => "server_error";
 }

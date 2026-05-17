@@ -163,4 +163,145 @@ public class TypedErrorsTests
             using Stream _ = response.Content.ReadAsStream();
         });
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // ErrorCategory — каждый наследник возвращает стабильную строку
+    // ═══════════════════════════════════════════════════════════
+
+    [Theory]
+    [InlineData(typeof(MoexRateLimitException), "rate_limit")]
+    [InlineData(typeof(MoexServerException), "server_error")]
+    [InlineData(typeof(MoexAuthException), "auth")]
+    [InlineData(typeof(MoexBadRequestException), "bad_request")]
+    [InlineData(typeof(MoexNotFoundException), "not_found")]
+    [InlineData(typeof(MoexClientException), "client_error")]
+    [InlineData(typeof(MoexUnexpectedStatusException), "unexpected_status")]
+    public void ErrorCategory_MatchesExpected(Type exceptionType, string expectedCategory)
+    {
+        // Все наследники имеют конструктор (string endpoint, int statusCode)
+        // кроме RateLimit (endpoint, retryAfter?) — обрабатываем отдельно
+        MoexHttpException ex = exceptionType.Name switch
+        {
+            nameof(MoexRateLimitException) => new MoexRateLimitException("test", null),
+            nameof(MoexBadRequestException) => new MoexBadRequestException("test"),
+            nameof(MoexNotFoundException) => new MoexNotFoundException("test"),
+            _ => (MoexHttpException)Activator.CreateInstance(exceptionType, "test", 500)!
+        };
+
+        Assert.Equal(expectedCategory, ex.ErrorCategory);
+    }
+
+    [Fact]
+    public void TimeoutException_ErrorCategory_IsTimeout()
+    {
+        var ex = new MoexTimeoutException("msg", "test", "http_client");
+        Assert.Equal("timeout", ex.ErrorCategory);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TimeoutSource — различает http_client и polly_attempt
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public void TimeoutException_HttpClient_HasCorrectSource()
+    {
+        var inner = new TaskCanceledException();
+        var ex = new MoexTimeoutException("request timeout", "/test", "http_client", TimeSpan.FromSeconds(30), inner);
+
+        Assert.Equal("http_client", ex.TimeoutSource);
+        Assert.Equal("timeout", ex.ErrorCategory);
+        Assert.True(ex.IsRetryable);
+    }
+
+    [Fact]
+    public void TimeoutException_PollyAttempt_HasCorrectSource()
+    {
+        var ex = new MoexTimeoutException("attempt timeout", "/test", "polly_attempt");
+
+        Assert.Equal("polly_attempt", ex.TimeoutSource);
+        Assert.Null(ex.Timeout);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TryParseRetryAfter — краевые случаи
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public void TryParseRetryAfter_NoHeader_ReturnsNull()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        Assert.Null(HttpClientHelpers.TryParseRetryAfter(response));
+    }
+
+    [Fact]
+    public void TryParseRetryAfter_DeltaSeconds_ReturnsDelta()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(30));
+        Assert.Equal(TimeSpan.FromSeconds(30), HttpClientHelpers.TryParseRetryAfter(response));
+    }
+
+    [Fact]
+    public void TryParseRetryAfter_HttpDateInFuture_ReturnsPositiveDelta()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        var futureDate = DateTimeOffset.UtcNow.AddSeconds(60);
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(futureDate);
+
+        var result = HttpClientHelpers.TryParseRetryAfter(response);
+
+        Assert.NotNull(result);
+        Assert.True(result!.Value > TimeSpan.Zero);
+        Assert.True(result.Value <= TimeSpan.FromSeconds(61)); // запас на время выполнения
+    }
+
+    [Fact]
+    public void TryParseRetryAfter_HttpDateInPast_ReturnsZero()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        var pastDate = DateTimeOffset.UtcNow.AddSeconds(-10);
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(pastDate);
+
+        var result = HttpClientHelpers.TryParseRetryAfter(response);
+
+        Assert.NotNull(result);
+        Assert.Equal(TimeSpan.Zero, result!.Value);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // GetRetryAfterForPolly — clamp и минимум
+    // ═══════════════════════════════════════════════════════════
+
+    [Fact]
+    public void GetRetryAfterForPolly_LargeValue_ClampedToMaxDelay()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromMinutes(10));
+
+        var result = HttpClientHelpers.GetRetryAfterForPolly(response, TimeSpan.FromMinutes(2));
+
+        Assert.Equal(TimeSpan.FromMinutes(2), result);
+    }
+
+    [Fact]
+    public void GetRetryAfterForPolly_PastDate_ReturnsOneSecond()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        var pastDate = DateTimeOffset.UtcNow.AddSeconds(-30);
+        response.Headers.RetryAfter = new RetryConditionHeaderValue(pastDate);
+
+        var result = HttpClientHelpers.GetRetryAfterForPolly(response, TimeSpan.FromMinutes(2));
+
+        Assert.Equal(TimeSpan.FromSeconds(1), result);
+    }
+
+    [Fact]
+    public void GetRetryAfterForPolly_NoHeader_ReturnsNull()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+
+        var result = HttpClientHelpers.GetRetryAfterForPolly(response, TimeSpan.FromMinutes(2));
+
+        Assert.Null(result);
+    }
 }

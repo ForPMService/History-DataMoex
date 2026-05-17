@@ -19,4 +19,6 @@ public sealed class MoexUnexpectedStatusException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = false;
     }
+
+    public override string ErrorCategory => "unexpected_status";
 }

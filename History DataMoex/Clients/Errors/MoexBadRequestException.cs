@@ -17,4 +17,6 @@ public sealed class MoexBadRequestException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = false;
     }
+
+    public override string ErrorCategory => "bad_request";
 }

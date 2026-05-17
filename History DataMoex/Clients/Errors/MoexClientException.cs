@@ -18,4 +18,6 @@ public sealed class MoexClientException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = false;
     }
+
+    public override string ErrorCategory => "client_error";
 }

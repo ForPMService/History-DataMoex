@@ -36,4 +36,6 @@ public sealed class MoexRateLimitException : MoexHttpException
         IsRetryable = true;
         RetryAfter = retryAfter;
     }
+
+    public override string ErrorCategory => "rate_limit";
 }

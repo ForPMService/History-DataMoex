@@ -25,6 +25,13 @@ public abstract class MoexHttpException : Exception
     public TimeSpan? RetryAfter { get; init; }
 
     /// <summary>
+    /// Категория ошибки для структурированного логирования.
+    /// Возвращает стабильную строку-константу (например, "rate_limit", "server_error").
+    /// Не зависит от StatusCode и не меняется между версиями.
+    /// </summary>
+    public abstract string ErrorCategory { get; }
+
+    /// <summary>
     /// Инициализирует новый экземпляр с сообщением и опциональным внутренним исключением.
     /// </summary>
     /// <param name="message">Описание ошибки. Не должно содержать токены или заголовки.</param>

@@ -271,11 +271,11 @@ namespace History_DataMoex.Clients
             }
             catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, _options.RequestTimeout, ex);
+                throw new MoexTimeoutException($"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
             }
             catch (TimeoutRejectedException ex)
             {
-                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, null, ex);
+                throw new MoexTimeoutException($"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
             }
         }
 

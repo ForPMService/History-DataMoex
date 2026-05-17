@@ -17,4 +17,6 @@ public sealed class MoexNotFoundException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = false;
     }
+
+    public override string ErrorCategory => "not_found";
 }

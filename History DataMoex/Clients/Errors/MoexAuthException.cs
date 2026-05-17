@@ -33,4 +33,6 @@ public sealed class MoexAuthException : MoexHttpException
         Endpoint = endpoint;
         IsRetryable = false;
     }
+
+    public override string ErrorCategory => "auth";
 }

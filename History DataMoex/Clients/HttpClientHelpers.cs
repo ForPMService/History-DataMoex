@@ -64,4 +64,22 @@ public static class HttpClientHelpers
 
         return null;
     }
+
+    /// <summary>
+    /// Извлекает задержку из Retry-After для DelayGenerator Polly.
+    /// При HTTP-date в прошлом возвращает 1 секунду (не ждать 0).
+    /// Clamp: не больше maxDelay.
+    /// </summary>
+    public static TimeSpan? GetRetryAfterForPolly(HttpResponseMessage response, TimeSpan maxDelay)
+    {
+        TimeSpan? raw = TryParseRetryAfter(response);
+        if (raw is null)
+            return null;
+
+        // HTTP-date в прошлом: TryParseRetryAfter вернёт Zero → подставляем 1 секунду
+        if (raw.Value <= TimeSpan.Zero)
+            raw = TimeSpan.FromSeconds(1);
+
+        return raw.Value > maxDelay ? maxDelay : raw.Value;
+    }
 }
