@@ -120,6 +120,7 @@ public static class MoexClientServiceCollectionExtensions
         options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
         options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
         options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(5);
+        options.Retry.MaxRetryAttempts = MaxRetryAttempts;
 
         // Учитываем Retry-After из ответа сервера при 429 (rate limit).
         // Если заголовок присутствует — используем его значение вместо
@@ -145,7 +146,7 @@ public static class MoexClientServiceCollectionExtensions
         string source)
     {
         HttpStatusCode? statusCode = args.Outcome.Result?.StatusCode;
-        string endpoint = args.Outcome.Result?.RequestMessage?.RequestUri?.AbsolutePath ?? "unknown";
+        string endpoint = args.Outcome.Result?.RequestMessage?.RequestUri?.PathAndQuery ?? "unknown";
 
         string errorType = statusCode switch
         {
@@ -164,8 +165,8 @@ public static class MoexClientServiceCollectionExtensions
             logger,
             source,
             endpoint,
-            args.AttemptNumber,
-            5,
+            args.AttemptNumber+1,
+            MaxRetryAttempts,
             errorType,
             args.RetryDelay,
             statusCode);
