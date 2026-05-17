@@ -1,86 +1,122 @@
+using System.Diagnostics;
 using System.Globalization;
-using System.IO.Hashing;
-using System.Text;
 using History_DataMoex.Contracts.Dto.Algopack;
+using History_DataMoex.Mappers.Errors;
 using History_DataMoex.Models;
+using Microsoft.Extensions.Logging;
 
 namespace History_DataMoex.Mappers;
 
 public static class CandlesMapper
 {
-    /// <summary>
-    /// Маппинг одной CandlesDTO → Candle1m.
-    /// TimeZoneInfo передаётся снаружи — не резолвить на каждую свечу.
-    /// </summary>
-    public static Candle1m Map(CandlesDTO dto, string secId, MapContext ctx, TimeZoneInfo sourceTz)
+    private const string Category = MappingCategories.Candles;
+    private const int IntervalSeconds = 60;
+
+    public static Candle1m Map(
+        CandlesDTO dto,
+        string secId,
+        MapContext ctx,
+        TimeZoneInfo sourceTz,
+        int rowIndex = 0)
     {
-        DateTime beginLocal = dto.Begin
-            ?? throw new InvalidOperationException("CandlesDTO.Begin is null");
-
-        DateTime beginUtc = TimeZoneInfo.ConvertTimeToUtc(
-            DateTime.SpecifyKind(beginLocal, DateTimeKind.Unspecified), sourceTz);
-
-        ulong rowHash = ComputeRowHash(secId, beginUtc, 60, ctx.SourceCode,
-            dto.Open, dto.High, dto.Low, dto.Close, dto.Volume, dto.Value);
-
-        return new Candle1m
+        try
         {
-            SecId = secId,
-            BeginUtc = beginUtc,
-            BeginLocal = beginLocal,
-            IntervalSeconds = 60,
-            Source = ctx.SourceCode,
-            Open = dto.Open,
-            High = dto.High,
-            Low = dto.Low,
-            Close = dto.Close,
-            Volume = dto.Volume,
-            Value = dto.Value,
-            RowHashV1 = rowHash,
-            RawObjectId = ctx.RawObjectId,
-            LoadJobId = ctx.LoadJobId,
-        };
+            if (dto.Begin is null)
+                throw new MappingValidationException(
+                    "Candle Begin is null",
+                    category: Category,
+                    secId: secId,
+                    rowIndex: rowIndex);
+
+            DateTime beginLocal = DateTime.SpecifyKind(dto.Begin.Value, DateTimeKind.Unspecified);
+            DateTime beginUtc = TimeZoneInfo.ConvertTimeToUtc(beginLocal, sourceTz);
+
+            // Каноническая строка для RowHashV1.
+            // Состав: secId|beginUtcTicks|60|source|open|high|low|close|volume|value
+            string canonical = string.Create(CultureInfo.InvariantCulture,
+                $"{secId}|{beginUtc.Ticks}|{IntervalSeconds}|{ctx.SourceCode}|{RowHashHelper.Fmt(dto.Open)}|{RowHashHelper.Fmt(dto.High)}|{RowHashHelper.Fmt(dto.Low)}|{RowHashHelper.Fmt(dto.Close)}|{RowHashHelper.Fmt(dto.Volume)}|{RowHashHelper.Fmt(dto.Value)}");
+
+            ulong rowHash = RowHashHelper.Compute(canonical.AsSpan());
+
+            return new Candle1m
+            {
+                SecId = secId,
+                BeginUtc = beginUtc,
+                BeginLocal = beginLocal,
+                IntervalSeconds = IntervalSeconds,
+                Source = ctx.SourceCode,
+                Open = dto.Open,
+                High = dto.High,
+                Low = dto.Low,
+                Close = dto.Close,
+                Volume = dto.Volume,
+                Value = dto.Value,
+                RowHashV1 = rowHash,
+                RawObjectId = ctx.RawObjectId,
+                LoadJobId = ctx.LoadJobId,
+            };
+        }
+        catch (MappingException ex)
+        {
+            ex.WithContext(Category, secId, rowIndex);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Batch-маппинг. TimeZoneInfo резолвится ОДИН РАЗ из ctx.SourceTimezone.
-    /// </summary>
-    public static List<Candle1m> MapBatch(IReadOnlyList<CandlesDTO> dtos, string secId, MapContext ctx)
+    public static List<Candle1m> MapBatch(
+        IReadOnlyList<CandlesDTO> dtos,
+        string secId,
+        MapContext ctx,
+        ILogger logger,
+        CancellationToken ct = default)
     {
-        TimeZoneInfo sourceTz = TimeZoneInfo.FindSystemTimeZoneById(ctx.SourceTimezone);
+        long started = Stopwatch.GetTimestamp();
+        MappingLogMessages.MapBatchStarted(
+            logger, ctx.SourceCode, secId, Category, dtos.Count);
+
         var result = new List<Candle1m>(dtos.Count);
-        foreach (CandlesDTO dto in dtos)
+        bool rowErrorLogged = false;
+
+        try
         {
-            result.Add(Map(dto, secId, ctx, sourceTz));
+            TimeZoneInfo sourceTz = SourceTimezones.Resolve(ctx.SourceTimezone);
+
+            for (int i = 0; i < dtos.Count; i++)
+            {
+                if ((i & 0xFFF) == 0)
+                    ct.ThrowIfCancellationRequested();
+
+                try
+                {
+                    result.Add(Map(dtos[i], secId, ctx, sourceTz, i));
+                }
+                catch (MappingException rowEx)
+                {
+                    rowErrorLogged = true;
+                    MappingLogMessages.MapRowFailed(
+                        logger, rowEx, ctx.SourceCode, secId, Category, i,
+                        rowEx.ErrorCategory, rowEx.Message);
+                    throw;
+                }
+            }
         }
+        catch (OperationCanceledException ocEx)
+        {
+            MappingLogMessages.MapBatchCancelled(
+                logger, ocEx, ctx.SourceCode, secId, Category, result.Count);
+            throw;
+        }
+        catch (MappingException batchEx) when (!rowErrorLogged)
+        {
+            MappingLogMessages.MapBatchFailed(
+                logger, batchEx, ctx.SourceCode, secId, Category,
+                batchEx.ErrorCategory, batchEx.Message);
+            throw;
+        }
+
+        MappingLogMessages.MapBatchCompleted(
+            logger, ctx.SourceCode, secId, Category, result.Count,
+            Stopwatch.GetElapsedTime(started));
         return result;
     }
-
-    /// <summary>
-    /// xxHash64 от строки идентификации записи.
-    ///
-    /// Формат:
-    ///   {secId}|{beginUtcTicks}|{intervalSeconds}|{source}|{open}|{high}|{low}|{close}|{volume}|{value}
-    ///
-    /// Правила:
-    ///   - beginUtcTicks = DateTime.Ticks (long), детерминированный
-    ///   - double: InvariantCulture, формат G17 (полная точность IEEE 754)
-    ///   - null → пустая строка
-    ///   - разделитель | — не встречается в значениях
-    /// </summary>
-    private static ulong ComputeRowHash(
-        string secId, DateTime beginUtc, int intervalSeconds, string source,
-        double? open, double? high, double? low, double? close,
-        double? volume, double? value)
-    {
-        string canonical = string.Create(CultureInfo.InvariantCulture,
-            $"{secId}|{beginUtc.Ticks}|{intervalSeconds}|{source}|" +
-            $"{Fmt(open)}|{Fmt(high)}|{Fmt(low)}|{Fmt(close)}|" +
-            $"{Fmt(volume)}|{Fmt(value)}");
-
-        return XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(canonical));
-    }
-
-    private static string Fmt(double? v)
-        => v.HasValue ? v.Value.ToString("G17", CultureInfo.InvariantCulture) : "";
 }
