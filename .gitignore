@@ -24,3 +24,4 @@ appsettings.*.local.json
 *.ps1
 theory-reference.md.claude/
 .claude
+.claude/
