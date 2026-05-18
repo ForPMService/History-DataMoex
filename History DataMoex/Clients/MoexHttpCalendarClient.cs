@@ -3,13 +3,18 @@ using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Pagination;
 using History_DataMoex.Infrastructure.Buffers;
+using History_DataMoex.Mappers;
+using History_DataMoex.Models;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using History_DataMoex.Parsing.Errors;
+using History_DataMoex.RawCapture;
+using History_DataMoex.RawStore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
 
@@ -19,12 +24,18 @@ namespace History_DataMoex.Clients
     {
         private readonly MoexCalendarOptions _options;
         private readonly HttpClient _httpClient;
+        private readonly IRawObjectStore _rawObjectStore;
         private readonly ILogger<MoexHttpCalendarClient> _logger;
 
-        public MoexHttpCalendarClient(IOptions<MoexCalendarOptions> options, HttpClient httpClient, ILogger<MoexHttpCalendarClient> logger)
+        public MoexHttpCalendarClient(
+            IOptions<MoexCalendarOptions> options,
+            HttpClient httpClient,
+            IRawObjectStore rawObjectStore,
+            ILogger<MoexHttpCalendarClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
+            _rawObjectStore = rawObjectStore;
             _logger = logger;
         }
 
@@ -379,6 +390,508 @@ namespace History_DataMoex.Clients
                 }
                 queryParams["start"] = step.NextStart.ToString();
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // Phase 8-C: internal raw методы — save-before-parse (Lock §2).
+        // 8 методов = 3 page + 5 multi-table (2 с cursor).
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Internal raw метод: общие выходные дни (CalendarOffDayAll, Group C).
+        /// Save-before-parse: raw payload сохраняется ДО парсинга (Lock §2).
+        /// </summary>
+        internal async Task<SourcePage<CalendarOffDayAll>> GetOffDaysAllRawAsync(
+            CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            using var response = await SendRequestAsync(endpoint, cancellationToken: ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarOffDaysAllDTO> dtos;
+            try
+            {
+                dtos = ParsingCalendarUtf8.ParseOffDaysAll(rentedArr.Span);
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarOffDayAll> models = CalendarOffDayAllMapper.MapBatch(dtos, mapCtx, _logger, ct);
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, models.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourcePage<CalendarOffDayAll>
+            {
+                Items = models,
+                NextCursor = null,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: выходные дни stock-рынка (CalendarMarketOffDay, Group C + market="stock").
+        /// </summary>
+        internal async Task<SourcePage<CalendarMarketOffDay>> GetStockOffDaysRawAsync(
+            CancellationToken ct = default)
+            => await GetMarketOffDaysRawCoreAsync("/calendars/stock.json", "stock", ct);
+
+        /// <summary>
+        /// Internal raw метод: выходные дни futures-рынка (CalendarMarketOffDay, Group C + market="futures").
+        /// </summary>
+        internal async Task<SourcePage<CalendarMarketOffDay>> GetFuturesOffDaysRawAsync(
+            CancellationToken ct = default)
+            => await GetMarketOffDaysRawCoreAsync("/calendars/futures.json", "futures", ct);
+
+        private async Task<SourcePage<CalendarMarketOffDay>> GetMarketOffDaysRawCoreAsync(
+            string endpoint,
+            string market,
+            CancellationToken ct)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            using var response = await SendRequestAsync(endpoint, cancellationToken: ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarOffDaysMarketDTO> dtos;
+            try
+            {
+                dtos = ParsingCalendarUtf8.ParseOffDaysMarket(rentedArr.Span);
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarMarketOffDay> models = CalendarMarketOffDayMapper.MapBatch(dtos, market, mapCtx, _logger, ct);
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, models.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourcePage<CalendarMarketOffDay>
+            {
+                Items = models,
+                NextCursor = null,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: расписание сессии stock-рынка + типы сессий.
+        /// Multi-table cohesion (Lock §6): обе таблицы получают один RawObjectId.
+        /// </summary>
+        internal async Task<SourceMultiTable<CalendarStockSession, CalendarSessionType>>
+            GetStockSessionWithTypesRawAsync(CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars/stock/session.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            using var response = await SendRequestAsync(endpoint, cancellationToken: ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarStockSessionDTO> sessionsDtos;
+            List<CalendarSessionTypeDTO> typesDtos;
+            try
+            {
+                var parsed = ParsingCalendarUtf8.ParseStockSession(rentedArr.Span);
+                sessionsDtos = parsed.Sessions;
+                typesDtos = parsed.Types;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarStockSession> mainItems = CalendarStockSessionMapper.MapBatch(sessionsDtos, mapCtx, _logger, ct);
+            List<CalendarSessionType> secondaryItems = CalendarSessionTypeMapper.MapBatch(typesDtos, "stock", mapCtx, _logger, ct);
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, mainItems.Count + secondaryItems.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourceMultiTable<CalendarStockSession, CalendarSessionType>
+            {
+                MainItems = mainItems,
+                SecondaryItems = secondaryItems,
+                NextCursor = null,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: расписание сессии futures-рынка + типы сессий.
+        /// Multi-table cohesion (Lock §6).
+        /// </summary>
+        internal async Task<SourceMultiTable<CalendarFuturesSession, CalendarSessionType>>
+            GetFuturesSessionWithTypesRawAsync(CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars/futures/session.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            using var response = await SendRequestAsync(endpoint, cancellationToken: ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarFuturesSessionDTO> sessionsDtos;
+            List<CalendarSessionTypeDTO> typesDtos;
+            try
+            {
+                var parsed = ParsingCalendarUtf8.ParseFuturesSession(rentedArr.Span);
+                sessionsDtos = parsed.Sessions;
+                typesDtos = parsed.Types;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarFuturesSession> mainItems = CalendarFuturesSessionMapper.MapBatch(sessionsDtos, mapCtx, _logger, ct);
+            List<CalendarSessionType> secondaryItems = CalendarSessionTypeMapper.MapBatch(typesDtos, "futures", mapCtx, _logger, ct);
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, mainItems.Count + secondaryItems.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourceMultiTable<CalendarFuturesSession, CalendarSessionType>
+            {
+                MainItems = mainItems,
+                SecondaryItems = secondaryItems,
+                NextCursor = null,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: справочник Forts contracts + Options series.
+        /// Multi-table, без cursor (Lock §6).
+        /// </summary>
+        internal async Task<SourceMultiTable<CalendarFortsContract, CalendarOptionsSeries>>
+            GetFuturesSecuritiesAllRawAsync(CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars/futures/securities.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            using var response = await SendRequestAsync(endpoint, cancellationToken: ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarFortsContractDTO> fortsDtos;
+            List<CalendarOptionsSeriesDTO> optionsDtos;
+            try
+            {
+                var parsed = ParsingCalendarUtf8.ParseFuturesSecurities(rentedArr.Span);
+                fortsDtos = parsed.Forts;
+                optionsDtos = parsed.Options;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarFortsContract> mainItems = CalendarFortsContractMapper.MapBatch(fortsDtos, mapCtx, _logger, ct);
+            List<CalendarOptionsSeries> secondaryItems = CalendarOptionsSeriesMapper.MapBatch(optionsDtos, mapCtx, _logger, ct);
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, mainItems.Count + secondaryItems.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourceMultiTable<CalendarFortsContract, CalendarOptionsSeries>
+            {
+                MainItems = mainItems,
+                SecondaryItems = secondaryItems,
+                NextCursor = null,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: приостановки торгов + справочник причин (multi-table с cursor).
+        /// Caller использует NextCursor + MoexCursorPagination.Next для chaining (передаёт NextStart).
+        /// Multi-table cohesion (Lock §6).
+        /// </summary>
+        internal async Task<SourceMultiTable<CalendarSuspension, CalendarSuspensionReason>>
+            GetSuspendedWithReasonsRawAsync(int start = 0, CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars/stock/securities/suspended/details.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            Dictionary<string, string> queryParams = new();
+            if (start > 0)
+                queryParams["start"] = start.ToString(CultureInfo.InvariantCulture);
+
+            using var response = await SendRequestAsync(endpoint, queryParams, ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarSuspendedDTO> suspendedDtos;
+            List<CalendarSuspendedReasonDTO> reasonsDtos;
+            PaginationCursorDTO cursor;
+            try
+            {
+                var parsed = ParsingCalendarUtf8.ParseSuspendedWithReasons(rentedArr.Span);
+                suspendedDtos = parsed.Suspended;
+                reasonsDtos = parsed.Reasons;
+                cursor = parsed.Cursor;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarSuspension> mainItems = CalendarSuspensionMapper.MapBatch(suspendedDtos, mapCtx, _logger, ct);
+            List<CalendarSuspensionReason> secondaryItems = CalendarSuspensionReasonMapper.MapBatch(reasonsDtos, mapCtx, _logger, ct);
+
+            PaginationCursorDTO? nextCursor =
+                (cursor.Index.HasValue || cursor.Total.HasValue || cursor.PageSize.HasValue) ? cursor : null;
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, mainItems.Count + secondaryItems.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourceMultiTable<CalendarSuspension, CalendarSuspensionReason>
+            {
+                MainItems = mainItems,
+                SecondaryItems = secondaryItems,
+                NextCursor = nextCursor,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
+        }
+
+        /// <summary>
+        /// Internal raw метод: изменения атрибутов бумаг + справочник атрибутов (multi-table с cursor).
+        /// Caller chaining через NextCursor + MoexCursorPagination.Next.NextStart.
+        /// Multi-table cohesion (Lock §6).
+        /// </summary>
+        internal async Task<SourceMultiTable<CalendarSecurityChange, CalendarSecurityAttribute>>
+            GetSecurityChangesWithAttributesRawAsync(int start = 0, CancellationToken ct = default)
+        {
+            long startTimestamp = Stopwatch.GetTimestamp();
+            const string sourceCode = "MOEX_CALENDAR";
+            const string endpoint = "/calendars/stock/securities/changes.json";
+            Guid loadJobId = Guid.CreateVersion7();
+            DateTime fetchedAtUtc = DateTime.UtcNow;
+
+            Dictionary<string, string> queryParams = new();
+            if (start > 0)
+                queryParams["start"] = start.ToString(CultureInfo.InvariantCulture);
+
+            using var response = await SendRequestAsync(endpoint, queryParams, ct);
+            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
+            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
+                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
+
+            Guid rawObjectId = Guid.CreateVersion7();
+            MapContext mapCtx = new(
+                SourceCode: sourceCode,
+                Endpoint: endpoint,
+                SourceTimezone: "Europe/Moscow",
+                LoadJobId: loadJobId,
+                RawObjectId: rawObjectId,
+                FetchedAtUtc: fetchedAtUtc);
+
+            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
+                content: rentedArr.Memory,
+                context: mapCtx,
+                secId: string.Empty,
+                fromDate: string.Empty,
+                tillDate: string.Empty,
+                ct: ct);
+
+            if (rawMeta.RawObjectId != rawObjectId)
+                throw new InvalidOperationException(
+                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
+
+            List<CalendarSecurityChangeDTO> changesDtos;
+            List<CalendarSecurityAttributeDTO> attributesDtos;
+            PaginationCursorDTO cursor;
+            try
+            {
+                var parsed = ParsingCalendarUtf8.ParseSecurityChangesWithAttributes(rentedArr.Span);
+                changesDtos = parsed.Changes;
+                attributesDtos = parsed.Attributes;
+                cursor = parsed.Cursor;
+            }
+            catch (MoexSchemaMismatchException ex)
+            {
+                MoexLogMessages.ParseFailed(_logger, ex, endpoint, "schema_mismatch", ex.Message);
+                throw;
+            }
+
+            List<CalendarSecurityChange> mainItems = CalendarSecurityChangeMapper.MapBatch(changesDtos, mapCtx, _logger, ct);
+            List<CalendarSecurityAttribute> secondaryItems = CalendarSecurityAttributeMapper.MapBatch(attributesDtos, mapCtx, _logger, ct);
+
+            PaginationCursorDTO? nextCursor =
+                (cursor.Index.HasValue || cursor.Total.HasValue || cursor.PageSize.HasValue) ? cursor : null;
+
+            MoexLogMessages.SinglePageReceived(_logger, endpoint, mainItems.Count + secondaryItems.Count, Stopwatch.GetElapsedTime(startTimestamp));
+
+            return new SourceMultiTable<CalendarSecurityChange, CalendarSecurityAttribute>
+            {
+                MainItems = mainItems,
+                SecondaryItems = secondaryItems,
+                NextCursor = nextCursor,
+                RawObjectId = rawObjectId,
+                FetchedAtUtc = fetchedAtUtc,
+            };
         }
 
         // ── Инфраструктура ──────────────────────────────────────
