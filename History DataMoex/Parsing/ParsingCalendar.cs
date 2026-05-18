@@ -1,4 +1,6 @@
-﻿using History_DataMoex.Contracts.Dto;
+﻿// LEGACY: not used by Phase 8 mappers. Production path is ParsingCalendarUtf8.
+// Removal: separate cleanup task after Phase 8-D. Lock §11.
+using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Contracts.Dto.Calendar;
 using System.Text.Json;
 

@@ -17,11 +17,11 @@ namespace History_DataMoex.Clients
 {
     public class MoexHttpCalendarClient
     {
-        private readonly MoexAlgOptions _options;
+        private readonly MoexCalendarOptions _options;
         private readonly HttpClient _httpClient;
         private readonly ILogger<MoexHttpCalendarClient> _logger;
 
-        public MoexHttpCalendarClient(IOptions<MoexAlgOptions> options, HttpClient httpClient, ILogger<MoexHttpCalendarClient> logger)
+        public MoexHttpCalendarClient(IOptions<MoexCalendarOptions> options, HttpClient httpClient, ILogger<MoexHttpCalendarClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;

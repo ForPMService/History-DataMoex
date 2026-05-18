@@ -42,7 +42,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -83,7 +83,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -137,7 +137,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -178,7 +178,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -232,7 +232,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -273,7 +273,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -594,7 +594,7 @@ namespace History_DataMoex.Parsing
                 else if (reader.ValueTextEquals("data"u8))
                 {
                     if (!foundColumns)
-                        throw new InvalidOperationException(
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                             $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                     foundData = true;
@@ -643,7 +643,7 @@ namespace History_DataMoex.Parsing
                 else if (reader.ValueTextEquals("data"u8))
                 {
                     if (!foundColumns)
-                        throw new InvalidOperationException(
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                             $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                     foundData = true;
@@ -696,7 +696,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -737,7 +737,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -795,7 +795,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;
@@ -836,7 +836,7 @@ namespace History_DataMoex.Parsing
                     else if (reader.ValueTextEquals("data"u8))
                     {
                         if (!foundColumns)
-                            throw new InvalidOperationException(
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
                                 $"[{schema.RootKey}] Секция 'data' встретилась до 'columns'. Порядок columns → data обязателен.");
 
                         foundData = true;

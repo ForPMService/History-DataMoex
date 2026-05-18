@@ -1,5 +1,6 @@
 using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Parsing;
+using History_DataMoex.Parsing.Errors;
 using System.Text;
 
 namespace TestHistoryData
@@ -65,11 +66,11 @@ namespace TestHistoryData
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 3. Cursor-блок не найден → InvalidOperationException
+        // 3. Cursor-блок не найден → MoexSchemaMismatchException (Lock §10)
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        public void ParseCursorUtf8_CursorBlockMissing_ThrowsInvalidOperation()
+        public void ParseCursorUtf8_CursorBlockMissing_ThrowsSchemaMismatch()
         {
             string json = """
             {
@@ -82,7 +83,7 @@ namespace TestHistoryData
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-            Assert.Throws<InvalidOperationException>(
+            Assert.Throws<MoexSchemaMismatchException>(
                 () => ParseHelpersUtf8.ParseCursorUtf8(bytes, "data.cursor"));
         }
 

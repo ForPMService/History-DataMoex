@@ -202,7 +202,7 @@ namespace TestHistoryData
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        public void ParseSuspendedWithReasons_MissingSuspendedTable_ThrowsInvalidOperation()
+        public void ParseSuspendedWithReasons_MissingSuspendedTable_ThrowsSchemaMismatch()
         {
             string json = """
             {
@@ -223,7 +223,7 @@ namespace TestHistoryData
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-            Assert.Throws<InvalidOperationException>(
+            Assert.Throws<MoexSchemaMismatchException>(
                 () => ParsingCalendarUtf8.ParseSuspendedWithReasons(bytes));
         }
 

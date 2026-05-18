@@ -3,6 +3,7 @@ using History_DataMoex.Contracts.Dto;
 using History_DataMoex.Parsing.Errors;
 using System.Buffers.Text;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 
@@ -10,6 +11,31 @@ namespace History_DataMoex.Parsing
 {
     public class ParseHelpersUtf8
     {
+        // ═══════════════════════════════════════════════════════════
+        // Structural failure helper (Phase 8-A, Lock §10)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Бросает MoexSchemaMismatchException для structural failure парсера.
+        /// rootKey передаётся как dataNeedCode (используется для диагностики и фильтрации
+        /// в ingestion слое ProjectTraiding). Column-параметры передаются пустыми массивами —
+        /// для structural failures конкретные колонки не релевантны.
+        ///
+        /// Помечен [DoesNotReturn] чтобы компилятор не требовал unreachable return после вызова.
+        /// Используется парсерами для: missing root key, missing columns block, missing data block,
+        /// data before columns, missing cursor block, wrong token type structural. Lock §10.
+        /// </summary>
+        [DoesNotReturn]
+        internal static void SchemaMismatch(string rootKey, string message)
+        {
+            throw new MoexSchemaMismatchException(
+                message: message,
+                expectedColumns: Array.Empty<string>(),
+                actualColumns: Array.Empty<string>(),
+                missingColumns: Array.Empty<string>(),
+                dataNeedCode: rootKey);
+        }
+
         // ═══════════════════════════════════════════════════════════
         // Навигация к RootKey (A1)
         // ═══════════════════════════════════════════════════════════
@@ -20,7 +46,7 @@ namespace History_DataMoex.Parsing
         /// 
         /// После вызова reader стоит на StartObject внутри rootKey.
         /// 
-        /// Бросает InvalidOperationException если:
+        /// Бросает MoexSchemaMismatchException (Lock §10) если:
         /// — rootKey не найден до конца JSON;
         /// — значение rootKey не является объектом.
         /// </summary>
@@ -42,7 +68,7 @@ namespace History_DataMoex.Parsing
             {
                 if (reader.TokenType == JsonTokenType.EndObject)
                 {
-                    throw new InvalidOperationException(
+                    SchemaMismatch(rootKey,
                         $"MOEX ответ не содержит корневой ключ '{rootKey}'.");
                 }
 
@@ -53,7 +79,7 @@ namespace History_DataMoex.Parsing
                 {
                     if (!reader.Read() || reader.TokenType != JsonTokenType.StartObject)
                     {
-                        throw new InvalidOperationException(
+                        SchemaMismatch(rootKey,
                             $"[{rootKey}] Ожидался объект (StartObject), " +
                             $"получено {reader.TokenType}.");
                     }
@@ -64,7 +90,7 @@ namespace History_DataMoex.Parsing
                 reader.Skip();
             }
 
-            throw new InvalidOperationException(
+            SchemaMismatch(rootKey,
                 $"MOEX ответ не содержит корневой ключ '{rootKey}'.");
         }
 
@@ -78,8 +104,8 @@ namespace History_DataMoex.Parsing
         /// Для схем без пропусков — проверяет все колонки подряд.
         /// Для схем с пропусками (ISS Securities) — проверяет только указанные позиции.
         /// 
-        /// Бросает MoexSchemaMismatchException при несовпадении имени колонки.
-        /// Бросает InvalidOperationException при неправильном количестве колонок.
+        /// Бросает MoexSchemaMismatchException при несовпадении имени колонки или
+        /// при неправильном количестве колонок (Lock §10).
         /// </summary>
         internal static void ValidateColumnsUtf8(
             ref Utf8JsonReader reader,
@@ -117,12 +143,12 @@ namespace History_DataMoex.Parsing
             }
 
             if (position != schema.TotalColumns)
-                throw new InvalidOperationException(
+                SchemaMismatch(schema.RootKey,
                     $"[{schema.RootKey}] Количество колонок не совпадает: " +
                     $"ожидалось {schema.TotalColumns}, получено {position}.");
 
             if (expectedIdx != schema.Columns.Length)
-                throw new InvalidOperationException(
+                SchemaMismatch(schema.RootKey,
                     $"[{schema.RootKey}] Не все ожидаемые колонки найдены: " +
                     $"ожидалось {schema.Columns.Length}, проверено {expectedIdx}.");
         }
@@ -141,11 +167,11 @@ namespace History_DataMoex.Parsing
             string rootKey)
         {
             if (!foundColumns)
-                throw new InvalidOperationException(
+                SchemaMismatch(rootKey,
                     $"[{rootKey}] Блок не содержит секцию 'columns'.");
 
             if (!foundData)
-                throw new InvalidOperationException(
+                SchemaMismatch(rootKey,
                     $"[{rootKey}] Блок не содержит секцию 'data'.");
         }
 
@@ -179,7 +205,7 @@ namespace History_DataMoex.Parsing
             for (int pos = 0; pos < schema.TotalColumns; pos++)
             {
                 if (!reader.Read())
-                    throw new InvalidOperationException(
+                    SchemaMismatch(schema.RootKey,
                         $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
 
                 // A4: защита от короткой строки
@@ -236,7 +262,7 @@ namespace History_DataMoex.Parsing
             string rootKey)
         {
             if (!reader.Read() || reader.TokenType != expectedType)
-                throw new InvalidOperationException(
+                SchemaMismatch(rootKey,
                     $"[{rootKey}] Ожидался {expectedType} для '{context}', " +
                     $"получено {reader.TokenType}.");
         }
@@ -421,7 +447,7 @@ namespace History_DataMoex.Parsing
                 else if (reader.ValueTextEquals("data"u8))
                 {
                     if (!foundColumns)
-                        throw new InvalidOperationException(
+                        SchemaMismatch(cursorKey,
                             $"[{cursorKey}] Секция 'data' встретилась до 'columns'. " +
                             $"Порядок columns → data обязателен.");
 
@@ -472,7 +498,7 @@ namespace History_DataMoex.Parsing
         ///   "suspended.cursor"  — Calendar Suspended
         ///   "securities.cursor" — Calendar SecurityChanges
         ///
-        /// Если cursor-блок не найден — SkipToRootObject бросает InvalidOperationException.
+        /// Если cursor-блок не найден — SkipToRootObject бросает MoexSchemaMismatchException (Lock §10).
         /// </summary>
         public static PaginationCursorDTO ParseCursorUtf8(
             ReadOnlySpan<byte> jsonBytes,
@@ -505,7 +531,7 @@ namespace History_DataMoex.Parsing
                 else if (reader.ValueTextEquals("data"u8))
                 {
                     if (!foundColumns)
-                        throw new InvalidOperationException(
+                        SchemaMismatch(cursorKey,
                             $"[{cursorKey}] Секция 'data' встретилась до 'columns'. " +
                             $"Порядок columns → data обязателен.");
 

@@ -40,4 +40,20 @@ public abstract class MappingException : Exception
         RowIndex ??= rowIndex;
         return this;
     }
+
+    /// <summary>
+    /// Обогащает exception категорией и rowIndex БЕЗ установки SecId.
+    /// Используется для non-instrument mapping контекста: Calendar Group C (нет SecId в модели)
+    /// и Group B где normalized SecId == null (board/session-level rule). Lock §14.
+    ///
+    /// Идемпотентность: если Category/RowIndex уже установлены — не перезаписываются (??=).
+    /// SecId явно не трогается — остаётся null или ранее установленное значение.
+    /// </summary>
+    public MappingException WithContext(string category, int rowIndex)
+    {
+        Category ??= category;
+        // SecId намеренно не трогаем — это контракт overload-а
+        RowIndex ??= rowIndex;
+        return this;
+    }
 }

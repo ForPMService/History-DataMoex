@@ -24,6 +24,11 @@ public static class MoexClientServiceCollectionExtensions
             .Validate(HasValidBaseUrl, "MoexAlg:BaseUrl must be a valid absolute URI.")
             .ValidateOnStart();
 
+        services.AddOptions<MoexCalendarOptions>()
+            .Bind(configuration.GetSection("MoexCalendar"))
+            .Validate(HasValidBaseUrl, "MoexCalendar:BaseUrl must be a valid absolute URI.")
+            .ValidateOnStart();
+
         // ══════════════════════════════════════════════
         // ISS Client
         // ══════════════════════════════════════════════
@@ -81,11 +86,11 @@ public static class MoexClientServiceCollectionExtensions
         // ══════════════════════════════════════════════
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
         {
-            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
+            MoexCalendarOptions options = sp.GetRequiredService<IOptions<MoexCalendarOptions>>().Value;
             ApplyCommonHttpClientOptions(client, options);
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
+            MoexCalendarOptions options = sp.GetRequiredService<IOptions<MoexCalendarOptions>>().Value;
             return CreateDefaultHandler(options);
         })
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(

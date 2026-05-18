@@ -49,4 +49,35 @@ public static class RowHashHelper
 
     public static string Fmt(string? v)
         => v ?? "";
+
+    /// <summary>
+    /// Форматирует decimal? для канонической строки RowHashV1.
+    /// G29 нормализует representation до значимых цифр: 1.0m и 1.00m дадут одинаковую строку.
+    /// Без явного формата decimal.ToString() сохраняет scale → разные строки → разный hash → frozen V1 ломается.
+    /// Lock §7.
+    /// </summary>
+    public static string Fmt(decimal? v)
+        => v.HasValue ? v.Value.ToString("G29", CultureInfo.InvariantCulture) : "";
+
+    /// <summary>
+    /// Форматирует DateOnly? для канонической строки RowHashV1 как "yyyy-MM-dd".
+    /// </summary>
+    public static string Fmt(DateOnly? v)
+        => v.HasValue ? v.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "";
+
+    /// <summary>
+    /// Форматирует TimeOnly? для канонической строки RowHashV1 как "HH:mm:ss".
+    /// </summary>
+    public static string Fmt(TimeOnly? v)
+        => v.HasValue ? v.Value.ToString("HH:mm:ss", CultureInfo.InvariantCulture) : "";
+
+    /// <summary>
+    /// Форматирует DateTime? UTC для канонической строки RowHashV1 через Ticks.
+    /// Ticks — компактное целочисленное representation с гарантированной стабильностью между
+    /// .NET версиями (в отличие от "O" round-trip формата, где могут быть нюансы микросекунд).
+    /// Используется только для UTC timestamp-полей (UpdateTimeUtc, TimeFromUtc, и т.д.).
+    /// Если DateTimeKind != Utc — это баг маппера; здесь проверка не делается (helper доверяет вызывающему).
+    /// </summary>
+    public static string FmtUtc(DateTime? v)
+        => v.HasValue ? v.Value.Ticks.ToString(CultureInfo.InvariantCulture) : "";
 }

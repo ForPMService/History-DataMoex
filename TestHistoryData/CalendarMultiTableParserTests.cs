@@ -115,7 +115,7 @@ namespace TestHistoryData
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        public void ParseStockSession_MissingSessionSchedule_ThrowsInvalidOperation()
+        public void ParseStockSession_MissingSessionSchedule_ThrowsSchemaMismatch()
         {
             string json = """
             {
@@ -130,7 +130,7 @@ namespace TestHistoryData
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-            Assert.Throws<InvalidOperationException>(
+            Assert.Throws<MoexSchemaMismatchException>(
                 () => ParsingCalendarUtf8.ParseStockSession(bytes));
         }
 

@@ -100,7 +100,8 @@ namespace TestHistoryData
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-            Assert.Throws<InvalidOperationException>(
+            // Phase 8-A: column count mismatch — structural → MoexSchemaMismatchException (Lock §10).
+            Assert.Throws<MoexSchemaMismatchException>(
                 () => ParsingAlgUtf8.ParseAlgCandles(bytes));
         }
 

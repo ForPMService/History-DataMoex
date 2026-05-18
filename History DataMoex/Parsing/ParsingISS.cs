@@ -1,4 +1,6 @@
-﻿using History_DataMoex.Contracts.Dto.Iss;
+﻿// LEGACY: not used by Phase 8 mappers. Production path is ParsingIssUtf8.
+// Removal: separate cleanup task after Phase 8-D. Lock §11.
+using History_DataMoex.Contracts.Dto.Iss;
 using System.Text.Json;
 
 namespace History_DataMoex.Parsing

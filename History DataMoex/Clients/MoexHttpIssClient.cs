@@ -25,6 +25,14 @@ namespace History_DataMoex.Clients
             _httpClient = httpClient;
             _logger = logger;
         }
+        /// <summary>
+        /// Diagnostic only. Does not use typed error handling (no MoexHttpException hierarchy,
+        /// no EnsureSuccessOrThrow, no structured logging).
+        /// Do NOT use for production raw capture. Phase 8 uses SendRequestAsync-based path
+        /// in GetInfoTradedStockAssetsRaw / GetInfoTradedFuturesAssetsRaw (added in Phase 8-C).
+        /// Used by DebugEndpoints only. Reliability fix: separate cleanup task after Phase 8-D.
+        /// Lock §12.
+        /// </summary>
         public async Task<string> GetRaw(
             string method,
             CancellationToken cancellationToken = default)
