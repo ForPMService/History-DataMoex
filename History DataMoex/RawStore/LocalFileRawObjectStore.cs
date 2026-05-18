@@ -225,8 +225,8 @@ public sealed class LocalFileRawObjectStore : IRawObjectStore
 
     /// <summary>
     /// Сериализует манифест через ArrayBufferWriter&lt;byte&gt; + Utf8JsonWriter.
-    /// Возвращает ReadOnlyMemory&lt;byte&gt; без копий. MemoryStream + copy-to-array запрещён
-    /// (см. grep guard в DoD).
+    /// Возвращает ReadOnlyMemory&lt;byte&gt; без копий буфера на disk-write path
+    /// (см. grep guards в DoD).
     /// </summary>
     private static ReadOnlyMemory<byte> BuildManifest(
         MapContext context,
