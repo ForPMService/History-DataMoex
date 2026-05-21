@@ -19,13 +19,13 @@ namespace History_DataMoex.Clients
 {
     public class MoexHttpIssClient
     {
-        private readonly MoexIssOptions _options;
+        private readonly MoexOptions _options;
         private readonly HttpClient _httpClient;
         private readonly IRawObjectStore _rawObjectStore;
         private readonly ILogger<MoexHttpIssClient> _logger;
 
         public MoexHttpIssClient(
-            IOptions<MoexIssOptions> options,
+            IOptions<MoexOptions> options,
             HttpClient httpClient,
             IRawObjectStore rawObjectStore,
             ILogger<MoexHttpIssClient> logger)
@@ -47,7 +47,7 @@ namespace History_DataMoex.Clients
             string method,
             CancellationToken cancellationToken = default)
         {
-            string requestUrl = _options.BaseUrl + method;
+            string requestUrl = _options.IssBaseUrl + method;
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             var response = await _httpClient.SendAsync(request, cancellationToken);
 
@@ -244,7 +244,7 @@ namespace History_DataMoex.Clients
 
         private async Task<HttpResponseMessage> SendRequestAsync(string method, CancellationToken cancellationToken)
         {
-            string requestUrl = _options.BaseUrl + method;
+            string requestUrl = _options.IssBaseUrl + method;
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             try
             {

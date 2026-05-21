@@ -14,32 +14,29 @@ public static class MoexClientServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddOptions<MoexIssOptions>()
-            .Bind(configuration.GetSection("MoexIss"))
-            .Validate(HasValidBaseUrl, "MoexIss:BaseUrl must be a valid absolute URI.")
-            .ValidateOnStart();
+        
 
-        services.AddOptions<MoexAlgOptions>()
-            .Bind(configuration.GetSection("MoexAlg"))
-            .Validate(HasValidBaseUrl, "MoexAlg:BaseUrl must be a valid absolute URI.")
-            .ValidateOnStart();
-
-        services.AddOptions<MoexCalendarOptions>()
-            .Bind(configuration.GetSection("MoexCalendar"))
-            .Validate(HasValidBaseUrl, "MoexCalendar:BaseUrl must be a valid absolute URI.")
-            .ValidateOnStart();
+        services.AddOptions<MoexOptions>()
+            .Bind(configuration.GetSection("Moex"));
 
         // ══════════════════════════════════════════════
         // ISS Client
         // ══════════════════════════════════════════════
         services.AddHttpClient<MoexHttpIssClient>((sp, client) =>
         {
-            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
-            ApplyCommonHttpClientOptions(client, options);
+            MoexOptions options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            client.Timeout = options.RequestTimeout;
+
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexIssOptions options = sp.GetRequiredService<IOptions<MoexIssOptions>>().Value;
-            return CreateDefaultHandler(options);
+            var options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            return new SocketsHttpHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                MaxConnectionsPerServer = options.MaxConnectionsPerServer,
+            };
         })
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
@@ -55,17 +52,25 @@ public static class MoexClientServiceCollectionExtensions
             options.Retry.OnRetry = args => OnRetryHandler(args, logger, MoexLogSources.Iss);
         });
 
+
+
         // ══════════════════════════════════════════════
         // Algopack Client
         // ══════════════════════════════════════════════
         services.AddHttpClient<MoexHttpAlgClient>((sp, client) =>
         {
-            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
-            ApplyCommonHttpClientOptions(client, options);
+            MoexOptions options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            client.Timeout = options.RequestTimeout;
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexAlgOptions options = sp.GetRequiredService<IOptions<MoexAlgOptions>>().Value;
-            return CreateDefaultHandler(options);
+            var options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            return new SocketsHttpHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                MaxConnectionsPerServer = options.MaxConnectionsPerServer,
+            };
         })
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
@@ -86,12 +91,18 @@ public static class MoexClientServiceCollectionExtensions
         // ══════════════════════════════════════════════
         services.AddHttpClient<MoexHttpCalendarClient>((sp, client) =>
         {
-            MoexCalendarOptions options = sp.GetRequiredService<IOptions<MoexCalendarOptions>>().Value;
-            ApplyCommonHttpClientOptions(client, options);
+            MoexOptions options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            client.Timeout = options.RequestTimeout;
         }).ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            MoexCalendarOptions options = sp.GetRequiredService<IOptions<MoexCalendarOptions>>().Value;
-            return CreateDefaultHandler(options);
+            MoexOptions options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            return new SocketsHttpHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                MaxConnectionsPerServer = options.MaxConnectionsPerServer,
+            };
         })
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
@@ -186,30 +197,5 @@ public static class MoexClientServiceCollectionExtensions
         return default;
     }
 
-    private static void ApplyCommonHttpClientOptions(
-        HttpClient client,
-        MoexClientOptions options)
-    {
-        client.Timeout = options.RequestTimeout;
-
-        if (!string.IsNullOrWhiteSpace(options.UserAgent))
-        {
-            client.DefaultRequestHeaders.UserAgent.Clear();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
-        }
-    }
-
-    private static SocketsHttpHandler CreateDefaultHandler(MoexClientOptions options) => new()
-    {
-        AutomaticDecompression = DecompressionMethods.All,
-        PooledConnectionLifetime = TimeSpan.FromMinutes(10),
-        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-        MaxConnectionsPerServer = options.MaxConnectionsPerServer,
-    };
-
-    private static bool HasValidBaseUrl(MoexClientOptions options)
-    {
-        return Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out Uri? uri)
-            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
-    }
+    
 }

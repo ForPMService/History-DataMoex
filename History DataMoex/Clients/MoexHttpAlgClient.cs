@@ -17,11 +17,11 @@ namespace History_DataMoex.Clients
 {
     public class MoexHttpAlgClient
     {
-        private readonly MoexAlgOptions _options;
+        private readonly MoexOptions _options;
         private readonly HttpClient _httpClient;
         private readonly ILogger<MoexHttpAlgClient> _logger;
 
-        public MoexHttpAlgClient(IOptions<MoexAlgOptions> options, HttpClient httpClient, ILogger<MoexHttpAlgClient> logger)
+        public MoexHttpAlgClient(IOptions<MoexOptions> options, HttpClient httpClient, ILogger<MoexHttpAlgClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
@@ -33,7 +33,7 @@ namespace History_DataMoex.Clients
             Dictionary<string, string>? queryParams = null,
             CancellationToken cancellationToken = default)
         {
-            string requestUrl = _options.BaseUrl + method;
+            string requestUrl = _options.ApimBaseUrl + method;
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
@@ -42,7 +42,7 @@ namespace History_DataMoex.Clients
             }
             EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
+            request.Headers.Add("Authorization", $"Bearer {_options.AlgKey}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
             // Не бросаем — видим что MOEX ответил
             return await response.Content.ReadAsStringAsync(cancellationToken);
@@ -589,7 +589,7 @@ namespace History_DataMoex.Clients
 
         private async Task<HttpResponseMessage> SendRequestAsync(string method, Dictionary<string, string>? queryParams = null, CancellationToken cancellationToken = default)
         {
-            string baseUrl = _options.BaseUrl;
+            string baseUrl = _options.ApimBaseUrl;
             string requestUrl = baseUrl + method;
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
@@ -599,7 +599,7 @@ namespace History_DataMoex.Clients
             }
             EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
+            request.Headers.Add("Authorization", $"Bearer {_options.AlgKey}");
             try
             {
                 var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -630,7 +630,7 @@ namespace History_DataMoex.Clients
 
         private void EnsureApiKeyConfigured()
         {
-            if (string.IsNullOrWhiteSpace(_options.Key))
+            if (string.IsNullOrWhiteSpace(_options.AlgKey))
             {
                 throw new InvalidOperationException(
                     "MOEX ALGOPACK API key is not configured. Set MoexAlg:Key via user-secrets or environment variable.");

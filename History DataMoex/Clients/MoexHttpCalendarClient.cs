@@ -22,13 +22,13 @@ namespace History_DataMoex.Clients
 {
     public class MoexHttpCalendarClient
     {
-        private readonly MoexCalendarOptions _options;
+        private readonly MoexOptions _options;
         private readonly HttpClient _httpClient;
         private readonly IRawObjectStore _rawObjectStore;
         private readonly ILogger<MoexHttpCalendarClient> _logger;
 
         public MoexHttpCalendarClient(
-            IOptions<MoexCalendarOptions> options,
+            IOptions<MoexOptions> options,
             HttpClient httpClient,
             IRawObjectStore rawObjectStore,
             ILogger<MoexHttpCalendarClient> logger)
@@ -901,7 +901,7 @@ namespace History_DataMoex.Clients
             Dictionary<string, string>? queryParams = null,
             CancellationToken cancellationToken = default)
         {
-            string requestUrl = _options.BaseUrl + method;
+            string requestUrl = _options.ApimBaseUrl + method;
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
@@ -910,7 +910,7 @@ namespace History_DataMoex.Clients
             }
             EnsureApiKeyConfigured();
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Add("Authorization", $"Bearer {_options.Key}");
+            request.Headers.Add("Authorization", $"Bearer {_options.AlgKey}");
             try
             {
                 var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -938,7 +938,7 @@ namespace History_DataMoex.Clients
 
         private void EnsureApiKeyConfigured()
         {
-            if (string.IsNullOrWhiteSpace(_options.Key))
+            if (string.IsNullOrWhiteSpace(_options.AlgKey))
             {
                 throw new InvalidOperationException(
                     "MOEX ALGOPACK API key is not configured. Set MoexAlg:Key via user-secrets or environment variable.");
