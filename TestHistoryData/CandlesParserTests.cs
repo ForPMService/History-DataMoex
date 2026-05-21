@@ -150,8 +150,11 @@ namespace TestHistoryData
 
             byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-            Assert.Throws<InvalidOperationException>(
-                () => ParsingAlgUtf8.ParseAlgCandles(bytes));
+            var ex = Assert.Throws<MoexSchemaMismatchException>(() =>
+                ParsingAlgUtf8.ParseAlgCandles(bytes));
+
+            Assert.Contains("candles", ex.Message);
+            Assert.Contains("data", ex.Message);
         }
 
         // ═══════════════════════════════════════════════════════════

@@ -1,13 +1,9 @@
 ﻿using History_DataMoex.Clients.Errors;
 using History_DataMoex.Contracts.Dto.Iss;
 using History_DataMoex.Infrastructure.Buffers;
-using History_DataMoex.Mappers;
-using History_DataMoex.Models;
 using History_DataMoex.Options;
 using History_DataMoex.Parsing;
 using History_DataMoex.Parsing.Errors;
-using History_DataMoex.RawCapture;
-using History_DataMoex.RawStore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
@@ -21,18 +17,15 @@ namespace History_DataMoex.Clients
     {
         private readonly MoexOptions _options;
         private readonly HttpClient _httpClient;
-        private readonly IRawObjectStore _rawObjectStore;
         private readonly ILogger<MoexHttpIssClient> _logger;
 
         public MoexHttpIssClient(
             IOptions<MoexOptions> options,
             HttpClient httpClient,
-            IRawObjectStore rawObjectStore,
             ILogger<MoexHttpIssClient> logger)
         {
             _options = options.Value;
             _httpClient = httpClient;
-            _rawObjectStore = rawObjectStore;
             _logger = logger;
         }
         /// <summary>
@@ -102,150 +95,10 @@ namespace History_DataMoex.Clients
             }
         }
 
-        // ══════════════════════════════════════════════════════════════
-        // Phase 8-C: internal raw методы — save-before-parse (Lock §2).
-        // 2 метода (ISS — page, без cursor; snapshot policy Lock §5/§6).
-        // Имена БЕЗ Async — convention из XML doc GetRaw (Lock §12) и существующих public методов.
-        // ══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Internal raw метод: snapshot справочника stock securities для конкретного board (ISS lite).
-        /// Caller подаёт полный relative URL включая board (например,
-        /// "/engines/stock/markets/shares/boards/tqbr/securities.json").
-        /// Save-before-parse + snapshot policy (Lock §2, §5, §6).
-        /// </summary>
-        internal async Task<SourcePage<IssStockSecurity>> GetInfoTradedStockAssetsRaw(
-            string method,
-            CancellationToken ct = default)
-        {
-            if (string.IsNullOrEmpty(method))
-                throw new ArgumentException("Method (URL) cannot be null or empty.", nameof(method));
-
-            long startTimestamp = Stopwatch.GetTimestamp();
-            const string sourceCode = "MOEX_ISS";
-            Guid loadJobId = Guid.CreateVersion7();
-            DateTime fetchedAtUtc = DateTime.UtcNow;
-
-            using var response = await SendRequestAsync(method, ct);
-            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
-
-            Guid rawObjectId = Guid.CreateVersion7();
-            MapContext mapCtx = new(
-                SourceCode: sourceCode,
-                Endpoint: method,
-                SourceTimezone: "Europe/Moscow",
-                LoadJobId: loadJobId,
-                RawObjectId: rawObjectId,
-                FetchedAtUtc: fetchedAtUtc);
-
-            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
-                content: rentedArr.Memory,
-                context: mapCtx,
-                secId: string.Empty,
-                fromDate: string.Empty,
-                tillDate: string.Empty,
-                ct: ct);
-
-            if (rawMeta.RawObjectId != rawObjectId)
-                throw new InvalidOperationException(
-                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
-
-            List<StockSecurityDTO> dtos;
-            try
-            {
-                dtos = ParsingIssUtf8.ParseIssSecurityStock(rentedArr.Span);
-            }
-            catch (MoexSchemaMismatchException ex)
-            {
-                MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
-                throw;
-            }
-
-            List<IssStockSecurity> models = IssStockSecurityMapper.MapBatch(dtos, mapCtx, _logger, ct);
-
-            MoexLogMessages.SinglePageReceived(_logger, method, models.Count, Stopwatch.GetElapsedTime(startTimestamp));
-
-            return new SourcePage<IssStockSecurity>
-            {
-                Items = models,
-                NextCursor = null,
-                RawObjectId = rawObjectId,
-                FetchedAtUtc = fetchedAtUtc,
-            };
-        }
-
-        /// <summary>
-        /// Internal raw метод: snapshot справочника futures securities для конкретного board (ISS lite).
-        /// Save-before-parse + snapshot policy (Lock §2, §5, §6).
-        /// </summary>
-        internal async Task<SourcePage<IssFuturesSecurity>> GetInfoTradedFuturesAssetsRaw(
-            string method,
-            CancellationToken ct = default)
-        {
-            if (string.IsNullOrEmpty(method))
-                throw new ArgumentException("Method (URL) cannot be null or empty.", nameof(method));
-
-            long startTimestamp = Stopwatch.GetTimestamp();
-            const string sourceCode = "MOEX_ISS";
-            Guid loadJobId = Guid.CreateVersion7();
-            DateTime fetchedAtUtc = DateTime.UtcNow;
-
-            using var response = await SendRequestAsync(method, ct);
-            int contentLength = (int)(response.Content.Headers.ContentLength ?? 1_048_576);
-            using var rentedArr = await RentedBuffer.RentFromStreamAsync(
-                await response.Content.ReadAsStreamAsync(ct), contentLength, ct);
-
-            Guid rawObjectId = Guid.CreateVersion7();
-            MapContext mapCtx = new(
-                SourceCode: sourceCode,
-                Endpoint: method,
-                SourceTimezone: "Europe/Moscow",
-                LoadJobId: loadJobId,
-                RawObjectId: rawObjectId,
-                FetchedAtUtc: fetchedAtUtc);
-
-            RawObjectMeta rawMeta = await _rawObjectStore.SaveAsync(
-                content: rentedArr.Memory,
-                context: mapCtx,
-                secId: string.Empty,
-                fromDate: string.Empty,
-                tillDate: string.Empty,
-                ct: ct);
-
-            if (rawMeta.RawObjectId != rawObjectId)
-                throw new InvalidOperationException(
-                    $"IRawObjectStore.SaveAsync returned different RawObjectId. Expected {rawObjectId}, got {rawMeta.RawObjectId}.");
-
-            List<FuturesSecurityDTO> dtos;
-            try
-            {
-                dtos = ParsingIssUtf8.ParseIssSecurityFutures(rentedArr.Span);
-            }
-            catch (MoexSchemaMismatchException ex)
-            {
-                MoexLogMessages.ParseFailed(_logger, ex, method, "schema_mismatch", ex.Message);
-                throw;
-            }
-
-            List<IssFuturesSecurity> models = IssFuturesSecurityMapper.MapBatch(dtos, mapCtx, _logger, ct);
-
-            MoexLogMessages.SinglePageReceived(_logger, method, models.Count, Stopwatch.GetElapsedTime(startTimestamp));
-
-            return new SourcePage<IssFuturesSecurity>
-            {
-                Items = models,
-                NextCursor = null,
-                RawObjectId = rawObjectId,
-                FetchedAtUtc = fetchedAtUtc,
-            };
-        }
-
         private async Task<HttpResponseMessage> SendRequestAsync(string method, CancellationToken cancellationToken)
         {
             string requestUrl = _options.IssBaseUrl + method;
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             try
             {
                 var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

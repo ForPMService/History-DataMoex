@@ -598,7 +598,7 @@ namespace History_DataMoex.Clients
                 requestUrl += queryString.ToString();
             }
             EnsureApiKeyConfigured();
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Add("Authorization", $"Bearer {_options.AlgKey}");
             try
             {

@@ -1,6 +1,5 @@
 using History_DataMoex.Clients;
 using History_DataMoex.Options;
-using History_DataMoex.RawStore;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
@@ -117,12 +116,6 @@ public static class MoexClientServiceCollectionExtensions
                 .CreateLogger($"{typeof(MoexHttpCalendarClient).FullName}.MoexRetryPolicy");
             options.Retry.OnRetry = args => OnRetryHandler(args, logger, MoexLogSources.Calendar);
         });
-
-        // ── Raw Object Store ──
-        services.AddOptions<RawStoreOptions>()
-            .Bind(configuration.GetSection("RawStore"));
-
-        services.AddSingleton<IRawObjectStore, LocalFileRawObjectStore>();
 
         return services;
     }

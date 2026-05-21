@@ -16,10 +16,9 @@ namespace History_DataMoex.Infrastructure.Buffers
         public ReadOnlySpan<byte> Span => _buffer.AsSpan(0, _length);
 
         /// <summary>
-        /// Read-only memory view над тем же arr/length, что и Span. Используется для передачи
-        /// в IRawObjectStore.SaveAsync(content: ReadOnlyMemory&lt;byte&gt;, ...) без аллокации через
-        /// .ToArray(). Behavior-neutral по отношению к существующему Span (Lock §2 — точечная
-        /// добавка обоснована единственным способом передать buffer в SaveAsync без копирования).
+        /// Read-only memory view над тем же арендованным массивом и длиной, что и Span.
+        /// Подходит для API, которым нужен ReadOnlyMemory&lt;byte&gt;, и позволяет передать
+        /// содержимое без .ToArray() и без лишнего копирования буфера.
         /// </summary>
         public ReadOnlyMemory<byte> Memory => _buffer.AsMemory(0, _length);
         public void Dispose()
