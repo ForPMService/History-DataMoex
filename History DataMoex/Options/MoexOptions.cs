@@ -19,7 +19,31 @@
         /// <summary>Таймаут одного HTTP-запроса.</summary>
         public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
-        public int MaxConnectionsPerServer { get; set; } = 32;
+        public int MaxConnectionsPerServer { get; set; } = 10;
         public int MaxPagesPerLoad { get; set; } = 10_000;
+
+        // ── Rate Limiter ────────────────────────────────────
+
+        /// <summary>
+        /// Максимум HTTP-запросов к MOEX в секунду (все клиенты суммарно).
+        /// MOEX ≈ 10 req/sec на IP (частная переписка, май 2026).
+        /// Ставим 8, чтобы оставить запас и не ходить по краю.
+        /// </summary>
+        public int MaxRequestsPerSecond { get; set; } = 8;
+
+        /// <summary>
+        /// Максимум запросов, ожидающих жетон в очереди rate limiter.
+        /// Если очередь полна — мгновенный отказ MoexRateLimitRejectedException.
+        /// 64 — достаточно для нескольких параллельных пагинаций,
+        /// но не даёт копить тысячу запросов при зависании.
+        /// </summary>
+        public int RateLimitQueueLimit { get; set; } = 64;
+
+        /// <summary>
+        /// Сколько запрос ждёт жетон, прежде чем получить отказ.
+        /// Если за это время жетон не появился — MoexRateLimitRejectedException.
+        /// 30 секунд — долго ждать одного жетона, значит что-то сильно не так.
+        /// </summary>
+        public TimeSpan RateLimitAcquireTimeout { get; set; } = TimeSpan.FromSeconds(30);
     }
 }

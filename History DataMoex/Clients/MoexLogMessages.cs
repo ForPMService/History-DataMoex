@@ -106,6 +106,32 @@ namespace History_DataMoex.Clients
         [LoggerMessage(EventId = 143, EventName = "MoexRequestCancelled", Level = LogLevel.Information, Message = "MOEX request was cancelled by caller: endpoint={Endpoint}.")]
         public static partial void RequestCancelled(ILogger logger, Exception exception, string endpoint);
 
+        // ── Rate Limiter ────────────────────────────────────────
+
+        /// <summary>
+        /// Логирует получение permit от rate limiter.
+        /// Debug-уровень: пишется на каждый запрос, в production обычно выключен.
+        /// В отладке позволяет увидеть, что limiter работает и сколько ждал каждый запрос.
+        /// </summary>
+        [LoggerMessage(
+            EventId = 150,
+            EventName = "MoexRateLimitAcquired",
+            Level = LogLevel.Debug,
+            Message = "MOEX rate limit permit acquired: endpoint={Endpoint}, waitMs={WaitMs}.")]
+        public static partial void RateLimitAcquired(ILogger logger, string endpoint, double waitMs);
+
+        /// <summary>
+        /// Логирует запрос, который ждал в очереди rate limiter дольше порога.
+        /// Information-уровень: сигнал, что мы подходим к пределу пропускной способности.
+        /// Если таких записей много — нужно разобраться: слишком агрессивная пагинация,
+        /// параллельные загрузки или лимит занижен.
+        /// </summary>
+        [LoggerMessage(
+            EventId = 151,
+            EventName = "MoexRateLimitQueued",
+            Level = LogLevel.Information,
+            Message = "MOEX rate limit queued: endpoint={Endpoint}, waitMs={WaitMs}.")]
+        public static partial void RateLimitQueued(ILogger logger, string endpoint, double waitMs);
 
     }
 

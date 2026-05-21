@@ -4,6 +4,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
 using System.Net;
+using System.Threading.RateLimiting;
 namespace History_DataMoex.Infrastructure.DependencyInjection;
 
 public static class MoexClientServiceCollectionExtensions
@@ -17,6 +18,23 @@ public static class MoexClientServiceCollectionExtensions
 
         services.AddOptions<MoexOptions>()
             .Bind(configuration.GetSection("Moex"));
+
+        // ══════════════════════════════════════════════
+        // Rate Limiter — один на все MOEX-клиенты.
+        // Лимит MOEX на IP, не на endpoint, поэтому один limiter на процесс.
+        // ══════════════════════════════════════════════
+        services.AddSingleton<RateLimiter>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            return new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = options.MaxRequestsPerSecond,
+                TokensPerPeriod = options.MaxRequestsPerSecond,
+                ReplenishmentPeriod = TimeSpan.FromSeconds(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = options.RateLimitQueueLimit,
+            });
+        });
 
         // ══════════════════════════════════════════════
         // ISS Client
@@ -37,6 +55,10 @@ public static class MoexClientServiceCollectionExtensions
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer,
             };
         })
+        .AddHttpMessageHandler(sp => new MoexRateLimitHandler(            // ← НОВОЕ
+            sp.GetRequiredService<RateLimiter>(),
+            sp.GetRequiredService<IOptions<MoexOptions>>().Value,
+            sp.GetRequiredService<ILogger<MoexRateLimitHandler>>()))
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
             MoexLogSources.Iss))
@@ -71,6 +93,10 @@ public static class MoexClientServiceCollectionExtensions
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer,
             };
         })
+        .AddHttpMessageHandler(sp => new MoexRateLimitHandler(            // ← НОВОЕ
+            sp.GetRequiredService<RateLimiter>(),
+            sp.GetRequiredService<IOptions<MoexOptions>>().Value,
+            sp.GetRequiredService<ILogger<MoexRateLimitHandler>>()))
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
             MoexLogSources.Algopack))
@@ -103,6 +129,10 @@ public static class MoexClientServiceCollectionExtensions
                 MaxConnectionsPerServer = options.MaxConnectionsPerServer,
             };
         })
+        .AddHttpMessageHandler(sp => new MoexRateLimitHandler(            // ← НОВОЕ
+            sp.GetRequiredService<RateLimiter>(),
+            sp.GetRequiredService<IOptions<MoexOptions>>().Value,
+            sp.GetRequiredService<ILogger<MoexRateLimitHandler>>()))
         .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
             sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
             MoexLogSources.Calendar))
