@@ -32,6 +32,8 @@ app.MapCalendarEndpoints();
 
 app.MapRealtimeDebugEndpoints();
 
+app.MapRealtimeDiagnosticEndpoints();
+
 app.UseHttpsRedirection();
 
 if(app.Environment.IsDevelopment())
