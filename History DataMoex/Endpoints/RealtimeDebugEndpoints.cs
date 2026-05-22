@@ -23,7 +23,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/orderbook-stock/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var result = await client.GetOrderbookStockAsync(ticker, ct);
@@ -37,7 +37,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/orderbook-futures/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var result = await client.GetOrderbookFuturesAsync(ticker, ct);
@@ -51,7 +51,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/trades-stock/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var result = await client.GetTradesStockAsync(ticker, cancellationToken: ct);
@@ -68,7 +68,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/trades-futures/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var result = await client.GetTradesFuturesAsync(ticker, cancellationToken: ct);
@@ -85,7 +85,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/candles-today-stock/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var tradeDate = DateOnly.FromDateTime(DateTime.Today);
@@ -100,7 +100,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/candles-today-futures/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 var tradeDate = DateOnly.FromDateTime(DateTime.Today);
@@ -119,7 +119,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/raw/orderbook-stock/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 string url = $"/engines/stock/markets/shares/boards/TQBR/securities/{ticker}/orderbook.json";
@@ -129,7 +129,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/raw/orderbook-futures/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 string url = $"/engines/futures/markets/forts/boards/RFUD/securities/{ticker}/orderbook.json";
@@ -139,7 +139,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/raw/trades-stock/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 string url = $"/engines/stock/markets/shares/boards/TQBR/securities/{ticker}/trades.json";
@@ -149,7 +149,7 @@ namespace History_DataMoex.Endpoints
 
             group.MapGet("/raw/trades-futures/{ticker}", async (
                 string ticker,
-                MoexHttpRealtimeClient client,
+                MoexRealtimeRestClient client,
                 CancellationToken ct) =>
             {
                 string url = $"/engines/futures/markets/forts/boards/RFUD/securities/{ticker}/trades.json";

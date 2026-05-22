@@ -1,6 +1,7 @@
-using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Dto.Algopack;
+using History_DataMoex.Contracts.Dto.Calendar;
 using History_DataMoex.Contracts.Dto.Iss;
+using History_DataMoex.Contracts.Dto.Realtime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -88,6 +89,21 @@ namespace History_DataMoex.Contracts.Serialization
     [JsonSerializable(typeof(IAsyncEnumerable<MegaAlertsFuturesDTO>))]
     [JsonSerializable(typeof(IAsyncEnumerable<CalendarSuspendedDTO>))]
     [JsonSerializable(typeof(IAsyncEnumerable<CalendarSecurityChangeDTO>))]
+
+    [JsonSerializable(typeof(RealtimeOrderbookParseResult))]
+    [JsonSerializable(typeof(RealtimeTradesParseResult<RealtimeTradesStockDTO>))]
+    [JsonSerializable(typeof(RealtimeTradesParseResult<RealtimeTradesFuturesDTO>))]
+
+    [JsonSerializable(typeof(RealtimeOrderbookRowDTO))]
+    [JsonSerializable(typeof(RealtimeDataVersionDTO))]
+    [JsonSerializable(typeof(RealtimeTradesStockDTO))]
+    [JsonSerializable(typeof(RealtimeTradesFuturesDTO))]
+    [JsonSerializable(typeof(RealtimeTradesYieldsDTO))]
+
+    [JsonSerializable(typeof(List<RealtimeOrderbookRowDTO>))]
+    [JsonSerializable(typeof(List<RealtimeTradesStockDTO>))]
+    [JsonSerializable(typeof(List<RealtimeTradesFuturesDTO>))]
+    [JsonSerializable(typeof(List<RealtimeTradesYieldsDTO>))]
 
     public partial class AppJsonContext : JsonSerializerContext
     {

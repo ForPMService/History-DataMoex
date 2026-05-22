@@ -30,6 +30,8 @@ app.MapAlgopackEndpoints();
 // В будущем календарный /v1 API будет использовать нормализованные модели календаря и модеи Базы.
 app.MapCalendarEndpoints();
 
+app.MapRealtimeDebugEndpoints();
+
 app.UseHttpsRedirection();
 
 if(app.Environment.IsDevelopment())
