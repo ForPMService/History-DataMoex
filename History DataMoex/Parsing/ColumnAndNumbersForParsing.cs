@@ -673,6 +673,129 @@
                 new(2, "PAGESIZE"u8.ToArray()),
             });
 
+        // ═══════════════════════════════════════════════════════════
+        // Real-time — Orderbook (стакан котировок)
+        // Источник: raw fixtures orderbook-stock-raw.json, orderbook-futures-raw.json
+        // rootKey: "orderbook", columnCount: 8, используем: все 8
+        //
+        // Структура stock и futures идентична.
+        // ═══════════════════════════════════════════════════════════
+
+        public static readonly ExpectedSchema RealtimeOrderbookSchema = new(
+            TotalColumns: 8,
+            RootKey: "orderbook",
+            Columns: new ExpectedColumn[]
+            {
+                new(0, "BOARDID"u8.ToArray()),
+                new(1, "SECID"u8.ToArray()),
+                new(2, "BUYSELL"u8.ToArray()),
+                new(3, "PRICE"u8.ToArray()),
+                new(4, "QUANTITY"u8.ToArray()),
+                new(5, "SEQNUM"u8.ToArray()),
+                new(6, "UPDATETIME"u8.ToArray()),
+                new(7, "DECIMALS"u8.ToArray()),
+            });
+
+        // ═══════════════════════════════════════════════════════════
+        // Real-time — DataVersion (служебный блок версии данных)
+        // Источник: raw fixtures orderbook-*-raw.json, trades-*-raw.json
+        // rootKey: "dataversion", columnCount: 4, используем: все 4
+        //
+        // Вложен в ответы orderbook и trades.
+        // Структура stock и futures идентична.
+        // ═══════════════════════════════════════════════════════════
+
+        public static readonly ExpectedSchema RealtimeDataVersionSchema = new(
+            TotalColumns: 4,
+            RootKey: "dataversion",
+            Columns: new ExpectedColumn[]
+            {
+                new(0, "data_version"u8.ToArray()),
+                new(1, "seqnum"u8.ToArray()),
+                new(2, "trade_date"u8.ToArray()),
+                new(3, "trade_session_date"u8.ToArray()),
+            });
+
+        // ═══════════════════════════════════════════════════════════
+        // Real-time — Trades Stock (сделки по акциям)
+        // Источник: raw fixture trades-stock-raw.json
+        // rootKey: "trades", columnCount: 15, используем: все 15
+        //
+        // Внимание: rootKey совпадает с futures ("trades"),
+        // но набор и количество колонок разные.
+        // Парсер выбирает схему по контексту вызова (stock vs futures endpoint).
+        // ═══════════════════════════════════════════════════════════
+
+        public static readonly ExpectedSchema RealtimeTradesStockSchema = new(
+            TotalColumns: 15,
+            RootKey: "trades",
+            Columns: new ExpectedColumn[]
+            {
+                new(0,  "TRADENO"u8.ToArray()),
+                new(1,  "TRADETIME"u8.ToArray()),
+                new(2,  "BOARDID"u8.ToArray()),
+                new(3,  "SECID"u8.ToArray()),
+                new(4,  "PRICE"u8.ToArray()),
+                new(5,  "QUANTITY"u8.ToArray()),
+                new(6,  "VALUE"u8.ToArray()),
+                new(7,  "PERIOD"u8.ToArray()),
+                new(8,  "TRADETIME_GRP"u8.ToArray()),
+                new(9,  "SYSTIME"u8.ToArray()),
+                new(10, "BUYSELL"u8.ToArray()),
+                new(11, "DECIMALS"u8.ToArray()),
+                new(12, "TRADINGSESSION"u8.ToArray()),
+                new(13, "TRADEDATE"u8.ToArray()),
+                new(14, "TRADE_SESSION_DATE"u8.ToArray()),
+            });
+
+        // ═══════════════════════════════════════════════════════════
+        // Real-time — Trades Futures (сделки по фьючерсам)
+        // Источник: raw fixture trades-futures-raw.json
+        // rootKey: "trades", columnCount: 13, используем: все 13
+        //
+        // Внимание: rootKey совпадает со stock ("trades"),
+        // но набор и количество колонок разные.
+        // Парсер выбирает схему по контексту вызова (stock vs futures endpoint).
+        // ═══════════════════════════════════════════════════════════
+
+        public static readonly ExpectedSchema RealtimeTradesFuturesSchema = new(
+            TotalColumns: 13,
+            RootKey: "trades",
+            Columns: new ExpectedColumn[]
+            {
+                new(0,  "TRADENO"u8.ToArray()),
+                new(1,  "BOARDNAME"u8.ToArray()),
+                new(2,  "SECID"u8.ToArray()),
+                new(3,  "TRADEDATE"u8.ToArray()),
+                new(4,  "TRADETIME"u8.ToArray()),
+                new(5,  "PRICE"u8.ToArray()),
+                new(6,  "QUANTITY"u8.ToArray()),
+                new(7,  "SYSTIME"u8.ToArray()),
+                new(8,  "RECNO"u8.ToArray()),
+                new(9,  "OPENPOSITION"u8.ToArray()),
+                new(10, "OFFMARKETDEAL"u8.ToArray()),
+                new(11, "BUYSELL"u8.ToArray()),
+                new(12, "TRADE_SESSION_DATE"u8.ToArray()),
+            });
+
+        // ═══════════════════════════════════════════════════════════
+        // Real-time — Trades Yields (блок доходности сделок)
+        // Источник: raw fixtures trades-stock-raw.json, trades-futures-raw.json
+        // rootKey: "trades_yields", columnCount: 2, используем: все 2
+        //
+        // В текущих raw samples блок приходит с columns, но без data.
+        // Схема нужна, чтобы parser фиксировал наличие блока
+        // и не падал при валидации.
+        // ═══════════════════════════════════════════════════════════
+
+        public static readonly ExpectedSchema RealtimeTradesYieldsSchema = new(
+            TotalColumns: 2,
+            RootKey: "trades_yields",
+            Columns: new ExpectedColumn[]
+            {
+                new(0, "boardid"u8.ToArray()),
+                new(1, "secid"u8.ToArray()),
+            });
 
         // ═══════════════════════════════════════════════════════════
         // Обратная совместимость
