@@ -231,30 +231,35 @@ namespace History_DataMoex.Clients
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(
-            string method,
-            Dictionary<string, string>? queryParams = null,
-            CancellationToken cancellationToken = default)
+    string method,
+    Dictionary<string, string>? queryParams = null,
+    CancellationToken cancellationToken = default)
         {
-            string requestUrl = _options.IssBaseUrl + method;
+            string requestUrl = _options.ApimBaseUrl + method;           // ← APIM, не ISS
             queryParams ??= new Dictionary<string, string>();
             if (queryParams.Count > 0)
             {
                 QueryString queryString = QueryString.Create(queryParams);
                 requestUrl += queryString.ToString();
             }
+            EnsureApiKeyConfigured();                                    // ← проверка ключа
             using var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Add("Authorization", $"Bearer {_options.AlgKey}");  // ← Bearer
             try
             {
-                var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                var response = await _httpClient.SendAsync(
+                    request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                 HttpClientHelpers.EnsureSuccessOrThrow(response, method);
                 return response;
             }
             catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
             {
                 var timeoutEx = new MoexTimeoutException(
-                    $"MOEX request timeout for {method}", method, "http_client", _options.RequestTimeout, ex);
+                    $"MOEX request timeout for {method}", method, "http_client",
+                    _options.RequestTimeout, ex);
                 MoexLogMessages.RequestFailed(_logger, timeoutEx,
-                    MoexLogSources.RealtimeRest, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                    MoexLogSources.RealtimeRest, method, timeoutEx.ErrorCategory,
+                    null, timeoutEx.TimeoutSource, timeoutEx.Message);
                 throw timeoutEx;
             }
             catch (TimeoutRejectedException ex)
@@ -262,14 +267,26 @@ namespace History_DataMoex.Clients
                 var timeoutEx = new MoexTimeoutException(
                     $"MOEX attempt timeout for {method}", method, "polly_attempt", null, ex);
                 MoexLogMessages.RequestFailed(_logger, timeoutEx,
-                    MoexLogSources.RealtimeRest, method, timeoutEx.ErrorCategory, null, timeoutEx.TimeoutSource, timeoutEx.Message);
+                    MoexLogSources.RealtimeRest, method, timeoutEx.ErrorCategory,
+                    null, timeoutEx.TimeoutSource, timeoutEx.Message);
                 throw timeoutEx;
             }
             catch (MoexHttpException ex)
             {
                 MoexLogMessages.RequestFailed(_logger, ex,
-                    MoexLogSources.RealtimeRest, method, ex.ErrorCategory, (HttpStatusCode?)ex.StatusCode, null, ex.Message);
+                    MoexLogSources.RealtimeRest, method, ex.ErrorCategory,
+                    (HttpStatusCode?)ex.StatusCode, null, ex.Message);
                 throw;
+            }
+        }
+
+        private void EnsureApiKeyConfigured()
+        {
+            if (string.IsNullOrWhiteSpace(_options.AlgKey))
+            {
+                throw new InvalidOperationException(
+                    "MOEX ALGOPACK API key is not configured. " +
+                    "Set MoexAlg:Key via user-secrets or environment variable.");
             }
         }
 
