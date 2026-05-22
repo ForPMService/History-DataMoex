@@ -27,12 +27,7 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var result = await client.GetOrderbookStockAsync(ticker, ct);
-                return Results.Ok(new
-                {
-                    rows = result.Rows.Count,
-                    dataVersion = result.DataVersion,
-                    data = result.Rows,
-                });
+                return Results.Ok(result);
             });
 
             group.MapGet("/orderbook-futures/{ticker}", async (
@@ -41,12 +36,7 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var result = await client.GetOrderbookFuturesAsync(ticker, ct);
-                return Results.Ok(new
-                {
-                    rows = result.Rows.Count,
-                    dataVersion = result.DataVersion,
-                    data = result.Rows,
-                });
+                return Results.Ok(result);
             });
 
             group.MapGet("/trades-stock/{ticker}", async (
@@ -55,15 +45,7 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var result = await client.GetTradesStockAsync(ticker, cancellationToken: ct);
-                return Results.Ok(new
-                {
-                    rows = result.Rows.Count,
-                    dataVersion = result.DataVersion,
-                    yieldsCount = result.Yields.Count,
-                    firstTradeNo = result.Rows.Count > 0 ? result.Rows[0].TradeNo : null,
-                    lastTradeNo = result.Rows.Count > 0 ? result.Rows[^1].TradeNo : null,
-                    data = result.Rows,
-                });
+                return Results.Ok(result);
             });
 
             group.MapGet("/trades-futures/{ticker}", async (
@@ -72,15 +54,7 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var result = await client.GetTradesFuturesAsync(ticker, cancellationToken: ct);
-                return Results.Ok(new
-                {
-                    rows = result.Rows.Count,
-                    dataVersion = result.DataVersion,
-                    yieldsCount = result.Yields.Count,
-                    firstTradeNo = result.Rows.Count > 0 ? result.Rows[0].TradeNo : null,
-                    lastTradeNo = result.Rows.Count > 0 ? result.Rows[^1].TradeNo : null,
-                    data = result.Rows,
-                });
+                return Results.Ok(result);
             });
 
             group.MapGet("/candles-today-stock/{ticker}", async (
@@ -89,13 +63,9 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var tradeDate = DateOnly.FromDateTime(DateTime.Today);
-                var result = await client.GetCandlesTodayStockAsync(ticker, tradeDate, interval: 1, ct);
-                return Results.Ok(new
-                {
-                    rows = result.Count,
-                    tradeDate = tradeDate.ToString("yyyy-MM-dd"),
-                    data = result,
-                });
+                var result = await client.GetCandlesTodayStockAsync(
+                    ticker, tradeDate, interval: 1, cancellationToken: ct);
+                return Results.Ok(result);
             });
 
             group.MapGet("/candles-today-futures/{ticker}", async (
@@ -104,13 +74,9 @@ namespace History_DataMoex.Endpoints
                 CancellationToken ct) =>
             {
                 var tradeDate = DateOnly.FromDateTime(DateTime.Today);
-                var result = await client.GetCandlesTodayFuturesAsync(ticker, tradeDate, interval: 1, ct);
-                return Results.Ok(new
-                {
-                    rows = result.Count,
-                    tradeDate = tradeDate.ToString("yyyy-MM-dd"),
-                    data = result,
-                });
+                var result = await client.GetCandlesTodayFuturesAsync(
+                    ticker, tradeDate, interval: 1, cancellationToken: ct);
+                return Results.Ok(result);
             });
 
             // ═══════════════════════════════════════════════════════════
