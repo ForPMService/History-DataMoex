@@ -221,6 +221,81 @@ namespace History_DataMoex.Endpoints
                     cancellationToken: ct);
                 return Results.Text(raw, "application/json");
             });
+            // ── В DebugEndpoints.cs, внутри MapDebugEndpoints, перед return routes; ──
+
+            // ═══════════════════════════════════════════════
+            // Фаза 2–4: Real-time raw — orderbook, trades, candles today
+            // Все через APIM (требуют Bearer)
+            // ═══════════════════════════════════════════════
+
+            // ── Orderbook ──
+
+            routes.MapGet("/debug/orderbook-stock-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string raw = await algClient.GetRaw(
+                    "/engines/stock/markets/shares/boards/TQBR/securities/SBER/orderbook.json",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
+            routes.MapGet("/debug/orderbook-futures-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string raw = await algClient.GetRaw(
+                    "/engines/futures/markets/forts/boards/RFUD/securities/SVM6/orderbook.json",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
+            // ── Trades ──
+
+            routes.MapGet("/debug/trades-stock-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string raw = await algClient.GetRaw(
+                    "/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
+            routes.MapGet("/debug/trades-futures-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string raw = await algClient.GetRaw(
+                    "/engines/futures/markets/forts/boards/RFUD/securities/SVM6/trades.json",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
+            // ── Candles today ──
+
+            routes.MapGet("/debug/candles-today-stock-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string today = DateTime.UtcNow.AddHours(3).ToString("yyyy-MM-dd");
+                string raw = await algClient.GetRaw(
+                    $"/engines/stock/markets/shares/boards/TQBR/securities/SBER/candles.json?interval=1&from={today}&till={today}",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
+            routes.MapGet("/debug/candles-today-futures-raw", async (
+                MoexHttpAlgClient algClient,
+                CancellationToken ct) =>
+            {
+                string today = DateTime.UtcNow.AddHours(3).ToString("yyyy-MM-dd");
+                string raw = await algClient.GetRaw(
+                    $"/engines/futures/markets/forts/boards/RFUD/securities/SVM6/candles.json?interval=1&from={today}&till={today}",
+                    cancellationToken: ct);
+                return Results.Text(raw, "application/json");
+            });
+
             return routes;
         }
 

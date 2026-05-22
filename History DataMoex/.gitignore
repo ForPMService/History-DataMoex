@@ -10,7 +10,8 @@ obj/
 *.user
 *.suo
 .DS_Store
-
+README.md
+.docx
 # Local appsettings and secrets
 appsettings.*.local.json
 secrets/

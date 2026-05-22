@@ -17,6 +17,9 @@ Thumbs.db
 secrets/
 docs/
 appsettings.*.local.json
+README.md
+.docx
+
 
 # Локальные файлы (не код)
 *.docx
