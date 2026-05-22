@@ -18,7 +18,7 @@ namespace History_DataMoex.Parsing
     /// Candles today парсятся существующим ParsingAlgUtf8.ParseAlgCandles —
     /// здесь для них метода нет.
     /// </summary>
-    public class ParsingRealtimeRestUtf8
+    public static class ParsingRealtimeRestUtf8
     {
         // ═══════════════════════════════════════════════════════════
         // ParseOrderbook — orderbook + dataversion (2 прохода)

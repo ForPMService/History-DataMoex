@@ -146,7 +146,45 @@ public static class MoexClientServiceCollectionExtensions
                 .CreateLogger($"{typeof(MoexHttpCalendarClient).FullName}.MoexRetryPolicy");
             options.Retry.OnRetry = args => OnRetryHandler(args, logger, MoexLogSources.Calendar);
         });
+        // ─────────────────────────────────────────────────────────────────
 
+        // ══════════════════════════════════════════════
+        // Realtime REST Client
+        // ISS base URL (публичный, без API-ключа).
+        // Общий rate limiter, logging handler, Polly resilience.
+        // ══════════════════════════════════════════════
+        services.AddHttpClient<MoexRealtimeRestClient>((sp, client) =>
+        {
+            MoexOptions options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            client.Timeout = options.RequestTimeout;
+        }).ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<MoexOptions>>().Value;
+            return new SocketsHttpHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+                MaxConnectionsPerServer = options.MaxConnectionsPerServer,
+            };
+        })
+        .AddHttpMessageHandler(sp => new MoexRateLimitHandler(
+            sp.GetRequiredService<RateLimiter>(),
+            sp.GetRequiredService<IOptions<MoexOptions>>().Value,
+            sp.GetRequiredService<ILogger<MoexRateLimitHandler>>()))
+        .AddHttpMessageHandler(sp => new MoexHttpLoggingHandler(
+            sp.GetRequiredService<ILogger<MoexHttpLoggingHandler>>(),
+            MoexLogSources.RealtimeRest))
+        .AddStandardResilienceHandler(options =>
+        {
+            ConfigureStandardResilience(options);
+        })
+        .Configure((options, sp) =>
+        {
+            var logger = sp.GetRequiredService<ILoggerFactory>()
+                .CreateLogger($"{typeof(MoexRealtimeRestClient).FullName}.MoexRetryPolicy");
+            options.Retry.OnRetry = args => OnRetryHandler(args, logger, MoexLogSources.RealtimeRest);
+        });
         return services;
     }
 
