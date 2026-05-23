@@ -314,21 +314,47 @@ namespace History_DataMoex.Parsing
                 string? timeTill = null;
                 DateTime? updateTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradingsession 2=boardid 3=secid 4=type 5=time_from 6=time_till 7=updatetime
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: tradingSession = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: boardId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: secId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: type = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: timeFrom = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: timeTill = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradingSession = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: boardId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: type = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: timeFrom = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: timeTill = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarStockSessionDTO
                 {
@@ -368,20 +394,46 @@ namespace History_DataMoex.Parsing
                 DateTime? timeTill = null;
                 DateTime? updateTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=trade_session_date 1=boardid 2=secid 3=type 4=time_from 5=time_till 6=updatetime
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: boardId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: type = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: timeFrom = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: timeTill = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: boardId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: type = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: timeFrom = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: timeTill = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarFuturesSessionDTO
                 {
@@ -416,15 +468,41 @@ namespace History_DataMoex.Parsing
                 string? type = null;
                 string? title = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=type 1=title
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: type = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: title = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: type = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: title = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarSessionTypeDTO
                 {
@@ -461,23 +539,49 @@ namespace History_DataMoex.Parsing
                 string? expirationTime = null;
                 int? weekendSession = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=secid 1=asset_code 2=shortname 3=exec_type 4=contract_name 5=expiration_date 6=end_date 7=expiration_type 8=expiration_time 9=weekend_session
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: secId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: shortName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: execType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: contractName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: expirationDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: endDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: expirationType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8: expirationTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9: weekendSession = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: shortName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: execType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: contractName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: expirationDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: endDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: expirationType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: expirationTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: weekendSession = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarFortsContractDTO
                 {
@@ -523,24 +627,50 @@ namespace History_DataMoex.Parsing
                 string? expirationTime = null;
                 int? weekendSession = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=asset_type_name 1=asset_code 2=series_name 3=series_type 4=exec_type 5=margin_style 6=contract_name 7=expiration_date 8=expiration_type 9=expiration_time 10=weekend_session
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: assetTypeName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: seriesName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: seriesType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: execType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: marginStyle = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: contractName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: expirationDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8: expirationType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9: expirationTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: weekendSession = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: assetTypeName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: seriesName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: seriesType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: execType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: marginStyle = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: contractName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: expirationDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: expirationType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: expirationTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: weekendSession = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarOptionsSeriesDTO
                 {
@@ -882,23 +1012,49 @@ namespace History_DataMoex.Parsing
                 string? stockTradeSessionDate = null;
                 string? stockReason = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=currency_workday 2=currency_trade_session_date 3=currency_reason 4=futures_workday 5=futures_trade_session_date 6=futures_reason 7=stock_workday 8=stock_trade_session_date 9=stock_reason
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: currencyWorkday = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: currencyTradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: currencyReason = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: futuresWorkday = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: futuresTradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: futuresReason = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: stockWorkday = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8: stockTradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9: stockReason = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: currencyWorkday = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: currencyTradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: currencyReason = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: futuresWorkday = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: futuresTradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: futuresReason = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: stockWorkday = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: stockTradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: stockReason = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarOffDaysAllDTO
                 {
@@ -938,18 +1094,44 @@ namespace History_DataMoex.Parsing
                 string? reason = null;
                 DateTime? updateTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=is_traded 2=trade_session_date 3=reason 4=updatetime
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: isTraded = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: tradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: reason = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: isTraded = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: tradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: reason = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarOffDaysMarketDTO
                 {
@@ -987,21 +1169,47 @@ namespace History_DataMoex.Parsing
                 string? changeDate = null;
                 DateTime? updateTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=secid 1=reason_id 2=date_from 3=date_till 4=boardid 5=settle_codes 6=changedate 7=updatetime
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: secId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: reasonId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: dateFrom = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: dateTill = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: boardId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: settleCodes = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: changeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: reasonId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: dateFrom = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: dateTill = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: boardId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: settleCodes = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: changeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarSuspendedDTO
                 {
@@ -1036,15 +1244,41 @@ namespace History_DataMoex.Parsing
                 int? id = null;
                 string? title = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=id 1=title
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: id = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: title = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: id = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: title = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarSuspendedReasonDTO
                 {
@@ -1077,19 +1311,45 @@ namespace History_DataMoex.Parsing
                 string? beforeValue = null;
                 string? afterValue = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=updatetime 1=action 2=secid 3=attribute_name 4=before_value 5=after_value
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: action = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: attributeName = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: beforeValue = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: afterValue = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: updateTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: action = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: attributeName = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: beforeValue = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: afterValue = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarSecurityChangeDTO
                 {
@@ -1123,16 +1383,42 @@ namespace History_DataMoex.Parsing
                 string? type = null;
                 string? title = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=name 1=type 2=title
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: name = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: type = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: title = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: name = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: type = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: title = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new CalendarSecurityAttributeDTO
                 {

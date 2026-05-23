@@ -63,14 +63,9 @@ namespace History_DataMoex.Parsing
         // ═══════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Чтение массива строк данных свечей через ReadDataRow.
-        /// 
-        /// ReadDataRow (A3) итерируется по TotalColumns позициям,
-        /// вызывает делегат только для нужных колонок,
-        /// остальные пропускает.
-        /// 
-        /// Для свечей TotalColumns == Columns.Length == 8,
-        /// пропусков нет, но паттерн единый для всех парсеров.
+        /// Чтение массива строк данных свечей.
+        /// Инлайн-цикл по schema.TotalColumns позициям без делегата.
+        /// Для свечей schema.TotalColumns == schema.Columns.Length == 8.
         /// </summary>
         private static void ReadCandlesData(
             ref Utf8JsonReader reader,
@@ -82,30 +77,51 @@ namespace History_DataMoex.Parsing
             int rowIndex = 0;
             while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
             {
-                // reader стоит на StartArray внутреннего массива (одна строка)
                 double? open = null, close = null, high = null, low = null;
                 double? value = null, volume = null;
                 DateTime? begin = null, end = null;
 
-                // A3: ReadDataRow проходит по TotalColumns позициям,
-                // вызывает делегат только для позиций из schema.Columns.
-                // A4: если строка короче TotalColumns — MoexSchemaMismatchException.
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=open 1=close 2=high 3=low 4=value 5=volume 6=begin 7=end
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: open = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: close = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: high = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: low = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: value = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: volume = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            // A5: ReadDateTimeUtf8 без GetString()
-                            case 6: begin = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: end = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: open = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: close = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: high = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: low = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: value = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: volume = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: begin = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: end = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 candlesList.Add(new CandlesDTO
                 {
@@ -217,40 +233,66 @@ namespace History_DataMoex.Parsing
                 DateTime? sysTime = null;
                 int? secPrOpen = null, secPrHigh = null, secPrLow = null, secPrClose = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=pr_open 4=pr_high 5=pr_low 6=pr_close 7=pr_std 8=vol 9=val 10=trades 11=pr_vwap 12=pr_change 13=trades_b 14=trades_s 15=val_b 16=val_s 17=vol_b 18=vol_s 19=disb 20=pr_vwap_b 21=pr_vwap_s 22=SYSTIME 23=sec_pr_open 24=sec_pr_high 25=sec_pr_low 26=sec_pr_close
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  tradeDate  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  tradeTime  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  secId      = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  prOpen     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  prHigh     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  prLow      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  prClose    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  prStd      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  vol        = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  val        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: trades     = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: prVwap     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: prChange   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 13: tradesB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 14: tradesS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 15: valB       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 16: valS       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 17: volB       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 18: volS       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 19: disb       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 20: prVwapB    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 21: prVwapS    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 22: sysTime    = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 23: secPrOpen  = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 24: secPrHigh  = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 25: secPrLow   = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 26: secPrClose = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: prOpen = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: prHigh = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: prLow = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: prClose = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: prStd = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: vol = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: val = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: trades = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: prVwap = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: prChange = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 13: tradesB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 14: tradesS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 15: valB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 16: valS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 17: volB = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 18: volS = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 19: disb = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 20: prVwapB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 21: prVwapS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 22: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 23: secPrOpen = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 24: secPrHigh = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 25: secPrLow = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 26: secPrClose = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new SuperCandlesTradeStats5mDTO
                 {
@@ -381,46 +423,72 @@ namespace History_DataMoex.Parsing
                 int? secPrOpen = null, secPrHigh = null, secPrLow = null, secPrClose = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=asset_code 4=pr_open 5=pr_high 6=pr_low 7=pr_close 8=pr_std 9=vol 10=val 11=trades 12=pr_vwap 13=pr_change 14=trades_b 15=trades_s 16=val_b 17=val_s 18=vol_b 19=vol_s 20=disb 21=pr_vwap_b 22=pr_vwap_s 23=im 24=oi_open 25=oi_high 26=oi_low 27=oi_close 28=sec_pr_open 29=sec_pr_high 30=sec_pr_low 31=sec_pr_close 32=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  tradeDate  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  tradeTime  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  secId      = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  assetCode  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  prOpen     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  prHigh     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  prLow      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  prClose    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  prStd      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  vol        = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: val        = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: trades     = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: prVwap     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 13: prChange   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 14: tradesB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 15: tradesS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 16: valB       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 17: valS       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 18: volB       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 19: volS       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 20: disb       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 21: prVwapB    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 22: prVwapS    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 23: im         = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 24: oiOpen     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 25: oiHigh     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 26: oiLow      = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 27: oiClose    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 28: secPrOpen  = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 29: secPrHigh  = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 30: secPrLow   = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 31: secPrClose = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 32: sysTime    = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: prOpen = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: prHigh = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: prLow = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: prClose = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: prStd = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: vol = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: val = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: trades = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: prVwap = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 13: prChange = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 14: tradesB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 15: tradesS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 16: valB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 17: valS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 18: volB = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 19: volS = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 20: disb = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 21: prVwapB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 22: prVwapS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 23: im = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 24: oiOpen = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 25: oiHigh = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 26: oiLow = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 27: oiClose = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 28: secPrOpen = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 29: secPrHigh = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 30: secPrLow = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 31: secPrClose = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 32: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new SuperCandlesFuturesTradeStats5mDTO
                 {
@@ -553,34 +621,60 @@ namespace History_DataMoex.Parsing
                 double? vwapB = null, vwapS = null, vwapB1Mio = null, vwapS1Mio = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=spread_bbo 4=spread_lv10 5=spread_1mio 6=levels_b 7=levels_s 8=vol_b 9=vol_s 10=val_b 11=val_s 12=imbalance_vol_bbo 13=imbalance_val_bbo 14=imbalance_vol 15=imbalance_val 16=vwap_b 17=vwap_s 18=vwap_b_1mio 19=vwap_s_1mio 20=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  tradeDate        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  tradeTime        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  secId            = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  spreadBbo        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  spreadLv10       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  spread1Mio       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  levelsB          = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  levelsS          = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  volB             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  volS             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: valB             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: valS             = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: imbalanceVolBbo  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 13: imbalanceValBbo  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 14: imbalanceVol     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 15: imbalanceVal     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 16: vwapB            = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 17: vwapS            = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 18: vwapB1Mio        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 19: vwapS1Mio        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 20: sysTime          = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: spreadBbo = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: spreadLv10 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: spread1Mio = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: levelsB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: levelsS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: volB = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: volS = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: valB = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: valS = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: imbalanceVolBbo = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 13: imbalanceValBbo = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 14: imbalanceVol = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 15: imbalanceVal = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 16: vwapB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 17: vwapS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 18: vwapB1Mio = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 19: vwapS1Mio = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 20: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new SuperCandlesOrderBookStats5mDTO
                 {
@@ -705,48 +799,74 @@ namespace History_DataMoex.Parsing
                 double? vwapSL3 = null, vwapSL5 = null, vwapSL10 = null, vwapSL20 = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=asset_code 4=mid_price 5=micro_price 6=spread_l1 7=spread_l2 8=spread_l3 9=spread_l5 10=spread_l10 11=spread_l20 12=levels_b 13=levels_s 14=vol_b_l1 15=vol_b_l2 16=vol_b_l3 17=vol_b_l5 18=vol_b_l10 19=vol_b_l20 20=vol_s_l1 21=vol_s_l2 22=vol_s_l3 23=vol_s_l5 24=vol_s_l10 25=vol_s_l20 26=vwap_b_l3 27=vwap_b_l5 28=vwap_b_l10 29=vwap_b_l20 30=vwap_s_l3 31=vwap_s_l5 32=vwap_s_l10 33=vwap_s_l20 34=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  tradeDate  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  tradeTime  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  secId      = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  assetCode  = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  midPrice   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  microPrice = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  spreadL1   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  spreadL2   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  spreadL3   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  spreadL5   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: spreadL10  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: spreadL20  = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: levelsB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 13: levelsS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 14: volBL1     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 15: volBL2     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 16: volBL3     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 17: volBL5     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 18: volBL10    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 19: volBL20    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 20: volSL1     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 21: volSL2     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 22: volSL3     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 23: volSL5     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 24: volSL10    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 25: volSL20    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 26: vwapBL3    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 27: vwapBL5    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 28: vwapBL10   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 29: vwapBL20   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 30: vwapSL3    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 31: vwapSL5    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 32: vwapSL10   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 33: vwapSL20   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 34: sysTime    = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: midPrice = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: microPrice = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: spreadL1 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: spreadL2 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: spreadL3 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: spreadL5 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: spreadL10 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: spreadL20 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: levelsB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 13: levelsS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 14: volBL1 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 15: volBL2 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 16: volBL3 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 17: volBL5 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 18: volBL10 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 19: volBL20 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 20: volSL1 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 21: volSL2 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 22: volSL3 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 23: volSL5 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 24: volSL10 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 25: volSL20 = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 26: vwapBL3 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 27: vwapBL5 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 28: vwapBL10 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 29: vwapBL20 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 30: vwapSL3 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 31: vwapSL5 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 32: vwapSL10 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 33: vwapSL20 = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 34: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new SuperCandlesFuturesOrderBookStats5mDTO
                 {
@@ -890,39 +1010,65 @@ namespace History_DataMoex.Parsing
                 long? cancelOrders = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=put_orders_b 4=put_orders_s 5=put_val_b 6=put_val_s 7=put_vol_b 8=put_vol_s 9=put_vwap_b 10=put_vwap_s 11=put_vol 12=put_val 13=put_orders 14=cancel_orders_b 15=cancel_orders_s 16=cancel_val_b 17=cancel_val_s 18=cancel_vol_b 19=cancel_vol_s 20=cancel_vwap_b 21=cancel_vwap_s 22=cancel_vol 23=cancel_val 24=cancel_orders 25=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  tradeDate     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  tradeTime     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  secId         = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  putOrdersB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  putOrdersS    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  putValB       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  putValS       = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  putVolB       = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  putVolS       = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  putVwapB      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: putVwapS      = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: putVol        = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: putVal        = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 13: putOrders     = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 14: cancelOrdersB = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 15: cancelOrdersS = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 16: cancelValB    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 17: cancelValS    = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 18: cancelVolB    = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 19: cancelVolS    = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 20: cancelVwapB   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 21: cancelVwapS   = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 22: cancelVol     = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 23: cancelVal     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 24: cancelOrders  = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 25: sysTime       = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: putOrdersB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: putOrdersS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: putValB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: putValS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: putVolB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: putVolS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: putVwapB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: putVwapS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: putVol = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: putVal = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 13: putOrders = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 14: cancelOrdersB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 15: cancelOrdersS = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 16: cancelValB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 17: cancelValS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 18: cancelVolB = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 19: cancelVolS = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 20: cancelVwapB = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 21: cancelVwapS = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 22: cancelVol = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 23: cancelVal = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 24: cancelOrders = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 25: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new SuperCandlesOrderStats5mDTO
                 {
@@ -1038,20 +1184,46 @@ namespace History_DataMoex.Parsing
                 double? value = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=metric 4=value 5=reference 6=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: metric    = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: metric = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: value = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: reference = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new Hi2AssetDTO
                 {
@@ -1148,21 +1320,47 @@ namespace History_DataMoex.Parsing
                 double? value = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=asset_code 4=metric 5=value 6=reference 7=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: metric    = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: metric = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: value = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: reference = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new Hi2FuturesDTO
                 {
@@ -1259,21 +1457,47 @@ namespace History_DataMoex.Parsing
                 double? threshold = null, value = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=alert_type 4=threshold 5=value 6=reference 7=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: alertType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: threshold = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: alertType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: threshold = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: value = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: reference = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new MegaAlertsAssetsDTO
                 {
@@ -1371,22 +1595,48 @@ namespace History_DataMoex.Parsing
                 double? threshold = null, value = null;
                 DateTime? sysTime = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=tradedate 1=tradetime 2=secid 3=asset_code 4=alert_type 5=threshold 6=value 7=reference 8=SYSTIME
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0: tradeDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1: tradeTime = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2: secId     = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3: assetCode = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4: alertType = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5: threshold = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6: value     = ParseHelpersUtf8.ReadDouble(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7: reference = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8: sysTime   = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: secId = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: assetCode = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: alertType = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: threshold = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: value = ParseHelpersUtf8.ReadDouble(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: reference = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new MegaAlertsFuturesDTO
                 {
@@ -1458,30 +1708,56 @@ namespace History_DataMoex.Parsing
             {
                 int? sessId = null, seqNum = null;
                 string? tradeDate = null, tradeTime = null, ticker = null, clGroup = null;
-                long? pos = null, posLong = null, posShort = null, posLongNum = null, posShortNum = null;
+                long? position = null, posLong = null, posShort = null, posLongNum = null, posShortNum = null;
                 DateTime? sysTime = null;
                 string? tradeSessionDate = null;
 
-                ParseHelpersUtf8.ReadDataRow(ref reader, schema, rowIndex,
-                    (ref Utf8JsonReader r, int idx) =>
+                {
+                    int expectedIdx = 0;
+                    // 0=sess_id 1=seqnum 2=tradedate 3=tradetime 4=ticker 5=clgroup 6=pos 7=pos_long 8=pos_short 9=pos_long_num 10=pos_short_num 11=systime 12=trade_session_date
+                    for (int pos = 0; pos < schema.TotalColumns; pos++)
                     {
-                        switch (idx)
+                        if (!reader.Read())
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                                $"[{schema.RootKey}] Короткая строка данных: " +
+                                $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                $"(строка {rowIndex}).");
+
+                        if (expectedIdx < schema.Columns.Length
+                            && pos == schema.Columns[expectedIdx].SourceIndex)
                         {
-                            case 0:  sessId           = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 1:  seqNum           = ParseHelpersUtf8.ReadInt(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 2:  tradeDate        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 3:  tradeTime        = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 4:  ticker           = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 5:  clGroup          = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 6:  pos              = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 7:  posLong          = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 8:  posShort         = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 9:  posLongNum       = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 10: posShortNum      = ParseHelpersUtf8.ReadLong(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 11: sysTime          = ParseHelpersUtf8.ReadDateTimeUtf8(ref r, rowIndex, idx, schema.RootKey); break;
-                            case 12: tradeSessionDate = ParseHelpersUtf8.ReadString(ref r, rowIndex, idx, schema.RootKey); break;
+                            if (reader.TokenType != JsonTokenType.Null)
+                            {
+                                switch (expectedIdx)
+                                {
+                                    case 0: sessId = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 1: seqNum = ParseHelpersUtf8.ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 2: tradeDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 3: tradeTime = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 4: ticker = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 5: clGroup = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 6: position = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 7: posLong = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 8: posShort = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 9: posLongNum = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 10: posShortNum = ParseHelpersUtf8.ReadLong(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 11: sysTime = ParseHelpersUtf8.ReadDateTimeUtf8(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                    case 12: tradeSessionDate = ParseHelpersUtf8.ReadString(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                }
+                            }
+
+                            expectedIdx++;
                         }
-                    });
+                    }
+
+                    if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                        ParseHelpersUtf8.SchemaMismatch(schema.RootKey,
+                            $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                }
 
                 list.Add(new FutoiDTO
                 {
@@ -1491,7 +1767,7 @@ namespace History_DataMoex.Parsing
                     TradeTime        = tradeTime,
                     Ticker           = ticker,
                     ClGroup          = clGroup,
-                    Pos              = pos,
+                    Pos              = position,
                     PosLong          = posLong,
                     PosShort         = posShort,
                     PosLongNum       = posLongNum,

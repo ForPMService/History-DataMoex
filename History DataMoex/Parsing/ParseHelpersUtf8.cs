@@ -179,75 +179,6 @@ namespace History_DataMoex.Parsing
         // Универсальное чтение строки данных (A3 + A4)
         // ═══════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Читает одну строку data-массива из TotalColumns позиций JSON.
-        /// 
-        /// Для каждой позиции:
-        /// — если позиция совпадает с schema.Columns[expectedIdx].SourceIndex,
-        ///   вызывает делегат onColumn(ref reader, expectedIdx) для записи в поле;
-        /// — иначе reader.TrySkip() — пропуск неиспользуемой колонки.
-        /// 
-        /// A4: если EndArray встретился до окончания ожидаемых колонок —
-        /// MoexSchemaMismatchException с понятным сообщением.
-        /// 
-        /// После вызова reader стоит на EndArray строки.
-        /// </summary>
-        internal delegate void ColumnReader(ref Utf8JsonReader reader, int expectedIdx);
-
-        internal static void ReadDataRow(
-            ref Utf8JsonReader reader,
-            ColumnAndNumbersForParsing.ExpectedSchema schema,
-            int rowIndex,
-            ColumnReader onColumn)
-        {
-            int expectedIdx = 0;
-
-            for (int pos = 0; pos < schema.TotalColumns; pos++)
-            {
-                if (!reader.Read())
-                    SchemaMismatch(schema.RootKey,
-                        $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
-
-                // A4: защита от короткой строки
-                if (reader.TokenType == JsonTokenType.EndArray)
-                {
-                    throw new MoexSchemaMismatchException(
-                        $"[{schema.RootKey}] Короткая строка данных: " +
-                        $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
-                        $"(строка {rowIndex}).",
-                        expectedColumns: schema.Columns
-                            .Select(c => System.Text.Encoding.UTF8.GetString(c.Name))
-                            .ToList(),
-                        actualColumns: new List<string>(),
-                        missingColumns: new List<string>(),
-                        dataNeedCode: schema.RootKey);
-                }
-
-                // Эта позиция нужна?
-                if (expectedIdx < schema.Columns.Length
-                    && pos == schema.Columns[expectedIdx].SourceIndex)
-                {
-                    if (reader.TokenType != JsonTokenType.Null)
-                    {
-                        onColumn(ref reader, expectedIdx);
-                    }
-                    expectedIdx++;
-                }
-                // Не нужна — значение уже прочитано Read(), просто идём дальше.
-                // TrySkip() не нужен: Read() уже сдвинул reader на скалярное значение.
-                // Для вложенных значений (объект/массив внутри data-строки) —
-                // такого в MOEX не бывает, но на всякий случай:
-                else if (reader.TokenType == JsonTokenType.StartObject
-                      || reader.TokenType == JsonTokenType.StartArray)
-                {
-                    reader.Skip();
-                }
-            }
-
-            // Прочитать EndArray строки
-            ReadAndExpect(ref reader, JsonTokenType.EndArray, $"data row {rowIndex}", schema.RootKey);
-        }
-
         // ═══════════════════════════════════════════════════════════
         // Чтение токенов
         // ═══════════════════════════════════════════════════════════
@@ -454,18 +385,47 @@ namespace History_DataMoex.Parsing
                     foundData = true;
                     ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", cursorKey);
 
+                    int rowIndex = 0;
                     while (reader.Read() && reader.TokenType == JsonTokenType.StartArray)
                     {
-                        ReadDataRow(ref reader, schema, 0,
-                            (ref Utf8JsonReader r, int idx) =>
+                        {
+                            int expectedIdx = 0;
+                            // 0=INDEX 1=TOTAL 2=PAGESIZE
+                            for (int pos = 0; pos < schema.TotalColumns; pos++)
                             {
-                                switch (idx)
+                                if (!reader.Read())
+                                    SchemaMismatch(schema.RootKey,
+                                        $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                                if (reader.TokenType == JsonTokenType.EndArray)
+                                    SchemaMismatch(schema.RootKey,
+                                        $"[{schema.RootKey}] Короткая строка данных: " +
+                                        $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                        $"(строка {rowIndex}).");
+
+                                if (expectedIdx < schema.Columns.Length
+                                    && pos == schema.Columns[expectedIdx].SourceIndex)
                                 {
-                                    case 0: index    = ReadInt(ref r, 0, idx, cursorKey); break;
-                                    case 1: total    = ReadInt(ref r, 0, idx, cursorKey); break;
-                                    case 2: pageSize = ReadInt(ref r, 0, idx, cursorKey); break;
+                                    if (reader.TokenType != JsonTokenType.Null)
+                                    {
+                                        switch (expectedIdx)
+                                        {
+                                            case 0: index = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                            case 1: total = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                            case 2: pageSize = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                        }
+                                    }
+
+                                    expectedIdx++;
                                 }
-                            });
+                            }
+
+                            if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                                SchemaMismatch(schema.RootKey,
+                                    $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                        }
+
+                        rowIndex++;
                     }
                     // reader стоит на EndArray внешнего data[]
                 }
@@ -538,18 +498,47 @@ namespace History_DataMoex.Parsing
                     foundData = true;
                     ReadAndExpect(ref reader, JsonTokenType.StartArray, "data", cursorKey);
 
+                    int rowIndex = 0;
                     while (reader.Read() && reader.TokenType == JsonTokenType.StartArray)
                     {
-                        ReadDataRow(ref reader, schema, 0,
-                            (ref Utf8JsonReader r, int idx) =>
+                        {
+                            int expectedIdx = 0;
+                            // 0=INDEX 1=TOTAL 2=PAGESIZE
+                            for (int pos = 0; pos < schema.TotalColumns; pos++)
                             {
-                                switch (idx)
+                                if (!reader.Read())
+                                    SchemaMismatch(schema.RootKey,
+                                        $"[{schema.RootKey}] Неожиданный конец JSON в строке {rowIndex}, позиция {pos}.");
+
+                                if (reader.TokenType == JsonTokenType.EndArray)
+                                    SchemaMismatch(schema.RootKey,
+                                        $"[{schema.RootKey}] Короткая строка данных: " +
+                                        $"ожидалось {schema.TotalColumns} колонок, получено {pos} " +
+                                        $"(строка {rowIndex}).");
+
+                                if (expectedIdx < schema.Columns.Length
+                                    && pos == schema.Columns[expectedIdx].SourceIndex)
                                 {
-                                    case 0: index    = ReadInt(ref r, 0, idx, cursorKey); break;
-                                    case 1: total    = ReadInt(ref r, 0, idx, cursorKey); break;
-                                    case 2: pageSize = ReadInt(ref r, 0, idx, cursorKey); break;
+                                    if (reader.TokenType != JsonTokenType.Null)
+                                    {
+                                        switch (expectedIdx)
+                                        {
+                                            case 0: index = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                            case 1: total = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                            case 2: pageSize = ReadInt(ref reader, rowIndex, expectedIdx, schema.RootKey); break;
+                                        }
+                                    }
+
+                                    expectedIdx++;
                                 }
-                            });
+                            }
+
+                            if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                                SchemaMismatch(schema.RootKey,
+                                    $"[{schema.RootKey}] Ожидался EndArray после {schema.TotalColumns} колонок (строка {rowIndex}).");
+                        }
+
+                        rowIndex++;
                     }
                     // reader стоит на EndArray внешнего data[]
                 }
