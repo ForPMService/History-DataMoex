@@ -150,7 +150,7 @@ public static class MoexClientServiceCollectionExtensions
 
         // ══════════════════════════════════════════════
         // Realtime REST Client
-        // Real-time запросы в этом клиенте идут через APIM с Bearer-ключом; ISS-путь без авторизации не является источником real-time данных для этого клиента и может отдавать задержанные данные или быть недоступен в зависимости от endpoint-а и подписки.
+        // ISS base URL (публичный, без API-ключа).
         // Общий rate limiter, logging handler, Polly resilience.
         // ══════════════════════════════════════════════
         services.AddHttpClient<MoexRealtimeRestClient>((sp, client) =>

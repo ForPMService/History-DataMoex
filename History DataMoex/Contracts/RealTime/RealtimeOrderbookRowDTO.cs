@@ -3,7 +3,7 @@ namespace History_DataMoex.Contracts.Dto.Realtime
     /// <summary>
     /// Одна строка стакана котировок MOEX real-time.
     /// 
-    /// Источник: APIM real-time path
+    /// Источник: ISS REST
     ///   stock  → /engines/stock/markets/shares/boards/TQBR/securities/{ticker}/orderbook.json
     ///   futures → /engines/futures/markets/forts/boards/RFUD/securities/{ticker}/orderbook.json
     /// 

@@ -3,7 +3,7 @@ namespace History_DataMoex.Contracts.Dto.Realtime
     /// <summary>
     /// Одна сделка по фьючерсу MOEX real-time.
     /// 
-    /// Источник: APIM real-time path
+    /// Источник: ISS REST
     ///   /engines/futures/markets/forts/boards/RFUD/securities/{ticker}/trades.json
     /// 
     /// Root key: "trades"

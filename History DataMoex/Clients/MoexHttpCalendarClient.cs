@@ -43,7 +43,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -68,7 +67,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -93,7 +91,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -120,7 +117,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -145,7 +141,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -211,7 +206,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -258,7 +252,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -290,7 +283,6 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
-                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<CalendarSuspendedDTO> page;
@@ -332,7 +324,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -364,7 +355,6 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
-                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<CalendarSecurityChangeDTO> page;

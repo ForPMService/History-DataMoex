@@ -3,7 +3,7 @@ namespace History_DataMoex.Contracts.Dto.Realtime
     /// <summary>
     /// Одна сделка по акции MOEX real-time.
     /// 
-    /// Источник: APIM real-time path
+    /// Источник: ISS REST
     ///   /engines/stock/markets/shares/boards/TQBR/securities/{ticker}/trades.json
     /// 
     /// Root key: "trades"

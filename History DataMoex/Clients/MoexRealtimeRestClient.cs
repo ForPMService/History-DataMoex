@@ -15,7 +15,7 @@ namespace History_DataMoex.Clients
     /// <summary>
     /// HTTP-клиент для real-time REST-данных MOEX (стакан, сделки, свечи текущего дня).
     /// 
-    /// Real-time запросы в этом клиенте идут через APIM с Bearer-ключом; ISS-путь без авторизации не является источником real-time данных для этого клиента и может отдавать задержанные данные или быть недоступен в зависимости от endpoint-а и подписки.
+    /// Использует ISS base URL (публичный, без API-ключа).
     /// Подключается к тому же HTTP pipeline: rate limiter, logging handler, Polly resilience.
     /// 
     /// Endpoint-ы:
@@ -82,7 +82,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -109,7 +108,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -193,7 +191,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {
@@ -219,7 +216,6 @@ namespace History_DataMoex.Clients
             using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                 await response.Content.ReadAsStreamAsync(cancellationToken),
                 contentLength,
-                _options.MaxResponseBytes,
                 cancellationToken);
             try
             {

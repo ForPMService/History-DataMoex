@@ -21,7 +21,6 @@
 
         public int MaxConnectionsPerServer { get; set; } = 10;
         public int MaxPagesPerLoad { get; set; } = 10_000;
-        public long MaxResponseBytes { get; set; } = 16L * 1024 * 1024;
 
         // ── Rate Limiter ────────────────────────────────────
 
