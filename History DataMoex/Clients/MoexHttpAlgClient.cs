@@ -73,6 +73,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
                 List<CandlesDTO> candlesList;
                 try
@@ -124,6 +125,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<Hi2AssetDTO> hi2Assets;
@@ -170,6 +172,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<Hi2FuturesDTO> hi2Futures;
@@ -215,6 +218,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<MegaAlertsAssetsDTO> megaAlerts;
@@ -259,6 +263,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<MegaAlertsFuturesDTO> megaAlertsFutures;
@@ -305,6 +310,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<SuperCandlesTradeStats5mDTO> tradeStats;
@@ -351,6 +357,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<SuperCandlesOrderBookStats5mDTO> orderBookStats;
@@ -397,6 +404,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<SuperCandlesOrderStats5mDTO> orderStats;
@@ -442,6 +450,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<SuperCandlesFuturesOrderBookStats5mDTO> orderBookStats;
@@ -517,6 +526,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<FutoiDTO> page;
@@ -559,6 +569,7 @@ namespace History_DataMoex.Clients
                 using var rentedArr = await RentedBuffer.RentFromStreamAsync(
                     await response.Content.ReadAsStreamAsync(cancellationToken),
                     contentLength,
+                    _options.MaxResponseBytes,
                     cancellationToken);
 
                 List<SuperCandlesFuturesTradeStats5mDTO> tradeStats;
